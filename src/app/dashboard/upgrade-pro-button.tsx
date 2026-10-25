@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/i18n/language-provider";
 
 export function UpgradeProButton() {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,11 +35,11 @@ export function UpgradeProButton() {
       }
 
       setLoading(false);
-      setError(data.error ?? "Failed to create checkout session");
+      setError(data.error ?? t.dashboard.checkoutFailed);
     } catch (err) {
       console.error("Checkout error:", err);
       setLoading(false);
-      setError("Failed to create checkout session");
+      setError(t.dashboard.checkoutFailed);
     }
   }
 
@@ -54,7 +56,7 @@ export function UpgradeProButton() {
         disabled={loading}
         className="inline-flex h-10 items-center justify-center rounded-lg bg-white px-5 text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {loading ? "Redirecting…" : "Upgrade to Pro ($9.9/mo)"}
+        {loading ? t.dashboard.upgradeRedirecting : t.dashboard.upgradePro}
       </button>
     </div>
   );

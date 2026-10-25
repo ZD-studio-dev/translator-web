@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useEffect, useState } from "react";
+import { LanguageToggle } from "@/components/language-toggle";
+import { useLanguage } from "@/i18n/language-provider";
 import { createClient } from "@/utils/supabase/client";
 
 function GoogleIcon() {
@@ -36,20 +38,27 @@ function GoogleIcon() {
 function LoginForm() {
   const searchParams = useSearchParams();
   const authError = searchParams.get("error") === "auth";
+  const { t } = useLanguage();
+  const l = t.login;
+  const c = t.common;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [googleLoading, setGoogleLoading] = useState(false);
   const [emailLoading, setEmailLoading] = useState(false);
-  const [error, setError] = useState<string | null>(
-    authError ? "Sign-in failed. Please try again." : null,
-  );
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setGoogleLoading(false);
     setEmailLoading(false);
   }, []);
+
+  useEffect(() => {
+    if (authError) {
+      setError(l.authFailed);
+    }
+  }, [authError, l.authFailed]);
 
   async function handleGoogleLogin() {
     setError(null);
@@ -84,7 +93,7 @@ function LoginForm() {
       window.location.assign("/dashboard");
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Sign-in failed. Please try again.",
+        err instanceof Error ? err.message : l.signInFailed,
       );
     } finally {
       setEmailLoading(false);
@@ -109,11 +118,11 @@ function LoginForm() {
         window.location.assign("/dashboard");
         return;
       }
-      setError("Check your email to confirm your account, then sign in.");
+      setError(l.confirmEmail);
       setMode("signin");
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Sign-up failed. Please try again.",
+        err instanceof Error ? err.message : l.signUpFailed,
       );
     } finally {
       setEmailLoading(false);
@@ -121,137 +130,142 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-full flex-col items-center justify-center bg-zinc-950 px-6 py-12 text-zinc-100">
-      <Link
-        href="/"
-        className="mb-8 text-sm font-semibold tracking-tight text-white"
-      >
-        ZD Translate
-      </Link>
-
-      <div className="w-full max-w-sm rounded-xl border border-zinc-800 bg-zinc-900/80 p-8 shadow-xl shadow-black/40">
-        <h1 className="text-center text-xl font-semibold text-white">
-          Sign in to your account
-        </h1>
-        <p className="mt-2 text-center text-sm text-zinc-400">
-          Use Google or your email to continue
-        </p>
-
-        {error ? (
-          <p
-            className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-center text-sm text-red-300"
-            role="alert"
-          >
-            {error}
-          </p>
-        ) : null}
-
-        <button
-          type="button"
-          onClick={handleGoogleLogin}
-          disabled={googleLoading || emailLoading}
-          className="mt-8 flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-zinc-600 bg-zinc-950 text-sm font-medium text-white transition-colors hover:border-zinc-500 hover:bg-zinc-900 disabled:cursor-not-allowed disabled:opacity-60"
+    <div className="flex min-h-full flex-col bg-zinc-950 text-zinc-100">
+      <div className="mx-auto flex w-full max-w-sm justify-end px-6 pt-6">
+        <LanguageToggle />
+      </div>
+      <div className="flex flex-1 flex-col items-center justify-center px-6 py-12">
+        <Link
+          href="/"
+          className="mb-8 text-sm font-semibold tracking-tight text-white"
         >
-          <GoogleIcon />
-          {googleLoading ? "Redirecting…" : "Continue with Google"}
-        </button>
+          {c.brand}
+        </Link>
 
-        <div className="relative my-8">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-zinc-700" />
+        <div className="w-full max-w-sm rounded-xl border border-zinc-800 bg-zinc-900/80 p-8 shadow-xl shadow-black/40">
+          <h1 className="text-center text-xl font-semibold text-white">
+            {l.title}
+          </h1>
+          <p className="mt-2 text-center text-sm text-zinc-400">{l.subtitle}</p>
+
+          {error ? (
+            <p
+              className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-center text-sm text-red-300"
+              role="alert"
+            >
+              {error}
+            </p>
+          ) : null}
+
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={googleLoading || emailLoading}
+            className="mt-8 flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-zinc-600 bg-zinc-950 text-sm font-medium text-white transition-colors hover:border-zinc-500 hover:bg-zinc-900 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <GoogleIcon />
+            {googleLoading ? l.redirecting : l.continueGoogle}
+          </button>
+
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-zinc-700" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase tracking-wide">
+              <span className="bg-zinc-900/80 px-3 text-zinc-500">{l.or}</span>
+            </div>
           </div>
-          <div className="relative flex justify-center text-xs uppercase tracking-wide">
-            <span className="bg-zinc-900/80 px-3 text-zinc-500">OR</span>
-          </div>
+
+          <form
+            onSubmit={mode === "signin" ? handleEmailSignIn : handleEmailSignUp}
+            className="space-y-4"
+          >
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-xs font-medium text-zinc-400"
+              >
+                {l.email}
+              </label>
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                required
+                disabled={emailLoading || googleLoading}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={l.emailPlaceholder}
+                className="mt-1.5 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none focus:border-zinc-500 disabled:opacity-60"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-xs font-medium text-zinc-400"
+              >
+                {l.password}
+              </label>
+              <input
+                id="password"
+                type="password"
+                autoComplete={
+                  mode === "signin" ? "current-password" : "new-password"
+                }
+                required
+                minLength={6}
+                disabled={emailLoading || googleLoading}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="mt-1.5 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none focus:border-zinc-500 disabled:opacity-60"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={emailLoading || googleLoading}
+                className="flex h-11 flex-1 items-center justify-center rounded-lg bg-white text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {emailLoading
+                  ? l.pleaseWait
+                  : mode === "signin"
+                    ? l.signIn
+                    : l.signUp}
+              </button>
+              <button
+                type="button"
+                disabled={emailLoading || googleLoading}
+                onClick={() => {
+                  setMode(mode === "signin" ? "signup" : "signin");
+                  setError(null);
+                }}
+                className="flex h-11 flex-1 items-center justify-center rounded-lg border border-zinc-600 text-sm font-medium text-zinc-200 transition-colors hover:bg-zinc-900 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {mode === "signin" ? l.createAccount : l.useSignIn}
+              </button>
+            </div>
+          </form>
         </div>
 
-        <form
-          onSubmit={mode === "signin" ? handleEmailSignIn : handleEmailSignUp}
-          className="space-y-4"
-        >
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-xs font-medium text-zinc-400"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              required
-              disabled={emailLoading || googleLoading}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@company.com"
-              className="mt-1.5 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none focus:border-zinc-500 disabled:opacity-60"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-xs font-medium text-zinc-400"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              autoComplete={
-                mode === "signin" ? "current-password" : "new-password"
-              }
-              required
-              minLength={6}
-              disabled={emailLoading || googleLoading}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="mt-1.5 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none focus:border-zinc-500 disabled:opacity-60"
-            />
-          </div>
-          <div className="flex gap-2">
-            <button
-              type="submit"
-              disabled={emailLoading || googleLoading}
-              className="flex h-11 flex-1 items-center justify-center rounded-lg bg-white text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {emailLoading
-                ? "Please wait…"
-                : mode === "signin"
-                  ? "Sign in"
-                  : "Sign up"}
-            </button>
-            <button
-              type="button"
-              disabled={emailLoading || googleLoading}
-              onClick={() => {
-                setMode(mode === "signin" ? "signup" : "signin");
-                setError(null);
-              }}
-              className="flex h-11 flex-1 items-center justify-center rounded-lg border border-zinc-600 text-sm font-medium text-zinc-200 transition-colors hover:bg-zinc-900 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {mode === "signin" ? "Create account" : "Use sign in"}
-            </button>
-          </div>
-        </form>
+        <p className="mt-6 text-center text-xs text-zinc-600">
+          <Link href="/" className="text-zinc-500 hover:text-zinc-400">
+            {l.backHome}
+          </Link>
+        </p>
       </div>
-
-      <p className="mt-6 text-center text-xs text-zinc-600">
-        <Link href="/" className="text-zinc-500 hover:text-zinc-400">
-          ← Back to home
-        </Link>
-      </p>
     </div>
   );
 }
 
 export default function LoginPage() {
+  const { t } = useLanguage();
+
   return (
     <Suspense
       fallback={
         <div className="flex min-h-full items-center justify-center bg-zinc-950 text-sm text-zinc-400">
-          Loading…
+          {t.common.loading}
         </div>
       }
     >
