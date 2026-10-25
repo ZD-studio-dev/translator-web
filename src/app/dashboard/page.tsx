@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Download } from "lucide-react";
 import { redirect } from "next/navigation";
 import { SignOutButton } from "@/app/dashboard/sign-out-button";
+import { UpgradeProButton } from "@/app/dashboard/upgrade-pro-button";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function DashboardPage() {
@@ -17,13 +18,12 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("email, plan")
+    .select("email, plan, is_pro, subscription_status")
     .eq("id", user.id)
     .single();
 
   const email = profile?.email ?? user.email ?? "Unknown";
-  const plan = profile?.plan === "pro" ? "pro" : "free";
-  const isPro = plan === "pro";
+  const isPro = profile?.is_pro === true || profile?.plan === "pro";
 
   return (
     <div className="min-h-full bg-zinc-950 text-zinc-100">
@@ -69,12 +69,9 @@ export default async function DashboardPage() {
                   Free trial: limited minutes of live translation remaining
                   this month. Upgrade to Pro for unlimited usage.
                 </p>
-                <button
-                  type="button"
-                  className="mt-5 inline-flex h-10 items-center justify-center rounded-lg bg-white px-5 text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-200"
-                >
-                  Upgrade to Pro ($9.9/mo)
-                </button>
+                <div className="mt-5">
+                  <UpgradeProButton />
+                </div>
               </>
             ) : (
               <p className="mt-2 text-sm text-zinc-400">
