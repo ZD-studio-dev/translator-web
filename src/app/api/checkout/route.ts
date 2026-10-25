@@ -3,26 +3,54 @@ import { NextResponse } from "next/server";
 
 const LEMON_API = "https://api.lemonsqueezy.com/v1";
 
-async function getStoreIdForVariant(apiKey: string, variantId: string) {
-  const res = await fetch(`${LEMON_API}/variants/${variantId}`, {
-    headers: {
-      Accept: "application/vnd.api+json",
-      Authorization: `Bearer ${apiKey}`,
+type VariantResponse = {
+  data?: {
+    relationships?: { store?: { data?: { id?: string } } };
+  };
+  included?: Array<{ type?: string; id?: string }>;
+};
+
+async function getStoreIdForVariant(
+  apiKey: string,
+  variantId: string,
+): Promise<string | null> {
+  const envStoreId = process.env.LEMONSQUEEZY_STORE_ID;
+
+  const res = await fetch(
+    `${LEMON_API}/variants/${variantId}?include=store`,
+    {
+      headers: {
+        Accept: "application/vnd.api+json",
+        Authorization: `Bearer ${apiKey}`,
+      },
     },
-  });
+  );
 
   if (!res.ok) {
-    throw new Error("Failed to load Lemon Squeezy variant");
+    const detail = await res.text();
+    console.error(
+      "Lemon Squeezy variant fetch error:",
+      detail || res.statusText,
+    );
+    return envStoreId ?? null;
   }
 
-  const json = (await res.json()) as {
-    data?: { relationships?: { store?: { data?: { id?: string } } } };
-  };
-  const storeId = json.data?.relationships?.store?.data?.id;
-  if (!storeId) {
-    throw new Error("Variant is missing store relationship");
+  const json = (await res.json()) as VariantResponse;
+
+  const storeIdFromRelationship =
+    json.data?.relationships?.store?.data?.id ?? null;
+  if (storeIdFromRelationship) {
+    return storeIdFromRelationship;
   }
-  return storeId;
+
+  const storeFromIncluded = json.included?.find(
+    (item) => item.type === "stores" && item.id,
+  );
+  if (storeFromIncluded?.id) {
+    return storeFromIncluded.id;
+  }
+
+  return envStoreId ?? null;
 }
 
 export async function POST() {
@@ -56,6 +84,16 @@ export async function POST() {
   try {
     const storeId = await getStoreIdForVariant(apiKey, variantId);
 
+    if (!storeId) {
+      return NextResponse.json(
+        {
+          error:
+            "Could not resolve Lemon Squeezy store ID. Set LEMONSQUEEZY_STORE_ID or check the variant ID.",
+        },
+        { status: 500 },
+      );
+    }
+
     const res = await fetch(`${LEMON_API}/checkouts`, {
       method: "POST",
       headers: {
@@ -87,8 +125,17 @@ export async function POST() {
     });
 
     if (!res.ok) {
-      const detail = await res.text();
-      console.error("Lemon Squeezy checkout error:", detail);
+      const detailText = await res.text();
+      let detailJson: unknown = detailText;
+      try {
+        detailJson = JSON.parse(detailText) as unknown;
+      } catch {
+        // keep raw text
+      }
+      console.error(
+        "Lemon Squeezy checkout error:",
+        JSON.stringify(detailJson, null, 2),
+      );
       return NextResponse.json(
         { error: "Failed to create checkout session" },
         { status: 502 },

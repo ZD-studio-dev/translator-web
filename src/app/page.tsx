@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 export const instant = false;
 import Link from "next/link";
 import { Download } from "lucide-react";
