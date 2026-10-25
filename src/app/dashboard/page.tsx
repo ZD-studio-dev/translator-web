@@ -26,6 +26,11 @@ export default async function DashboardPage() {
 
   const email = profile?.email ?? user.email ?? "Unknown";
   const isPro = profile?.is_pro === true || profile?.plan === "pro";
+  const storeUrl = process.env.NEXT_PUBLIC_LEMONSQUEEZY_STORE_URL?.replace(
+    /\/$/,
+    "",
+  );
+  const billingUrl = storeUrl ? `${storeUrl}/billing` : null;
 
   return (
     <div className="min-h-full bg-zinc-950 text-zinc-100">
@@ -68,18 +73,31 @@ export default async function DashboardPage() {
             {!isPro ? (
               <>
                 <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-                  Free trial: limited minutes of live translation remaining
-                  this month. Upgrade to Pro for unlimited usage.
+                  You are currently on the Free plan. Upgrade to Pro for
+                  unlimited real-time translations.
                 </p>
                 <div className="mt-5">
                   <UpgradeProButton />
                 </div>
               </>
             ) : (
-              <p className="mt-2 text-sm text-zinc-400">
-                Your Pro subscription is active. Thank you for supporting ZD
-                Translate.
-              </p>
+              <>
+                <p className="mt-2 text-sm text-zinc-400">
+                  Your Pro membership is active. You have full access to
+                  unlimited AI translations, real-time audio captions, and
+                  priority models.
+                </p>
+                {billingUrl ? (
+                  <a
+                    href={billingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-5 inline-flex h-10 items-center justify-center rounded-lg border border-zinc-600 px-5 text-sm font-medium text-zinc-100 transition-colors hover:bg-zinc-900"
+                  >
+                    Manage Subscription
+                  </a>
+                ) : null}
+              </>
             )}
           </section>
 
@@ -89,11 +107,11 @@ export default async function DashboardPage() {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-sm font-semibold text-white">
-                  Desktop app
+                  ZD Translate Desktop Client
                 </h2>
                 <p className="mt-1 max-w-md text-sm text-zinc-400">
-                  Download the Windows client and sign in with the same account
-                  — your Pro benefits sync automatically.
+                  Download the desktop app and sign in with your account to
+                  start translating across any window.
                 </p>
               </div>
               <button
