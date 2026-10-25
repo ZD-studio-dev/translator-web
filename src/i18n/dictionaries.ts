@@ -255,6 +255,6 @@ export const dictionaries = {
       checkoutFailed: "创建支付会话失败",
     },
   },
-} as const;
+};
 
-export type Dictionary = (typeof dictionaries)["en"];
+export type Dictionary = (typeof dictionaries)[Locale];
