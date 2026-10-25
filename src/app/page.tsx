@@ -1,7 +1,14 @@
+export const instant = false;
 import Link from "next/link";
 import { Download } from "lucide-react";
+import { createClient } from "@/utils/supabase/server";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <div className="min-h-screen flex flex-col bg-zinc-950 text-zinc-100">
       <header className="border-b border-zinc-800/80">
@@ -13,10 +20,10 @@ export default function Home() {
             ZD Translate
           </Link>
           <Link
-            href="/login"
+            href={user ? "/dashboard" : "/login"}
             className="rounded-lg border border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-200 transition-colors hover:border-zinc-500 hover:bg-zinc-900"
           >
-            Sign In
+            {user ? "Dashboard" : "Sign In"}
           </Link>
         </div>
       </header>

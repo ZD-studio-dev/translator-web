@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { FormEvent, Suspense, useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 function GoogleIcon() {
   return (
@@ -32,20 +33,91 @@ function GoogleIcon() {
   );
 }
 
-export default function LoginPage() {
-  const router = useRouter();
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const authError = searchParams.get("error") === "auth";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [error, setError] = useState<string | null>(
+    authError ? "Sign-in failed. Please try again." : null,
+  );
 
-  function handleGoogleLogin() {
-    // Mock: navigate to dashboard. Replace with:
-    // await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: '...' } })
-    router.push("/dashboard");
+  useEffect(() => {
+    setGoogleLoading(false);
+    setEmailLoading(false);
+  }, []);
+
+  async function handleGoogleLogin() {
+    setError(null);
+    setGoogleLoading(true);
+    const supabase = createClient();
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (oauthError) {
+      setError(oauthError.message);
+      setGoogleLoading(false);
+    }
   }
 
-  function handleEmailSubmit(e: FormEvent) {
+  async function handleEmailSignIn(e: FormEvent) {
     e.preventDefault();
-    router.push("/dashboard");
+    setError(null);
+    setEmailLoading(true);
+    try {
+      const supabase = createClient();
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (signInError) {
+        setError(signInError.message);
+        return;
+      }
+      window.location.assign("/dashboard");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Sign-in failed. Please try again.",
+      );
+    } finally {
+      setEmailLoading(false);
+    }
+  }
+
+  async function handleEmailSignUp(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setEmailLoading(true);
+    try {
+      const supabase = createClient();
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+      if (signUpError) {
+        setError(signUpError.message);
+        return;
+      }
+      if (data.session) {
+        window.location.assign("/dashboard");
+        return;
+      }
+      setError("Check your email to confirm your account, then sign in.");
+      setMode("signin");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Sign-up failed. Please try again.",
+      );
+    } finally {
+      setEmailLoading(false);
+    }
   }
 
   return (
@@ -65,13 +137,23 @@ export default function LoginPage() {
           Use Google or your email to continue
         </p>
 
+        {error ? (
+          <p
+            className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-center text-sm text-red-300"
+            role="alert"
+          >
+            {error}
+          </p>
+        ) : null}
+
         <button
           type="button"
           onClick={handleGoogleLogin}
-          className="mt-8 flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-zinc-600 bg-zinc-950 text-sm font-medium text-white transition-colors hover:border-zinc-500 hover:bg-zinc-900"
+          disabled={googleLoading || emailLoading}
+          className="mt-8 flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-zinc-600 bg-zinc-950 text-sm font-medium text-white transition-colors hover:border-zinc-500 hover:bg-zinc-900 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <GoogleIcon />
-          Continue with Google
+          {googleLoading ? "Redirecting…" : "Continue with Google"}
         </button>
 
         <div className="relative my-8">
@@ -83,7 +165,10 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <form onSubmit={handleEmailSubmit} className="space-y-4">
+        <form
+          onSubmit={mode === "signin" ? handleEmailSignIn : handleEmailSignUp}
+          className="space-y-4"
+        >
           <div>
             <label
               htmlFor="email"
@@ -95,10 +180,12 @@ export default function LoginPage() {
               id="email"
               type="email"
               autoComplete="email"
+              required
+              disabled={emailLoading || googleLoading}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@company.com"
-              className="mt-1.5 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none focus:border-zinc-500"
+              className="mt-1.5 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none focus:border-zinc-500 disabled:opacity-60"
             />
           </div>
           <div>
@@ -111,19 +198,42 @@ export default function LoginPage() {
             <input
               id="password"
               type="password"
-              autoComplete="current-password"
+              autoComplete={
+                mode === "signin" ? "current-password" : "new-password"
+              }
+              required
+              minLength={6}
+              disabled={emailLoading || googleLoading}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="mt-1.5 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none focus:border-zinc-500"
+              className="mt-1.5 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none focus:border-zinc-500 disabled:opacity-60"
             />
           </div>
-          <button
-            type="submit"
-            className="flex h-11 w-full items-center justify-center rounded-lg bg-white text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-200"
-          >
-            Sign in / Sign up
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              disabled={emailLoading || googleLoading}
+              className="flex h-11 flex-1 items-center justify-center rounded-lg bg-white text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {emailLoading
+                ? "Please wait…"
+                : mode === "signin"
+                  ? "Sign in"
+                  : "Sign up"}
+            </button>
+            <button
+              type="button"
+              disabled={emailLoading || googleLoading}
+              onClick={() => {
+                setMode(mode === "signin" ? "signup" : "signin");
+                setError(null);
+              }}
+              className="flex h-11 flex-1 items-center justify-center rounded-lg border border-zinc-600 text-sm font-medium text-zinc-200 transition-colors hover:bg-zinc-900 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {mode === "signin" ? "Create account" : "Use sign in"}
+            </button>
+          </div>
         </form>
       </div>
 
@@ -133,5 +243,19 @@ export default function LoginPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-full items-center justify-center bg-zinc-950 text-sm text-zinc-400">
+          Loading…
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

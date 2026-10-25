@@ -1,12 +1,29 @@
+export const instant = false;
 import Link from "next/link";
-import { Download, LogOut } from "lucide-react";
+import { Download } from "lucide-react";
+import { redirect } from "next/navigation";
+import { SignOutButton } from "@/app/dashboard/sign-out-button";
+import { createClient } from "@/utils/supabase/server";
 
-const MOCK_USER_EMAIL = "demo@example.com";
-const MOCK_PLAN: "free" | "pro" = "free";
-const MOCK_TRIAL_MINUTES_LEFT = 45;
+export default async function DashboardPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-export default function DashboardPage() {
-  const isPro = MOCK_PLAN === "pro";
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("email, plan")
+    .eq("id", user.id)
+    .single();
+
+  const email = profile?.email ?? user.email ?? "Unknown";
+  const plan = profile?.plan === "pro" ? "pro" : "free";
+  const isPro = plan === "pro";
 
   return (
     <div className="min-h-full bg-zinc-950 text-zinc-100">
@@ -18,13 +35,7 @@ export default function DashboardPage() {
           >
             ZD Translate
           </Link>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 rounded-lg border border-zinc-700 px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:bg-zinc-900"
-          >
-            <LogOut className="h-4 w-4" aria-hidden />
-            Sign Out
-          </Link>
+          <SignOutButton />
         </div>
       </header>
 
@@ -35,9 +46,7 @@ export default function DashboardPage() {
               <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
                 Account
               </p>
-              <p className="mt-1 text-lg font-medium text-white">
-                {MOCK_USER_EMAIL}
-              </p>
+              <p className="mt-1 text-lg font-medium text-white">{email}</p>
             </div>
             <span
               className={`inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-medium ${
@@ -57,12 +66,8 @@ export default function DashboardPage() {
             {!isPro ? (
               <>
                 <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-                  Free trial:{" "}
-                  <span className="font-medium text-zinc-200">
-                    {MOCK_TRIAL_MINUTES_LEFT} minutes
-                  </span>{" "}
-                  of live translation remaining this month. Upgrade to Pro for
-                  unlimited usage.
+                  Free trial: limited minutes of live translation remaining
+                  this month. Upgrade to Pro for unlimited usage.
                 </p>
                 <button
                   type="button"
