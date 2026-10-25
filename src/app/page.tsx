@@ -1,10 +1,11 @@
-export const dynamic = "force-dynamic";
 export const instant = false;
 import Link from "next/link";
 import { Download } from "lucide-react";
+import { connection } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function Home() {
+  await connection();
   const supabase = await createClient();
   const {
     data: { user },

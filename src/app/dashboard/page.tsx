@@ -1,13 +1,14 @@
-export const dynamic = "force-dynamic";
 export const instant = false;
 import Link from "next/link";
 import { Download } from "lucide-react";
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { SignOutButton } from "@/app/dashboard/sign-out-button";
 import { UpgradeProButton } from "@/app/dashboard/upgrade-pro-button";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function DashboardPage() {
+  await connection();
   const supabase = await createClient();
   const {
     data: { user },
