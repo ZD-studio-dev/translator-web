@@ -21,8 +21,16 @@ export function UpgradeProButton() {
         return;
       }
 
-      window.location.href = data.url;
-    } catch {
+      const opened = window.open(data.url, "_blank", "noopener,noreferrer");
+      setLoading(false);
+
+      if (!opened) {
+        setError(
+          "Pop-up was blocked. Allow pop-ups for this site and try again.",
+        );
+      }
+    } catch (err) {
+      console.error("Checkout error:", err);
       setError("Could not start checkout. Please try again.");
       setLoading(false);
     }
@@ -41,7 +49,7 @@ export function UpgradeProButton() {
         disabled={loading}
         className="inline-flex h-10 items-center justify-center rounded-lg bg-white px-5 text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {loading ? "Redirecting…" : "Upgrade to Pro ($9.9/mo)"}
+        {loading ? "Opening checkout…" : "Upgrade to Pro ($9.9/mo)"}
       </button>
     </div>
   );
