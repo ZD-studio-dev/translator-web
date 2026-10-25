@@ -2,6 +2,7 @@ export const instant = false;
 import Link from "next/link";
 import { Download } from "lucide-react";
 import { connection } from "next/server";
+import { GetStartedButton } from "@/app/get-started-button";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function Home() {
@@ -47,12 +48,7 @@ export default async function Home() {
               <Download className="h-4 w-4" aria-hidden />
               Download Windows Client
             </button>
-            <Link
-              href="/login"
-              className="inline-flex h-11 items-center justify-center rounded-lg border border-zinc-600 px-6 text-sm font-medium text-zinc-100 transition-colors hover:border-zinc-400 hover:bg-zinc-900"
-            >
-              Get Started
-            </Link>
+            <GetStartedButton className="inline-flex h-11 items-center justify-center rounded-lg border border-zinc-600 px-6 text-sm font-medium text-zinc-100 transition-colors hover:border-zinc-400 hover:bg-zinc-900" />
           </div>
         </section>
 
@@ -71,12 +67,7 @@ export default async function Home() {
                 <li>Core live translation</li>
                 <li>Windows desktop client</li>
               </ul>
-              <Link
-                href="/login"
-                className="mt-8 flex h-10 w-full items-center justify-center rounded-lg border border-zinc-700 text-sm font-medium text-zinc-200 transition-colors hover:bg-zinc-800"
-              >
-                Get Started
-              </Link>
+              <GetStartedButton className="mt-8 flex h-10 w-full items-center justify-center rounded-lg border border-zinc-700 text-sm font-medium text-zinc-200 transition-colors hover:bg-zinc-800" />
             </div>
 
             <div className="rounded-xl border border-zinc-600 bg-zinc-900 p-6 ring-1 ring-zinc-700/50">
