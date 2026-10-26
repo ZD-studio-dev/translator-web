@@ -129,6 +129,10 @@ export const dictionaries = {
       upgradeRedirecting: "Redirecting…",
       checkoutFailed: "Failed to create checkout session",
     },
+    legal: {
+      termsOfService: "Terms of Service",
+      privacyPolicy: "Privacy Policy",
+    },
   },
   zh: {
     common: {
@@ -253,6 +257,10 @@ export const dictionaries = {
       upgradePro: "升级 Pro（$9.9/月）",
       upgradeRedirecting: "跳转中…",
       checkoutFailed: "创建支付会话失败",
+    },
+    legal: {
+      termsOfService: "服务条款",
+      privacyPolicy: "隐私政策",
     },
   },
 };

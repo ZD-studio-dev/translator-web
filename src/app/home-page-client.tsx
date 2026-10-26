@@ -186,8 +186,28 @@ export function HomePageClient({ isLoggedIn }: HomePageClientProps) {
         </section>
       </main>
 
-      <footer className="border-t border-zinc-800/80 py-8 text-center text-xs text-zinc-600">
-        {h.footer}
+      <footer className="border-t border-zinc-800/80 px-6 py-8 text-center text-xs text-zinc-600">
+        <p>{h.footer}</p>
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+          <Link href="/terms" className="text-zinc-500 hover:text-zinc-300">
+            {t.legal.termsOfService}
+          </Link>
+          <span className="hidden text-zinc-700 sm:inline" aria-hidden>
+            ·
+          </span>
+          <Link href="/privacy" className="text-zinc-500 hover:text-zinc-300">
+            {t.legal.privacyPolicy}
+          </Link>
+          <span className="hidden text-zinc-700 sm:inline" aria-hidden>
+            ·
+          </span>
+          <a
+            href="mailto:support@zdtranslate.com"
+            className="text-zinc-500 hover:text-zinc-300"
+          >
+            support@zdtranslate.com
+          </a>
+        </div>
       </footer>
     </div>
   );

@@ -5,10 +5,19 @@ const baseUrl =
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const origin = baseUrl.replace(/\/$/, "");
+  const lastModified = new Date();
   return [
     {
       url: `${origin}/`,
-      lastModified: new Date(),
+      lastModified,
+    },
+    {
+      url: `${origin}/terms`,
+      lastModified,
+    },
+    {
+      url: `${origin}/privacy`,
+      lastModified,
     },
   ];
 }
