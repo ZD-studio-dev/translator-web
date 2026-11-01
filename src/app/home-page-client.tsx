@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { GetStartedButton } from "@/app/get-started-button";
 import { UpgradeProButton } from "@/app/dashboard/upgrade-pro-button";
+import { InteractiveDemo } from "@/components/InteractiveDemo";
 import { LanguageToggle } from "@/components/language-toggle";
 import { useLanguage } from "@/i18n/language-provider";
 
@@ -59,12 +60,8 @@ export function HomePageClient({ isLoggedIn }: HomePageClientProps) {
                 </a>
               </div>
             </div>
-            <div className="aspect-video rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4 shadow-xl shadow-black/40">
-              <div className="flex h-full flex-col items-center justify-center gap-4 rounded-xl border border-zinc-700/80 bg-zinc-950/80 px-6 text-center">
-                <span className="rounded-full border border-zinc-600/80 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-200 backdrop-blur-sm">
-                  {h.demoBadge}
-                </span>
-              </div>
+            <div className="w-full lg:min-h-[520px]">
+              <InteractiveDemo />
             </div>
           </div>
         </section>
