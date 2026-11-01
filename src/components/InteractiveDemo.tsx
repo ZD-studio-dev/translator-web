@@ -62,19 +62,33 @@ function estimateSpeechMs(text: string, lang: "zh" | "en") {
   return Math.min(Math.max(text.length * perChar, 1800), 12000);
 }
 
-function pickVoice(langPrefix: string) {
+function pickNaturalVoice(lang: "zh" | "en") {
   if (typeof window === "undefined" || !window.speechSynthesis) return null;
   const voices = window.speechSynthesis.getVoices();
-  return (
-    voices.find((v) => v.lang.replace("_", "-").startsWith(langPrefix)) ??
+  const prefer = (names: string[]) =>
     voices.find((v) =>
-      v.lang.toLowerCase().includes(langPrefix.split("-")[0]),
-    ) ??
+      names.some((n) => v.name.toLowerCase().includes(n.toLowerCase())),
+    );
+
+  if (lang === "zh") {
+    return (
+      prefer(["xiaoxiao", "yunxi", "tingting", "mandarin", "chinese"]) ??
+      voices.find((v) => v.lang.replace("_", "-").startsWith("zh")) ??
+      null
+    );
+  }
+  return (
+    prefer(["jenny", "aria", "samantha", "google us english", "natural"]) ??
+    voices.find((v) => v.lang.replace("_", "-").startsWith("en")) ??
     null
   );
 }
 
-function speak(text: string, lang: string, signal: AbortSignal): Promise<void> {
+function speakWithBrowser(
+  text: string,
+  lang: "zh" | "en",
+  signal: AbortSignal,
+): Promise<void> {
   return new Promise((resolve) => {
     if (signal.aborted || !window.speechSynthesis) {
       resolve();
@@ -82,9 +96,10 @@ function speak(text: string, lang: string, signal: AbortSignal): Promise<void> {
     }
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = lang;
-    utterance.rate = lang.startsWith("zh") ? 0.95 : 1;
-    const voice = pickVoice(lang.startsWith("zh") ? "zh" : "en");
+    utterance.lang = lang === "zh" ? "zh-CN" : "en-US";
+    utterance.rate = lang === "zh" ? 0.92 : 0.96;
+    utterance.pitch = lang === "zh" ? 1.02 : 1;
+    const voice = pickNaturalVoice(lang);
     if (voice) utterance.voice = voice;
     utterance.onend = () => resolve();
     utterance.onerror = () => resolve();
@@ -94,6 +109,67 @@ function speak(text: string, lang: string, signal: AbortSignal): Promise<void> {
     });
     window.speechSynthesis.speak(utterance);
   });
+}
+
+async function playAudioBlob(blob: Blob, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve) => {
+    if (signal.aborted) {
+      resolve();
+      return;
+    }
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    const cleanup = () => {
+      audio.pause();
+      URL.revokeObjectURL(url);
+      signal.removeEventListener("abort", onAbort);
+    };
+    const onAbort = () => {
+      cleanup();
+      resolve();
+    };
+    audio.onended = () => {
+      cleanup();
+      resolve();
+    };
+    audio.onerror = () => {
+      cleanup();
+      resolve();
+    };
+    signal.addEventListener("abort", onAbort);
+    void audio.play().catch(() => {
+      cleanup();
+      resolve();
+    });
+  });
+}
+
+async function speakNatural(
+  text: string,
+  lang: "zh" | "en",
+  signal: AbortSignal,
+): Promise<void> {
+  if (signal.aborted) return;
+  window.speechSynthesis?.cancel();
+
+  try {
+    const res = await fetch("/api/demo-tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, lang }),
+      signal,
+    });
+    if (res.ok) {
+      const blob = await res.blob();
+      if (signal.aborted) return;
+      await playAudioBlob(blob, signal);
+      return;
+    }
+  } catch {
+    if (signal.aborted) return;
+  }
+
+  await speakWithBrowser(text, lang, signal);
 }
 
 async function typewriter(
@@ -441,6 +517,7 @@ export function InteractiveDemo() {
   const [enDisplay, setEnDisplay] = useState("");
   const abortRef = useRef<AbortController | null>(null);
   const scenarioIdRef = useRef(scenarioId);
+  const playingRef = useRef(false);
 
   useEffect(() => {
     scenarioIdRef.current = scenarioId;
@@ -484,13 +561,18 @@ export function InteractiveDemo() {
     return { base, sub };
   };
 
+  const stopAudio = useCallback(() => {
+    window.speechSynthesis?.cancel();
+  }, []);
+
   const stop = useCallback(() => {
+    playingRef.current = false;
     abortRef.current?.abort();
     abortRef.current = null;
-    window.speechSynthesis?.cancel();
+    stopAudio();
     setPlaying(false);
     setPhase("idle");
-  }, []);
+  }, [stopAudio]);
 
   const resetDisplays = useCallback(() => {
     setZhDisplay("");
@@ -502,7 +584,7 @@ export function InteractiveDemo() {
       setPhase("zh");
       const zhMs = estimateSpeechMs(data.zh, "zh");
       await Promise.all([
-        speak(data.zh, "zh-CN", signal),
+        speakNatural(data.zh, "zh", signal),
         typewriter(data.zh, setZhDisplay, zhMs, signal),
       ]);
       if (signal.aborted) return;
@@ -514,7 +596,7 @@ export function InteractiveDemo() {
       setPhase("en");
       const enMs = estimateSpeechMs(data.en, "en");
       await Promise.all([
-        speak(data.en, "en-US", signal),
+        speakNatural(data.en, "en", signal),
         typewriter(data.en, setEnDisplay, enMs, signal),
       ]);
       if (signal.aborted) return;
@@ -525,16 +607,13 @@ export function InteractiveDemo() {
     [],
   );
 
-  const startDemo = useCallback(async () => {
-    stop();
-    resetDisplays();
+  const runDemoLoop = useCallback(async () => {
     const controller = new AbortController();
     abortRef.current = controller;
     const { signal } = controller;
-    setPlaying(true);
 
     try {
-      while (!signal.aborted) {
+      while (!signal.aborted && playingRef.current) {
         resetDisplays();
         const current =
           SCENARIOS.find((s) => s.id === scenarioIdRef.current) ??
@@ -544,13 +623,40 @@ export function InteractiveDemo() {
     } catch (e) {
       if (e instanceof DOMException && e.name === "AbortError") return;
     } finally {
-      if (!signal.aborted) {
-        setPlaying(false);
-        setPhase("idle");
+      if (abortRef.current === controller) {
         abortRef.current = null;
       }
+      if (!playingRef.current) {
+        setPhase("idle");
+      }
     }
-  }, [stop, resetDisplays, runSequence]);
+  }, [resetDisplays, runSequence]);
+
+  const startDemo = useCallback(() => {
+    abortRef.current?.abort();
+    stopAudio();
+    resetDisplays();
+    playingRef.current = true;
+    setPlaying(true);
+    void runDemoLoop();
+  }, [stopAudio, resetDisplays, runDemoLoop]);
+
+  const switchScenario = useCallback(
+    (id: SceneId) => {
+      if (id === scenarioIdRef.current) return;
+      setScenarioId(id);
+      scenarioIdRef.current = id;
+      stopAudio();
+      resetDisplays();
+      setPhase("idle");
+
+      if (playingRef.current) {
+        abortRef.current?.abort();
+        void runDemoLoop();
+      }
+    },
+    [stopAudio, resetDisplays, runDemoLoop],
+  );
 
   useEffect(() => {
     const loadVoices = () => window.speechSynthesis?.getVoices();
@@ -563,11 +669,11 @@ export function InteractiveDemo() {
   }, [stop]);
 
   useEffect(() => {
-    if (!playing) {
+    if (!playingRef.current) {
       resetDisplays();
       setPhase("idle");
     }
-  }, [scenarioId, playing, resetDisplays]);
+  }, [scenarioId, resetDisplays]);
 
   const zhActive = phase === "zh";
   const enActive = phase === "en";
@@ -599,12 +705,11 @@ export function InteractiveDemo() {
               <button
                 key={s.id}
                 type="button"
-                disabled={playing}
-                onClick={() => setScenarioId(s.id)}
+                onClick={() => switchScenario(s.id)}
                 className={`flex flex-1 flex-col items-center rounded-lg px-1 py-2 transition-all duration-300 sm:px-2 ${
                   active
                     ? "bg-zinc-800 text-white ring-1 ring-zinc-600"
-                    : "text-zinc-500 hover:bg-zinc-900/80 hover:text-zinc-300 disabled:opacity-50"
+                    : "text-zinc-500 hover:bg-zinc-900/80 hover:text-zinc-300"
                 }`}
               >
                 <span className="text-[11px] font-semibold sm:text-xs">
