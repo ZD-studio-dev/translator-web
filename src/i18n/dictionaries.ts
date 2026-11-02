@@ -58,20 +58,6 @@ export const dictionaries = {
           label: "AI Context Engine",
         },
       ],
-      pricingTitle: "Simple, Transparent Pricing",
-      planFree: "Free",
-      planPro: "Pro",
-      freeBenefits: [
-        "Basic daily text & shortcut translations",
-        "Standard translation speed & models",
-        "Community support",
-      ],
-      proBenefits: [
-        "Unlimited real-time screen, OCR & audio translation",
-        "Ultra-low latency Pro AI models",
-        "Custom hotkeys, overlay styles & priority support",
-      ],
-      getStarted: "Get Started",
       faqTitle: "Frequently Asked Questions",
       faqs: [
         {
@@ -88,6 +74,68 @@ export const dictionaries = {
         },
       ],
       footer: "© 2026 ZD Translate. All rights reserved.",
+    },
+    pricing: {
+      title: "Membership + Credit Packs",
+      subtitle:
+        "1 Credit = 1 second of live AI voice interpretation. Choose a monthly plan for power users, or top up credits anytime—they never expire.",
+      tabAria: "Pricing options",
+      tabMembership: "Membership Plans",
+      tabPacks: "Credit Packs",
+      footnote:
+        "Secure checkout via Lemon Squeezy. Credit packs are ideal for one-time purchases (including regional payment methods where available).",
+      embeddedTitle: "Top up credits or upgrade",
+      membership: {
+        free: {
+          badge: "Free Trial",
+          name: "Free Trial",
+          creditsLine: "600 Credits included (≈ 10 min live interpretation)",
+          benefits: [
+            "600 credits on signup — try real-time interpretation",
+            "Standard voice models & latency",
+            "Desktop client access with pay-as-you-go usage",
+          ],
+          cta: "Get Started Free",
+        },
+        pro: {
+          badge: "Best for daily use",
+          name: "Pro Monthly",
+          creditsLine:
+            "7,200 Credits every month (≈ 120 min live interpretation)",
+          benefits: [
+            "0.3s ultra-low latency pipeline",
+            "Voice cloning & premium audio quality",
+            "Floating overlay for Zoom, Discord & lectures",
+            "Member discount on credit pack top-ups",
+          ],
+          cta: "Subscribe — $19/mo",
+        },
+      },
+      packs: {
+        neverExpire: "Credits never expire · pay once, use anytime",
+        starter: {
+          name: "Starter Pack",
+          price: "$4.99",
+          creditsLine: "1,800 Credits (≈ 30 min)",
+          bullets: ["Great for occasional meetings", "Stack with any plan"],
+          cta: "Buy Starter Pack",
+        },
+        popular: {
+          name: "Popular Pack",
+          badge: "Most Popular",
+          price: "$12.99",
+          creditsLine: "5,400 Credits (≈ 90 min)",
+          bullets: ["Best value for regular interpreters", "Works with Free or Pro"],
+          cta: "Buy Popular Pack",
+        },
+        pro: {
+          name: "Pro Pack",
+          price: "$29.99",
+          creditsLine: "14,400 Credits (≈ 4 hours)",
+          bullets: ["Marathon sessions & all-day events", "Priority fulfillment"],
+          cta: "Buy Pro Pack",
+        },
+      },
     },
     login: {
       title: "Sign in to your account",
@@ -114,18 +162,50 @@ export const dictionaries = {
       account: "Account",
       proPlan: "Pro Plan",
       freePlan: "Free Plan",
-      subscription: "Subscription",
+      creditsOverview: "Credits & account",
+      badgeFree: "Free",
+      badgePro: "Pro",
+      topUpCredits: "Top Up Credits",
+      subscription: "Membership",
       freeSummary:
-        "You are currently on the Free plan. Upgrade to Pro for unlimited real-time translations.",
+        "You are on the Free plan with pay-as-you-go credits. Upgrade to Pro for 7,200 monthly credits, ultra-low latency, and voice cloning.",
       proSummary:
-        "Your Pro membership is active. You have full access to unlimited AI translations, real-time audio captions, and priority models.",
+        "Pro is active — you receive 7,200 credits each billing cycle plus member perks. Top up anytime with credit packs.",
       manageSubscription: "Manage Subscription",
-      desktopTitle: "ZD Translate Desktop Client",
+      desktopTitle: "Desktop Client Download",
       desktopBody:
         "Download the desktop app and sign in with your account to start translating across any window.",
+      desktopIntro:
+        "Run real-time interpretation on your desktop. Usage is billed per second from your credit balance.",
+      desktopSteps: [
+        "Download and install the client for your OS.",
+        "Sign in with the same email you use on this website.",
+        "Press Start in the app — live interpretation consumes 1 credit per second.",
+      ],
       downloadDesktop: "Download Desktop App",
+      downloadWindows: "Download for Windows (.exe)",
+      downloadMac: "Download for macOS (.dmg)",
+      downloadWindowsSoon:
+        "Windows (.exe) download link is not configured yet — check back soon.",
+      downloadMacSoon:
+        "macOS (.dmg) download link is not configured yet — check back soon.",
+      recentActivity: "Recent Credit Activity",
+      noTransactions:
+        "No credit activity yet. Start a session in the desktop client to see per-second usage here.",
+      colTime: "Time",
+      colType: "Type",
+      colDescription: "Description",
+      colAmount: "Amount",
+      colBalance: "Balance after",
+      transactionTypes: {
+        session_usage: "Session usage",
+        signup_bonus: "Signup bonus",
+        purchase: "Credit purchase",
+        subscription_grant: "Subscription credits",
+        adjustment: "Adjustment",
+      },
       signOut: "Sign Out",
-      upgradePro: "Upgrade to Pro ($9.9/mo)",
+      upgradePro: "Upgrade to Pro — $19/mo",
       upgradeRedirecting: "Redirecting…",
       checkoutFailed: "Failed to create checkout session",
     },
@@ -188,20 +268,6 @@ export const dictionaries = {
           label: "AI 语境引擎",
         },
       ],
-      pricingTitle: "简单透明的定价",
-      planFree: "免费版",
-      planPro: "Pro 版",
-      freeBenefits: [
-        "基础每日文本与快捷键翻译",
-        "标准翻译速度与模型",
-        "社区支持",
-      ],
-      proBenefits: [
-        "无限实时屏幕、OCR 与音频翻译",
-        "超低延迟 Pro AI 模型",
-        "自定义快捷键、悬浮样式与优先支持",
-      ],
-      getStarted: "立即开始",
       faqTitle: "常见问题",
       faqs: [
         {
@@ -218,6 +284,67 @@ export const dictionaries = {
         },
       ],
       footer: "© 2026 ZD Translate. 保留所有权利。",
+    },
+    pricing: {
+      title: "会员订阅 + 积分加油包",
+      subtitle:
+        "1 积分 = 1 秒实时 AI 语音同传。高频用户选月度会员，按需用户可随时购买永不过期的积分包。",
+      tabAria: "定价选项",
+      tabMembership: "会员方案",
+      tabPacks: "积分加油包",
+      footnote:
+        "通过 Lemon Squeezy 安全结账。积分包适合单次购买（在支持的地区可使用本地支付方式）。",
+      embeddedTitle: "充值积分或升级会员",
+      membership: {
+        free: {
+          badge: "免费体验",
+          name: "Free Trial",
+          creditsLine: "注册即送 600 积分（约 10 分钟实时同传）",
+          benefits: [
+            "注册赠送 600 积分，体验实时同传",
+            "基础语音模型与标准延迟",
+            "桌面客户端按秒消耗积分",
+          ],
+          cta: "免费开始",
+        },
+        pro: {
+          badge: "高频用户首选",
+          name: "Pro 月度会员",
+          creditsLine: "每月自动发放 7,200 积分（约 120 分钟同传）",
+          benefits: [
+            "0.3 秒极速延迟通道",
+            "原声克隆（Voice Cloning）",
+            "Zoom / Discord / 网课全场景悬浮窗",
+            "加油包会员专享折扣",
+          ],
+          cta: "订阅 Pro — $19/月",
+        },
+      },
+      packs: {
+        neverExpire: "积分永不过期 · 一次购买随时使用",
+        starter: {
+          name: "Starter 加油包",
+          price: "$4.99",
+          creditsLine: "1,800 积分（约 30 分钟）",
+          bullets: ["适合偶尔开会", "可与任意会员等级叠加"],
+          cta: "购买 Starter",
+        },
+        popular: {
+          name: "Popular 加油包",
+          badge: "主推",
+          price: "$12.99",
+          creditsLine: "5,400 积分（约 90 分钟）",
+          bullets: ["常规同传性价比之选", "Free / Pro 均可使用"],
+          cta: "购买 Popular",
+        },
+        pro: {
+          name: "Pro 加油包",
+          price: "$29.99",
+          creditsLine: "14,400 积分（约 4 小时）",
+          bullets: ["马拉松会议与全天活动", "大额充值更省心"],
+          cta: "购买 Pro 包",
+        },
+      },
     },
     login: {
       title: "登录你的账户",
@@ -243,18 +370,48 @@ export const dictionaries = {
       account: "账户",
       proPlan: "Pro 方案",
       freePlan: "免费方案",
-      subscription: "订阅",
+      creditsOverview: "账户与算力",
+      badgeFree: "FREE",
+      badgePro: "PRO",
+      topUpCredits: "充值积分",
+      subscription: "会员订阅",
       freeSummary:
-        "你当前为免费方案。升级 Pro 即可解锁无限实时翻译。",
+        "当前为 Free 方案，按积分按秒计费。升级 Pro 可每月获得 7,200 积分，并解锁极速延迟与原声克隆。",
       proSummary:
-        "Pro 会员已生效。你可使用无限 AI 翻译、实时音频字幕与优先模型。",
+        "Pro 会员已生效 — 每周期自动发放 7,200 积分及会员权益。可随时购买加油包补充算力。",
       manageSubscription: "管理订阅",
-      desktopTitle: "ZD Translate 桌面客户端",
+      desktopTitle: "桌面客户端下载",
       desktopBody:
         "下载桌面应用并使用本账户登录，即可在任意窗口开始翻译。",
+      desktopIntro:
+        "在桌面端运行实时同传，按秒从积分余额扣费。",
+      desktopSteps: [
+        "下载并安装对应系统的客户端。",
+        "使用与本站相同的账号登录软件。",
+        "在客户端点击开始 — 实时同传按 1 积分 / 秒消耗。",
+      ],
       downloadDesktop: "下载桌面应用",
+      downloadWindows: "Windows 版下载 (.exe)",
+      downloadMac: "macOS 版下载 (.dmg)",
+      downloadWindowsSoon: "Windows (.exe) 下载链接尚未配置，敬请期待。",
+      downloadMacSoon: "macOS (.dmg) 下载链接尚未配置，敬请期待。",
+      recentActivity: "最近积分明细",
+      noTransactions:
+        "暂无积分流水。在桌面客户端开始同传后，可在此查看按秒扣费记录。",
+      colTime: "时间",
+      colType: "类型",
+      colDescription: "说明",
+      colAmount: "变动",
+      colBalance: "变动后余额",
+      transactionTypes: {
+        session_usage: "会话消耗",
+        signup_bonus: "注册赠送",
+        purchase: "积分购买",
+        subscription_grant: "订阅发放",
+        adjustment: "调整",
+      },
       signOut: "退出登录",
-      upgradePro: "升级 Pro（$9.9/月）",
+      upgradePro: "升级 Pro — $19/月",
       upgradeRedirecting: "跳转中…",
       checkoutFailed: "创建支付会话失败",
     },

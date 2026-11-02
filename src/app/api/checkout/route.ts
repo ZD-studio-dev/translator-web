@@ -1,9 +1,29 @@
+import {
+  resolveCheckoutVariantId,
+  type CheckoutPayload,
+} from "@/config/pricing";
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
 const LEMON_CHECKOUTS_URL = "https://api.lemonsqueezy.com/v1/checkouts";
 
-export async function POST() {
+function parseCheckoutBody(body: unknown): CheckoutPayload | null {
+  if (!body || typeof body !== "object") {
+    return { plan: "pro_monthly" };
+  }
+  const record = body as Record<string, unknown>;
+  const packId = record.pack_id;
+  if (packId === "starter" || packId === "popular" || packId === "pro") {
+    return { pack_id: packId };
+  }
+  const plan = record.plan;
+  if (plan === "pro_monthly") {
+    return { plan: "pro_monthly" };
+  }
+  return { plan: "pro_monthly" };
+}
+
+export async function POST(request: Request) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -13,12 +33,23 @@ export async function POST() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  let checkoutPayload: CheckoutPayload = { plan: "pro_monthly" };
+  try {
+    const json = await request.json();
+    checkoutPayload = parseCheckoutBody(json) ?? checkoutPayload;
+  } catch {
+    checkoutPayload = { plan: "pro_monthly" };
+  }
+
   const storeId = process.env.LEMONSQUEEZY_STORE_ID;
-  const variantId = process.env.LEMONSQUEEZY_VARIANT_ID;
+  const variantId = resolveCheckoutVariantId(checkoutPayload);
 
   if (!storeId || !variantId) {
     return NextResponse.json(
-      { error: "Missing LEMONSQUEEZY_STORE_ID or LEMONSQUEEZY_VARIANT_ID" },
+      {
+        error:
+          "Checkout is not configured for this product (missing store or variant ID)",
+      },
       { status: 500 },
     );
   }
@@ -56,6 +87,9 @@ export async function POST() {
             email: userEmail,
             custom: {
               user_id: userId,
+              ...("pack_id" in checkoutPayload
+                ? { pack_id: checkoutPayload.pack_id }
+                : { plan: checkoutPayload.plan }),
             },
           },
         },

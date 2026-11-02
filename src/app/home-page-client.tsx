@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { GetStartedButton } from "@/app/get-started-button";
-import { UpgradeProButton } from "@/app/dashboard/upgrade-pro-button";
 import { InteractiveDemo } from "@/components/InteractiveDemo";
+import { PricingSection } from "@/components/PricingSection";
 import { LanguageToggle } from "@/components/language-toggle";
 import { useLanguage } from "@/i18n/language-provider";
 
@@ -121,47 +121,7 @@ export function HomePageClient({ isLoggedIn }: HomePageClientProps) {
           ))}
         </section>
 
-        <section
-          id="pricing-section"
-          className="border-t border-zinc-800/80 bg-zinc-900/20 py-16 sm:py-24"
-        >
-          <div className="mx-auto max-w-6xl px-6">
-            <h2 className="text-center text-2xl font-semibold text-white">
-              {h.pricingTitle}
-            </h2>
-            <div className="mt-10 grid gap-6 lg:grid-cols-2">
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-8">
-                <p className="text-lg font-semibold text-white">{h.planFree}</p>
-                <p className="mt-1 text-3xl font-semibold text-white">$0</p>
-                <ul className="mt-6 space-y-2 text-sm text-zinc-400">
-                  {h.freeBenefits.map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-                </ul>
-                <GetStartedButton className="mt-8 flex h-11 w-full items-center justify-center rounded-lg border border-zinc-700 text-sm font-medium text-zinc-200 transition-colors hover:bg-zinc-800">
-                  {h.getStarted}
-                </GetStartedButton>
-              </div>
-              <div className="rounded-2xl border border-zinc-600 bg-zinc-900 p-8 ring-1 ring-zinc-700/50">
-                <p className="text-lg font-semibold text-white">{h.planPro}</p>
-                <p className="mt-1 text-3xl font-semibold text-white">
-                  $9.9
-                  <span className="text-base font-normal text-zinc-500">
-                    {c.perMonth}
-                  </span>
-                </p>
-                <ul className="mt-6 space-y-2 text-sm text-zinc-400">
-                  {h.proBenefits.map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-                </ul>
-                <div className="mt-8 [&_button]:flex [&_button]:h-11 [&_button]:w-full [&_button]:items-center [&_button]:justify-center">
-                  <UpgradeProButton />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <PricingSection />
 
         <section className="mx-auto max-w-3xl px-6 py-16 sm:py-24">
           <h2 className="text-center text-2xl font-semibold text-white">
