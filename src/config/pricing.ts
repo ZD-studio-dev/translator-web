@@ -1,6 +1,14 @@
 export type CheckoutPlan = "pro_monthly";
 export type CheckoutPackId = "starter" | "popular" | "pro";
 
+export const CREDIT_PACK_GRANTS: Record<CheckoutPackId, number> = {
+  starter: 1800,
+  popular: 5400,
+  pro: 14400,
+};
+
+export const PRO_MONTHLY_CREDIT_GRANT = 7200;
+
 export type CheckoutPayload =
   | { plan: CheckoutPlan }
   | { pack_id: CheckoutPackId };

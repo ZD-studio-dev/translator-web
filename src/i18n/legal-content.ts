@@ -39,17 +39,19 @@ export const legalContent: Record<
           ],
         },
         {
-          title: "3. Subscriptions and Billing",
+          title: "3. Subscriptions, Credit Packs, and Billing",
           paragraphs: [
-            "Pro subscriptions are billed on a recurring basis through our authorized payment provider (Lemon Squeezy). Prices, billing cycles, and taxes are shown at checkout. By subscribing, you authorize us and our payment partner to charge your payment method until you cancel.",
-            "You may manage or cancel renewal through the billing portal linked from your Dashboard. Cancellation stops future charges; access to Pro features typically continues until the end of the current paid period unless otherwise stated at checkout.",
+            "Pro Monthly is a recurring membership billed through our authorized payment provider (Lemon Squeezy). Each billing cycle includes 7,200 credits (approximately 120 minutes of live AI voice interpretation at 1 credit = 1 second). Prices, billing cycles, and taxes are shown at checkout. By subscribing, you authorize us and our payment partner to charge your payment method until you cancel.",
+            "We also offer Pay-As-You-Go Credit Packs for one-time purchase. Pack credits are added to your account balance, are not tied to a subscription, and do not expire. Usage of live interpretation consumes credits at one credit per second of session time, as shown in your Dashboard.",
+            "You may manage or cancel Pro renewal through the billing portal linked from your Dashboard. Cancellation stops future subscription charges; Pro membership and any remaining credits typically continue until the end of the current paid period unless otherwise stated at checkout.",
           ],
         },
         {
-          title: "4. No-Refund Policy",
+          title: "4. Refund Policy",
           paragraphs: [
-            "We offer a Free plan so you can evaluate core functionality before purchasing Pro. Because you may test the Service at no cost, all Pro subscription fees are non-refundable once charged, including partial billing periods, except where required by applicable law.",
-            "You may cancel upcoming renewals at any time so you will not be charged for the next billing cycle. For billing questions, contact us at support@zdtranslate.com.",
+            "New accounts receive 600 free credits at registration so you can test live interpretation before paying. Real-time AI voice interpretation incurs immediate compute cost when used.",
+            `For any Pro subscription or Credit Pack purchase, refunds are not available once credits from that purchase have been partially or fully consumed. If, within 14 days of purchase, none of the credits from that purchase have been used (zero consumption), you may contact us at ${supportEmail} to request a full refund. We may verify usage via your account and credit transaction history.`,
+            `You may cancel upcoming Pro renewals at any time to avoid charges for the next billing cycle. Refund requests and billing questions: ${supportEmail}.`,
           ],
         },
         {
@@ -182,17 +184,19 @@ export const legalContent: Record<
           ],
         },
         {
-          title: "3. 订阅与计费",
+          title: "3. 订阅、积分加油包与计费",
           paragraphs: [
-            "Pro 订阅通过授权支付服务商 Lemon Squeezy 按周期扣费。价格、计费周期与税费以结账页展示为准。订阅即表示您授权我们及支付伙伴在您取消前向您的支付方式扣款。",
-            "您可通过控制台中的账单门户管理或取消续费。取消后不再产生未来周期费用；Pro 功能通常保留至当前已付费周期结束，除非结账页另有说明。",
+            "Pro 月度会员为周期性订阅，通过授权支付服务商 Lemon Squeezy 扣费。每个计费周期自动发放 7,200 积分（按 1 积分 = 1 秒实时同传，约 120 分钟）。价格、计费周期与税费以结账页展示为准。订阅即表示您授权我们及支付伙伴在您取消前向您的支付方式扣款。",
+            "我们还提供单次购买的积分加油包（Pay-As-You-Go Credit Packs）。加油包积分计入账户余额，不绑定订阅且永不过期。实时同传按会话时长以每秒 1 积分扣减，用量可在控制台查看。",
+            "您可通过控制台中的账单门户管理或取消 Pro 续费。取消后不再产生未来订阅扣款；Pro 权益及剩余积分通常保留至当前已付费周期结束，除非结账页另有说明。",
           ],
         },
         {
-          title: "4. 不退款政策（No-Refund Policy）",
+          title: "4. 退款政策",
           paragraphs: [
-            "我们提供免费版（Free），供您在购买 Pro 前充分测试核心功能。鉴于您可在零成本下评估产品，Pro 订阅费用一经收取不予退款（包括部分计费周期），法律强制要求的除外。",
-            "您可随时取消后续续费，以免被收取下一计费周期费用。账单相关问题请联系：support@zdtranslate.com。",
+            "注册即赠送 600 免费积分，供您在付费前测试实时同传。实时 AI 语音同传一经使用即产生即时算力成本。",
+            `对于 Pro 订阅或积分加油包：若该笔购买所得积分已被部分或全部消耗，不支持退款。若购买后 14 天内该笔积分完全未被使用（0 消耗），可联系 ${supportEmail} 申请全额退款；我们可能通过账户及积分流水核实使用情况。`,
+            `您可随时取消 Pro 后续续费，以免被收取下一计费周期费用。退款申请与账单问题请联系：${supportEmail}。`,
           ],
         },
         {
