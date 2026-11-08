@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useEffect, useState } from "react";
 import { LanguageToggle } from "@/components/language-toggle";
 import { useLanguage } from "@/i18n/language-provider";
+import { getSafeRedirectPath } from "@/utils/safe-redirect";
 import { createClient } from "@/utils/supabase/client";
 
 function GoogleIcon() {
@@ -38,6 +39,8 @@ function GoogleIcon() {
 function LoginForm() {
   const searchParams = useSearchParams();
   const authError = searchParams.get("error") === "auth";
+  const nextPath =
+    getSafeRedirectPath(searchParams.get("next")) ?? "/dashboard";
   const { t } = useLanguage();
   const l = t.login;
   const c = t.common;
@@ -64,10 +67,12 @@ function LoginForm() {
     setError(null);
     setGoogleLoading(true);
     const supabase = createClient();
+    const callbackUrl = new URL("/auth/callback", window.location.origin);
+    callbackUrl.searchParams.set("next", nextPath);
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: callbackUrl.toString(),
       },
     });
     if (oauthError) {
@@ -90,7 +95,7 @@ function LoginForm() {
         setError(signInError.message);
         return;
       }
-      window.location.assign("/dashboard");
+      window.location.assign(nextPath);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : l.signInFailed,
@@ -115,7 +120,7 @@ function LoginForm() {
         return;
       }
       if (data.session) {
-        window.location.assign("/dashboard");
+        window.location.assign(nextPath);
         return;
       }
       setError(l.confirmEmail);

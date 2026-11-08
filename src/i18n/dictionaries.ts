@@ -214,6 +214,22 @@ export const dictionaries = {
       termsOfService: "Terms of Service",
       privacyPolicy: "Privacy Policy",
     },
+    desktopAuth: {
+      authorizingTitle: "Authorizing ZD Translate Desktop…",
+      authorizingBody:
+        "Redirecting your login to the desktop app on this computer. If nothing happens, use the button below.",
+      openClient: "Open desktop client",
+      manualHint:
+        "The desktop app must be running and listening on the local port shown in the client.",
+      localPortLabel: "Local callback port",
+      invalidPortTitle: "Invalid port",
+      invalidPortBody:
+        "The port parameter must be a number between 1 and 65535. Open the link from the desktop app again.",
+      backHome: "Back to home",
+      errorTitle: "Could not read your session",
+      errorBody: "Please sign in again and retry from the desktop app.",
+      signInAgain: "Sign in",
+    },
   },
   zh: {
     common: {
@@ -420,6 +436,21 @@ export const dictionaries = {
     legal: {
       termsOfService: "服务条款",
       privacyPolicy: "隐私政策",
+    },
+    desktopAuth: {
+      authorizingTitle: "正在授权登录 ZD Translate 桌面客户端…",
+      authorizingBody:
+        "正在将登录凭证传回本机桌面应用。若未自动跳转，请点击下方按钮。",
+      openClient: "打开客户端",
+      manualHint: "请确保桌面客户端已启动并在本机端口上等待回调。",
+      localPortLabel: "本机回调端口",
+      invalidPortTitle: "端口号无效",
+      invalidPortBody:
+        "port 参数须为 1–65535 之间的数字。请从桌面客户端重新打开授权链接。",
+      backHome: "返回首页",
+      errorTitle: "无法读取登录状态",
+      errorBody: "请重新登录后，再从桌面客户端发起授权。",
+      signInAgain: "去登录",
     },
   },
 };
