@@ -7,6 +7,7 @@ import { LanguageToggle } from "@/components/language-toggle";
 import { useLanguage } from "@/i18n/language-provider";
 import {
   buildDesktopClientCallbackUrl,
+  parseDesktopAuthState,
   parseLoopbackCallbackPort,
 } from "@/utils/safe-redirect";
 import { createClient } from "@/utils/supabase/client";
@@ -20,9 +21,13 @@ function DesktopAuthContent() {
   const { t } = useLanguage();
   const d = t.desktopAuth;
   const c = t.common;
+  const callbackPort = parseLoopbackCallbackPort(searchParams.get("port"));
+  const authState = parseDesktopAuthState(searchParams.get("state"));
+  const invalidRequest = callbackPort === null || authState === null;
 
-  const [phase, setPhase] = useState<AuthPhase>("checking");
-  const [port, setPort] = useState<number | null>(null);
+  const [phase, setPhase] = useState<AuthPhase>(
+    invalidRequest ? "invalid_port" : "checking",
+  );
   const [session, setSession] = useState<Session | null>(null);
   const [clientUrl, setClientUrl] = useState<string | null>(null);
 
@@ -34,13 +39,11 @@ function DesktopAuthContent() {
   }, [clientUrl]);
 
   useEffect(() => {
-    const parsedPort = parseLoopbackCallbackPort(searchParams.get("port"));
-    if (parsedPort === null) {
-      setPhase("invalid_port");
+    if (invalidRequest || callbackPort === null || authState === null) {
       return;
     }
-    const callbackPort = parsedPort;
-    setPort(callbackPort);
+    const verifiedPort = callbackPort;
+    const verifiedState = authState;
 
     let cancelled = false;
 
@@ -60,7 +63,11 @@ function DesktopAuthContent() {
 
       const activeSession = data.session;
       if (!activeSession) {
-        const returnPath = `/desktop-auth?port=${callbackPort}`;
+        const returnQuery = new URLSearchParams({
+          port: String(verifiedPort),
+          state: verifiedState,
+        });
+        const returnPath = `/desktop-auth?${returnQuery.toString()}`;
         router.replace(
           `/login?next=${encodeURIComponent(returnPath)}`,
         );
@@ -68,9 +75,10 @@ function DesktopAuthContent() {
       }
 
       const url = buildDesktopClientCallbackUrl(
-        callbackPort,
+        verifiedPort,
         activeSession.access_token,
         activeSession.refresh_token,
+        verifiedState,
       );
 
       setSession(activeSession);
@@ -84,7 +92,7 @@ function DesktopAuthContent() {
     return () => {
       cancelled = true;
     };
-  }, [router, searchParams]);
+  }, [authState, callbackPort, invalidRequest, router]);
 
   return (
     <div className="flex min-h-full flex-col bg-zinc-950 text-zinc-100">
@@ -146,9 +154,9 @@ function DesktopAuthContent() {
               <p className="mt-3 text-sm leading-relaxed text-zinc-400">
                 {d.authorizingBody}
               </p>
-              {port !== null ? (
+              {callbackPort !== null ? (
                 <p className="mt-2 text-xs text-zinc-500">
-                  {d.localPortLabel}: {port}
+                  {d.localPortLabel}: {callbackPort}
                 </p>
               ) : null}
               <button

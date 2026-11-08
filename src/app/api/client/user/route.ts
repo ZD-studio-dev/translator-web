@@ -28,6 +28,8 @@ export async function GET(request: Request) {
       row.is_pro === true || planTier === "pro" || row.plan === "pro";
 
     return NextResponse.json({
+      id: auth.userId,
+      user_id: auth.userId,
       email: row.email,
       plan_tier: planTier,
       credits_balance: parseCredits(row.credits_balance),
