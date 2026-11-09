@@ -14,6 +14,7 @@ type HomePageClientProps = {
 export function HomePageClient({ userEmail }: HomePageClientProps) {
   const { t } = useLanguage();
   const h = t.home;
+  const legal = t.legal;
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
@@ -47,36 +48,7 @@ export function HomePageClient({ userEmail }: HomePageClientProps) {
           </div>
         </section>
 
-        <section
-          id="proof-section"
-          className="border-y border-zinc-800/80 bg-zinc-900/30 py-16 sm:py-20"
-        >
-          <div className="mx-auto max-w-6xl px-6">
-            <h2 className="text-center text-sm font-medium uppercase tracking-wider text-zinc-400">
-              {h.proofTitle}
-            </h2>
-            <div className="mt-10 grid gap-6 sm:grid-cols-3">
-              {h.testimonials.map((item) => (
-                <div
-                  key={item.author}
-                  className="flex flex-col rounded-xl border border-zinc-800 bg-zinc-950/80 p-6 shadow-lg shadow-black/20"
-                >
-                  <p className="tracking-widest text-amber-400/90" aria-hidden>
-                    ★★★★★
-                  </p>
-                  <p className="mt-4 flex-1 text-sm leading-relaxed text-zinc-300">
-                    &ldquo;{item.quote}&rdquo;
-                  </p>
-                  <p className="mt-4 text-xs font-medium text-zinc-500">
-                    — {item.author}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-6xl space-y-16 px-6 py-16 sm:py-24">
+        <section className="mx-auto max-w-6xl space-y-16 border-t border-zinc-800/80 px-6 py-16 sm:py-20">
           <h2 className="text-center text-2xl font-semibold text-white sm:text-3xl">
             {h.featuresTitle}
           </h2>
@@ -128,13 +100,13 @@ export function HomePageClient({ userEmail }: HomePageClientProps) {
         <p>{h.footer}</p>
         <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
           <Link href="/terms" className="text-zinc-500 hover:text-zinc-300">
-            {t.legal.termsOfService}
+            {legal.termsOfService}
           </Link>
           <span className="hidden text-zinc-700 sm:inline" aria-hidden>
             ·
           </span>
           <Link href="/privacy" className="text-zinc-500 hover:text-zinc-300">
-            {t.legal.privacyPolicy}
+            {legal.privacyPolicy}
           </Link>
           <span className="hidden text-zinc-700 sm:inline" aria-hidden>
             ·

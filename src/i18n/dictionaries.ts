@@ -19,24 +19,6 @@ export const dictionaries = {
       ctaSecondary: "View Pricing",
       demoBadge:
         "🎬 Interactive Demo Coming Soon — Live Screen & Audio Translation",
-      proofTitle: "TRUSTED BY GLOBAL PROFESSIONALS, GAMERS & CREATORS",
-      testimonials: [
-        {
-          quote:
-            "Cut my cross-border meeting prep to zero. The real-time audio translation feels like having a human interpreter.",
-          author: "Alex M., Product Manager",
-        },
-        {
-          quote:
-            "Finally I can play unlocalized games and read foreign research papers right on my screen with a single hotkey.",
-          author: "David K., Software Engineer",
-        },
-        {
-          quote:
-            "Way faster and more accurate than browser extensions. It stays out of the way until the exact second I need it.",
-          author: "Sarah L., UX Designer",
-        },
-      ],
       featuresTitle: "Built for Speed, Accuracy, and Zero Friction",
       features: [
         {
@@ -276,24 +258,6 @@ export const dictionaries = {
       ctaPrimary: "免费开始",
       ctaSecondary: "查看价格",
       demoBadge: "🎬 互动演示即将上线 — 屏幕与音频实时翻译",
-      proofTitle: "深受全球职场人、玩家与创作者信赖",
-      testimonials: [
-        {
-          quote:
-            "跨国会议准备时间几乎归零。实时语音翻译就像身边有一位同声传译。",
-          author: "Alex M.，产品经理",
-        },
-        {
-          quote:
-            "终于可以用一个快捷键，在屏幕上畅玩未本地化游戏并阅读外文论文。",
-          author: "David K.，软件工程师",
-        },
-        {
-          quote:
-            "比浏览器插件更快、更准。只在需要的那一秒出现，完全不打扰。",
-          author: "Sarah L.，UX 设计师",
-        },
-      ],
       featuresTitle: "为速度、准确与零摩擦而生",
       features: [
         {
