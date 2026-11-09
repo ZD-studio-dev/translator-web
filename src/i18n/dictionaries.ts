@@ -10,6 +10,7 @@ export const dictionaries = {
       dashboard: "Dashboard",
       loading: "Loading…",
       perMonth: "/mo",
+      perQuarter: "/3 mo",
     },
     home: {
       heroTitle: "Real-Time AI Translation, Right on Your Screen.",
@@ -252,6 +253,7 @@ export const dictionaries = {
       dashboard: "控制台",
       loading: "加载中…",
       perMonth: "/月",
+      perQuarter: "/季",
     },
     home: {
       heroTitle: "实时 AI 翻译，就在你的屏幕上。",

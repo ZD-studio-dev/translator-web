@@ -176,7 +176,7 @@ export function PricingSection({
               <p className="mt-1 text-3xl font-semibold text-white">
                 {formatUsd(PRICING_USD.proQuarterly)}
                 <span className="text-base font-normal text-zinc-500">
-                  /3 mo
+                  {c.perQuarter}
                 </span>
               </p>
               <p className="mt-2 text-sm font-semibold text-emerald-400">
