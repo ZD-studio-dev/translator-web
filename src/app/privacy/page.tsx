@@ -16,5 +16,5 @@ export default async function PrivacyPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  return <LegalDocumentPage doc="privacy" isLoggedIn={!!user} />;
+  return <LegalDocumentPage doc="privacy" userEmail={user?.email ?? null} />;
 }

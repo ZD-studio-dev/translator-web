@@ -1,9 +1,9 @@
 export const instant = false;
 import type { Metadata } from "next";
-import Link from "next/link";
 import { connection } from "next/server";
 import { PricingSection } from "@/components/PricingSection";
-import { LanguageToggle } from "@/components/language-toggle";
+import { SiteHeader } from "@/components/site-header";
+import { createClient } from "@/utils/supabase/server";
 
 export const metadata: Metadata = {
   title: "Pricing — ZD Translate",
@@ -13,20 +13,14 @@ export const metadata: Metadata = {
 
 export default async function PricingPage() {
   await connection();
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <header className="border-b border-zinc-800/80">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-6">
-          <Link
-            href="/"
-            className="text-sm font-semibold tracking-tight text-white"
-          >
-            ZD Translate
-          </Link>
-          <LanguageToggle />
-        </div>
-      </header>
+      <SiteHeader userEmail={user?.email ?? null} sticky={false} />
       <main>
         <PricingSection defaultTab="membership" />
       </main>

@@ -4,39 +4,20 @@ import Link from "next/link";
 import { GetStartedButton } from "@/app/get-started-button";
 import { InteractiveDemo } from "@/components/InteractiveDemo";
 import { PricingSection } from "@/components/PricingSection";
-import { LanguageToggle } from "@/components/language-toggle";
+import { SiteHeader } from "@/components/site-header";
 import { useLanguage } from "@/i18n/language-provider";
 
 type HomePageClientProps = {
-  isLoggedIn: boolean;
+  userEmail: string | null;
 };
 
-export function HomePageClient({ isLoggedIn }: HomePageClientProps) {
+export function HomePageClient({ userEmail }: HomePageClientProps) {
   const { t } = useLanguage();
   const h = t.home;
-  const c = t.common;
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
-      <header className="sticky top-0 z-10 border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-6">
-          <Link
-            href="/"
-            className="text-sm font-semibold tracking-tight text-white"
-          >
-            {c.brand}
-          </Link>
-          <div className="flex items-center gap-3">
-            <LanguageToggle />
-            <Link
-              href={isLoggedIn ? "/dashboard" : "/login"}
-              className="rounded-lg border border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-200 transition-colors hover:border-zinc-500 hover:bg-zinc-900"
-            >
-              {isLoggedIn ? c.dashboard : c.signIn}
-            </Link>
-          </div>
-        </div>
-      </header>
+      <SiteHeader userEmail={userEmail} />
 
       <main className="flex-1">
         <section className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
