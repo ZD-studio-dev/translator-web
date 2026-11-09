@@ -2,7 +2,7 @@ export const instant = false;
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { DashboardClient } from "@/app/dashboard/dashboard-client";
-import { isProActive } from "@/utils/api/client-session";
+import { isUserPro, type ProfileCreditsRow } from "@/utils/api/client-session";
 import { createClient } from "@/utils/supabase/server";
 import { parseCreditsBalance } from "@/utils/credits";
 
@@ -43,12 +43,9 @@ export default async function DashboardPage() {
 
   const email = profile?.email ?? user.email ?? "Unknown";
   const creditsBalance = parseCreditsBalance(profile?.credits_balance);
-  const proActive = isProActive({
-    plan_tier: profile?.plan_tier,
-    is_pro: profile?.is_pro,
-    plan: profile?.plan,
-    subscription_expires_at: profile?.subscription_expires_at,
-  });
+  const proActive = profile
+    ? isUserPro(profile as ProfileCreditsRow)
+    : false;
 
   const storeUrl = process.env.NEXT_PUBLIC_LEMONSQUEEZY_STORE_URL?.replace(
     /\/$/,

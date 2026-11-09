@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getClientUserId } from "@/utils/api/client-auth";
 import {
-  isProActive,
+  buildClientUserStatusFields,
+  CLIENT_PROFILE_SELECT,
   normalizeSubscriptionPeriod,
   parseCredits,
   type ProfileCreditsRow,
@@ -18,9 +19,7 @@ export async function GET(request: Request) {
     const admin = createAdminClient();
     const { data: profile, error } = await admin
       .from("profiles")
-      .select(
-        "email, plan_tier, credits_balance, is_pro, plan, subscription_period, subscription_expires_at",
-      )
+      .select(CLIENT_PROFILE_SELECT)
       .eq("id", auth.userId)
       .single();
 
@@ -29,21 +28,13 @@ export async function GET(request: Request) {
     }
 
     const row = profile as ProfileCreditsRow;
-    const remainingSeconds = parseCredits(row.credits_balance);
-    const planTier =
-      row.plan_tier ?? (row.plan === "pro" ? "pro" : "free");
-    const proActive = isProActive(row);
+    const status = buildClientUserStatusFields(row);
 
     return NextResponse.json({
       id: auth.userId,
       user_id: auth.userId,
       email: row.email,
-      plan_tier: planTier,
-      credits_balance: remainingSeconds,
-      is_pro: proActive,
-      remaining_seconds: remainingSeconds,
-      remaining_minutes: Math.floor(remainingSeconds / 60),
-      unlimited_s2t: proActive,
+      ...status,
       subscription_period: normalizeSubscriptionPeriod(row.subscription_period),
       subscription_expires_at: row.subscription_expires_at ?? null,
     });

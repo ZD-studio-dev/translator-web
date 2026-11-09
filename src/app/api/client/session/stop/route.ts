@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { getClientUserId } from "@/utils/api/client-auth";
 import {
+  buildClientUserStatusFields,
+  CLIENT_PROFILE_SELECT,
   computeBillableCharge,
   elapsedSecondsSince,
   getSessionModeFromRow,
   GRACE_PERIOD_SEC,
   insertCreditTransaction,
-  isProActive,
+  isUserPro,
   parseCredits,
   type ProfileCreditsRow,
   type TranslationSessionRow,
@@ -57,9 +59,7 @@ export async function POST(request: Request) {
 
     const { data: profile, error: profileError } = await admin
       .from("profiles")
-      .select(
-        "credits_balance, plan_tier, is_pro, plan, subscription_expires_at",
-      )
+      .select(CLIENT_PROFILE_SELECT)
       .eq("id", auth.userId)
       .single();
 
@@ -68,18 +68,22 @@ export async function POST(request: Request) {
     }
 
     const profileRow = profile as ProfileCreditsRow;
-    const proActive = isProActive(profileRow);
+    const proActive = isUserPro(profileRow, admin);
     let creditsBalance = parseCredits(profileRow.credits_balance);
+
+    const withUserStatus = (balance: number) =>
+      buildClientUserStatusFields(profileRow, { creditsBalance: balance });
 
     if (sessionRow.status !== "active") {
       return NextResponse.json({
         session_id: sessionId,
         status: sessionRow.status,
-        credits_balance: creditsBalance,
-        remaining_seconds: creditsBalance,
         total_credits_charged: sessionRow.total_credits_charged,
         total_seconds: sessionRow.total_seconds,
         waived: false,
+        charged: 0,
+        charged_seconds: 0,
+        ...withUserStatus(creditsBalance),
       });
     }
 
@@ -111,9 +115,9 @@ export async function POST(request: Request) {
         waived: true,
         total_credits_charged: 0,
         total_seconds: totalDurationSec,
-        credits_balance: creditsBalance,
-        remaining_seconds: creditsBalance,
         charged: 0,
+        charged_seconds: 0,
+        ...withUserStatus(creditsBalance),
       });
     }
 
@@ -179,11 +183,11 @@ export async function POST(request: Request) {
       session_id: sessionId,
       status: "completed",
       waived: false,
-      credits_balance: finalBalance,
-      remaining_seconds: finalBalance,
       total_credits_charged: totalCharged,
       total_seconds: totalSeconds,
       charged: charge,
+      charged_seconds: charge,
+      ...withUserStatus(finalBalance),
     });
   } catch (err) {
     console.error("POST /api/client/session/stop error:", err);

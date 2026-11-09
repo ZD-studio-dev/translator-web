@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import { getClientUserId } from "@/utils/api/client-auth";
 import {
+  buildClientUserStatusFields,
+  CLIENT_PROFILE_SELECT,
   computeBillableCharge,
   elapsedSecondsSince,
   fetchActiveSession,
   getSessionModeFromRow,
   HEARTBEAT_MAX_ELAPSED_SEC,
   insertCreditTransaction,
-  isProActive,
+  isUserPro,
   LOW_CREDITS_STOP_THRESHOLD,
   parseCredits,
   type ProfileCreditsRow,
@@ -50,9 +52,7 @@ export async function POST(request: Request) {
 
     const { data: profile, error: profileError } = await admin
       .from("profiles")
-      .select(
-        "credits_balance, plan_tier, is_pro, plan, subscription_expires_at",
-      )
+      .select(CLIENT_PROFILE_SELECT)
       .eq("id", auth.userId)
       .single();
 
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     }
 
     const profileRow = profile as ProfileCreditsRow;
-    const proActive = isProActive(profileRow);
+    const proActive = isUserPro(profileRow, admin);
     const mode = getSessionModeFromRow(session);
 
     const now = new Date();
@@ -129,18 +129,20 @@ export async function POST(request: Request) {
 
       return NextResponse.json({
         should_stop: true,
-        credits_balance: Math.max(0, creditsBalance),
-        remaining_seconds: Math.max(0, creditsBalance),
         charged: charge,
+        charged_seconds: charge,
         message: "Out of credits",
+        ...buildClientUserStatusFields(profileRow, {
+          creditsBalance: Math.max(0, creditsBalance),
+        }),
       });
     }
 
     return NextResponse.json({
       should_stop: false,
-      credits_balance: creditsBalance,
-      remaining_seconds: creditsBalance,
       charged: charge,
+      charged_seconds: charge,
+      ...buildClientUserStatusFields(profileRow, { creditsBalance }),
     });
   } catch (err) {
     console.error("POST /api/client/session/heartbeat error:", err);

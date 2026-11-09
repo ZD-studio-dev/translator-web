@@ -32,8 +32,34 @@ export type ProfileCreditsRow = {
   subscription_status?: string | null;
 };
 
+/** Shared `profiles` columns for client billing APIs. */
+export const CLIENT_PROFILE_SELECT =
+  "email, plan_tier, credits_balance, is_pro, plan, subscription_period, subscription_expires_at, subscription_status";
+
+export type ClientUserStatusFields = {
+  is_pro: boolean;
+  unlimited_s2t: boolean;
+  plan_tier: string;
+  subscription_status: string | null;
+  remaining_seconds: number;
+  remaining_minutes: number;
+  credits_balance: number;
+};
+
+const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active", "on_trial"]);
+
 export function parseSessionMode(value: unknown): SessionMode {
-  return value === "s2t" ? "s2t" : "s2s";
+  if (typeof value !== "string") {
+    return "s2s";
+  }
+  return value.trim().toLowerCase() === "s2t" ? "s2t" : "s2s";
+}
+
+export function parseSessionModeFromBody(body: {
+  mode?: unknown;
+  session_mode?: unknown;
+}): SessionMode {
+  return parseSessionMode(body.mode ?? body.session_mode);
 }
 
 export function getSessionModeFromRow(session: TranslationSessionRow): SessionMode {
@@ -47,36 +73,71 @@ export function isProTier(planTier: string | null | undefined): boolean {
   return PRO_PLAN_TIERS.has(planTier.toLowerCase());
 }
 
-/** Active Pro membership (unlimited S2T + S2S billing rules). */
-export function isProActive(profile: {
-  plan_tier?: string | null;
-  is_pro?: boolean | null;
-  plan?: string | null;
-  subscription_expires_at?: string | null;
-}): boolean {
-  const tier = profile.plan_tier?.toLowerCase() ?? null;
-  const tierIsPro =
-    isProTier(tier) ||
-    profile.is_pro === true ||
-    profile.plan === "pro" ||
-    tier === "pro_monthly" ||
-    tier === "pro_quarterly";
-
-  if (!tierIsPro) {
-    return false;
-  }
-
-  const expiresRaw = profile.subscription_expires_at;
+function subscriptionNotExpired(
+  expiresRaw: string | null | undefined,
+  now = new Date(),
+): boolean {
   if (!expiresRaw) {
     return true;
   }
-
   const expiresAt = new Date(expiresRaw);
   if (Number.isNaN(expiresAt.getTime())) {
     return true;
   }
+  return expiresAt > now;
+}
 
-  return expiresAt > new Date();
+/**
+ * Canonical Pro membership check for client APIs (must match `GET /api/client/user`).
+ */
+export function isUserPro(
+  profile: ProfileCreditsRow,
+  _admin?: SupabaseClient,
+): boolean {
+  const tier = profile.plan_tier?.toLowerCase() ?? null;
+  const tierIsPro =
+    (tier !== null && tier.startsWith("pro")) ||
+    isProTier(tier) ||
+    profile.is_pro === true ||
+    profile.plan === "pro";
+
+  const status = profile.subscription_status?.toLowerCase() ?? null;
+  const statusIsPro =
+    status !== null && ACTIVE_SUBSCRIPTION_STATUSES.has(status);
+
+  if (!tierIsPro && !statusIsPro) {
+    return false;
+  }
+
+  return subscriptionNotExpired(profile.subscription_expires_at);
+}
+
+/** Active Pro membership (unlimited S2T + S2S billing rules). */
+export function isProActive(profile: ProfileCreditsRow): boolean {
+  return isUserPro(profile);
+}
+
+export function resolvePlanTier(row: ProfileCreditsRow): string {
+  return row.plan_tier ?? (row.plan === "pro" ? "pro" : "free");
+}
+
+export function buildClientUserStatusFields(
+  profile: ProfileCreditsRow,
+  options?: { creditsBalance?: number },
+): ClientUserStatusFields {
+  const pro = isUserPro(profile);
+  const remainingSeconds =
+    options?.creditsBalance ?? parseCredits(profile.credits_balance);
+
+  return {
+    is_pro: pro,
+    unlimited_s2t: pro,
+    plan_tier: resolvePlanTier(profile),
+    subscription_status: profile.subscription_status ?? null,
+    remaining_seconds: remainingSeconds,
+    remaining_minutes: Math.floor(remainingSeconds / 60),
+    credits_balance: remainingSeconds,
+  };
 }
 
 export function shouldChargeSessionSeconds(
