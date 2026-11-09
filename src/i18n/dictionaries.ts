@@ -393,7 +393,7 @@ export const dictionaries = {
         },
         pack3h: {
           name: "3 小时加时包",
-          badge: "主推",
+          badge: "推荐",
           price: "$12.90",
           timeLine: "+180 分钟 S2S 语音（10,800 秒）",
           valueCallout: "🔥 约合 $0.07/分钟（比 1 小时包更划算）",
