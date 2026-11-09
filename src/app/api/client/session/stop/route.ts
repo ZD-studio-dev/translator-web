@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import { getClientUserId } from "@/utils/api/client-auth";
 import {
+  computeBillableCharge,
   elapsedSecondsSince,
+  getSessionModeFromRow,
   GRACE_PERIOD_SEC,
   insertCreditTransaction,
+  isProActive,
   parseCredits,
   type ProfileCreditsRow,
   type TranslationSessionRow,
@@ -50,10 +53,13 @@ export async function POST(request: Request) {
     }
 
     const sessionRow = session as TranslationSessionRow;
+    const mode = getSessionModeFromRow(sessionRow);
 
     const { data: profile, error: profileError } = await admin
       .from("profiles")
-      .select("credits_balance")
+      .select(
+        "credits_balance, plan_tier, is_pro, plan, subscription_expires_at",
+      )
       .eq("id", auth.userId)
       .single();
 
@@ -61,15 +67,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
 
-    let creditsBalance = parseCredits(
-      (profile as ProfileCreditsRow).credits_balance,
-    );
+    const profileRow = profile as ProfileCreditsRow;
+    const proActive = isProActive(profileRow);
+    let creditsBalance = parseCredits(profileRow.credits_balance);
 
     if (sessionRow.status !== "active") {
       return NextResponse.json({
         session_id: sessionId,
         status: sessionRow.status,
         credits_balance: creditsBalance,
+        remaining_seconds: creditsBalance,
         total_credits_charged: sessionRow.total_credits_charged,
         total_seconds: sessionRow.total_seconds,
         waived: false,
@@ -105,6 +112,8 @@ export async function POST(request: Request) {
         total_credits_charged: 0,
         total_seconds: totalDurationSec,
         credits_balance: creditsBalance,
+        remaining_seconds: creditsBalance,
+        charged: 0,
       });
     }
 
@@ -112,20 +121,26 @@ export async function POST(request: Request) {
       0,
       elapsedSecondsSince(sessionRow.last_billed_at, now),
     );
-    const charge = Math.min(creditsBalance, remainingSec);
+    const charge = computeBillableCharge(
+      proActive,
+      mode,
+      remainingSec,
+      creditsBalance,
+    );
     const newBalance = creditsBalance - charge;
     const totalCharged = sessionRow.total_credits_charged + charge;
     const totalSeconds =
-      sessionRow.total_seconds +
-      (remainingSec > 0 ? remainingSec : 0);
+      sessionRow.total_seconds + (remainingSec > 0 ? remainingSec : 0);
 
-    const { error: profileUpdateError } = await admin
-      .from("profiles")
-      .update({ credits_balance: newBalance })
-      .eq("id", auth.userId);
+    if (charge > 0) {
+      const { error: profileUpdateError } = await admin
+        .from("profiles")
+        .update({ credits_balance: newBalance })
+        .eq("id", auth.userId);
 
-    if (profileUpdateError) {
-      throw profileUpdateError;
+      if (profileUpdateError) {
+        throw profileUpdateError;
+      }
     }
 
     const { error: sessionUpdateError } = await admin
@@ -144,20 +159,28 @@ export async function POST(request: Request) {
       throw sessionUpdateError;
     }
 
-    await insertCreditTransaction(admin, {
-      userId: auth.userId,
-      sessionId,
-      amount: -charge,
-      balanceAfter: newBalance,
-      type: "session_usage",
-      description: "Session stop settlement",
-    });
+    if (charge > 0) {
+      await insertCreditTransaction(admin, {
+        userId: auth.userId,
+        sessionId,
+        amount: -charge,
+        balanceAfter: newBalance,
+        type: "session_usage",
+        description:
+          mode === "s2s"
+            ? "S2S voice session (stop settlement)"
+            : "Session stop settlement",
+      });
+    }
+
+    const finalBalance = charge > 0 ? newBalance : creditsBalance;
 
     return NextResponse.json({
       session_id: sessionId,
       status: "completed",
       waived: false,
-      credits_balance: newBalance,
+      credits_balance: finalBalance,
+      remaining_seconds: finalBalance,
       total_credits_charged: totalCharged,
       total_seconds: totalSeconds,
       charged: charge,

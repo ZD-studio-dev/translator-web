@@ -28,6 +28,12 @@ export function PricingSection({
       ? "bg-white text-zinc-950"
       : "text-zinc-300 hover:bg-zinc-800 hover:text-white";
 
+  const packCards = [
+    { id: "pack_1h" as const, highlight: false, copy: p.packs.pack1h },
+    { id: "pack_3h" as const, highlight: true, copy: p.packs.pack3h },
+    { id: "pack_10h" as const, highlight: false, copy: p.packs.pack10h },
+  ];
+
   return (
     <section
       id={sectionId}
@@ -81,7 +87,7 @@ export function PricingSection({
         </div>
 
         {tab === "membership" ? (
-          <div className="mt-10 grid gap-6 lg:grid-cols-2">
+          <div className="mt-10 grid gap-6 lg:grid-cols-3">
             <div className="flex flex-col rounded-2xl border border-zinc-800 bg-zinc-950/60 p-8">
               <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
                 {p.membership.free.badge}
@@ -91,7 +97,7 @@ export function PricingSection({
               </p>
               <p className="mt-1 text-3xl font-semibold text-white">$0</p>
               <p className="mt-2 text-sm font-medium text-emerald-400/90">
-                {p.membership.free.creditsLine}
+                {p.membership.free.timeLine}
               </p>
               <ul className="mt-6 flex-1 space-y-2.5 text-sm text-zinc-400">
                 {p.membership.free.benefits.map((line) => (
@@ -110,10 +116,10 @@ export function PricingSection({
 
             <div className="relative flex flex-col rounded-2xl border border-emerald-500/40 bg-zinc-900 p-8 ring-1 ring-emerald-500/20">
               <span className="absolute -top-3 right-6 rounded-full bg-emerald-500 px-3 py-0.5 text-xs font-semibold text-zinc-950">
-                {p.membership.pro.badge}
+                {p.membership.proMonthly.badge}
               </span>
               <p className="text-lg font-semibold text-white">
-                {p.membership.pro.name}
+                {p.membership.proMonthly.name}
               </p>
               <p className="mt-1 text-3xl font-semibold text-white">
                 $19
@@ -122,10 +128,13 @@ export function PricingSection({
                 </span>
               </p>
               <p className="mt-2 text-sm font-medium text-emerald-400/90">
-                {p.membership.pro.creditsLine}
+                {p.membership.proMonthly.highlight}
               </p>
-              <ul className="mt-6 flex-1 space-y-2.5 text-sm text-zinc-300">
-                {p.membership.pro.benefits.map((line) => (
+              <p className="mt-1 text-xs text-zinc-500">
+                {p.membership.proMonthly.s2sLine}
+              </p>
+              <ul className="mt-5 flex-1 space-y-2.5 text-sm text-zinc-300">
+                {p.membership.proMonthly.benefits.map((line) => (
                   <li key={line} className="flex gap-2">
                     <span className="text-emerald-400" aria-hidden>
                       ✓
@@ -136,32 +145,50 @@ export function PricingSection({
               </ul>
               <CheckoutButton
                 payload={{ plan: "pro_monthly" }}
-                label={p.membership.pro.cta}
+                label={p.membership.proMonthly.cta}
                 className="mt-8 flex h-11 w-full items-center justify-center rounded-lg bg-white text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
+              />
+            </div>
+
+            <div className="relative flex flex-col rounded-2xl border border-amber-500/40 bg-zinc-900 p-8 ring-1 ring-amber-500/25">
+              <span className="absolute -top-3 right-6 rounded-full bg-amber-400 px-3 py-0.5 text-xs font-semibold text-zinc-950">
+                {p.membership.proQuarterly.badge}
+              </span>
+              <p className="text-lg font-semibold text-white">
+                {p.membership.proQuarterly.name}
+              </p>
+              <p className="mt-1 text-3xl font-semibold text-white">
+                $45
+                <span className="text-base font-normal text-zinc-500">
+                  /3 mo
+                </span>
+              </p>
+              <p className="mt-2 text-sm font-medium text-amber-300/90">
+                {p.membership.proQuarterly.highlight}
+              </p>
+              <p className="mt-1 text-xs text-zinc-500">
+                {p.membership.proQuarterly.s2sLine}
+              </p>
+              <ul className="mt-5 flex-1 space-y-2.5 text-sm text-zinc-300">
+                {p.membership.proQuarterly.benefits.map((line) => (
+                  <li key={line} className="flex gap-2">
+                    <span className="text-amber-400" aria-hidden>
+                      ✓
+                    </span>
+                    <span>{line}</span>
+                  </li>
+                ))}
+              </ul>
+              <CheckoutButton
+                payload={{ plan: "pro_quarterly" }}
+                label={p.membership.proQuarterly.cta}
+                className="mt-8 flex h-11 w-full items-center justify-center rounded-lg bg-amber-400 text-sm font-medium text-zinc-950 transition-colors hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
               />
             </div>
           </div>
         ) : (
           <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {(
-              [
-                {
-                  id: "starter" as const,
-                  highlight: false,
-                  copy: p.packs.starter,
-                },
-                {
-                  id: "popular" as const,
-                  highlight: true,
-                  copy: p.packs.popular,
-                },
-                {
-                  id: "pro" as const,
-                  highlight: false,
-                  copy: p.packs.pro,
-                },
-              ] as const
-            ).map(({ id, highlight, copy }) => (
+            {packCards.map(({ id, highlight, copy }) => (
               <div
                 key={id}
                 className={`relative flex flex-col rounded-2xl p-8 ${
@@ -170,7 +197,7 @@ export function PricingSection({
                     : "border border-zinc-800 bg-zinc-950/60"
                 }`}
               >
-                {highlight && copy.badge ? (
+                {highlight && "badge" in copy && copy.badge ? (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber-400 px-3 py-0.5 text-xs font-semibold text-zinc-950">
                     {copy.badge}
                   </span>
@@ -180,7 +207,7 @@ export function PricingSection({
                   {copy.price}
                 </p>
                 <p className="mt-2 text-sm font-medium text-emerald-400/90">
-                  {copy.creditsLine}
+                  {copy.timeLine}
                 </p>
                 <p className="mt-3 text-xs leading-relaxed text-zinc-500">
                   {p.packs.neverExpire}

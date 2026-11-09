@@ -2,15 +2,19 @@ import { NextResponse } from "next/server";
 import { getClientUserId } from "@/utils/api/client-auth";
 import {
   HEARTBEAT_INTERVAL_SEC,
+  isProActive,
   issueEphemeralCredentials,
   MIN_CREDITS_TO_START,
   parseCredits,
+  parseSessionMode,
   type ProfileCreditsRow,
+  type SessionMode,
 } from "@/utils/api/client-session";
 import { createAdminClient } from "@/utils/supabase/admin";
 
 type StartBody = {
   provider?: "openai" | "qwen" | "doubao";
+  mode?: SessionMode;
 };
 
 export async function POST(request: Request) {
@@ -31,11 +35,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid provider" }, { status: 400 });
   }
 
+  const mode = parseSessionMode(body.mode);
+
   try {
     const admin = createAdminClient();
     const { data: profile, error: profileError } = await admin
       .from("profiles")
-      .select("credits_balance")
+      .select(
+        "credits_balance, plan_tier, is_pro, plan, subscription_expires_at",
+      )
       .eq("id", auth.userId)
       .single();
 
@@ -43,15 +51,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
 
-    const creditsBalance = parseCredits(
-      (profile as ProfileCreditsRow).credits_balance,
-    );
+    const profileRow = profile as ProfileCreditsRow;
+    const creditsBalance = parseCredits(profileRow.credits_balance);
+    const proActive = isProActive(profileRow);
+    const skipBalanceCheck = proActive && mode === "s2t";
 
-    if (creditsBalance < MIN_CREDITS_TO_START) {
+    if (!skipBalanceCheck && creditsBalance < MIN_CREDITS_TO_START) {
       return NextResponse.json(
         {
           error: "Insufficient credits",
           credits_balance: creditsBalance,
+          remaining_seconds: creditsBalance,
         },
         { status: 402 },
       );
@@ -68,6 +78,7 @@ export async function POST(request: Request) {
         total_seconds: 0,
         total_credits_charged: 0,
         provider,
+        session_mode: mode,
       })
       .select("id")
       .single();
@@ -88,8 +99,11 @@ export async function POST(request: Request) {
       ws_url: credentials.ws_url,
       ephemeral_token: credentials.ephemeral_token,
       credits_balance: creditsBalance,
+      remaining_seconds: creditsBalance,
       heartbeat_interval_sec: HEARTBEAT_INTERVAL_SEC,
       provider,
+      mode,
+      unlimited_s2t: proActive && mode === "s2t",
     });
   } catch (err) {
     console.error("POST /api/client/session/start error:", err);

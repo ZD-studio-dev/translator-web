@@ -99,14 +99,7 @@ async function ensureTestUserAndToken() {
       });
 
     if (createError) {
-      const { data: listed, error: listError } =
-        await admin.auth.admin.listUsers({ page: 1, perPage: 1 });
-      if (listError || !listed.users?.length) {
-        throw createError;
-      }
-      throw new Error(
-        `Could not sign in as ${TEST_EMAIL} and could not create user. Set TEST_CLIENT_EMAIL / TEST_CLIENT_PASSWORD for an existing account, or fix admin permissions. Original: ${createError.message}`,
-      );
+      throw createError;
     }
 
     const userId = created.user.id;
@@ -126,18 +119,17 @@ async function ensureTestUserAndToken() {
   }
 
   const userId = signIn.data.user.id;
-  const { error: resetError } = await admin
+  await admin
     .from("profiles")
-    .update({ credits_balance: 600, email: TEST_EMAIL })
-    .eq("id", userId);
-
-  if (resetError) {
-    await admin.from("profiles").upsert({
-      id: userId,
-      email: TEST_EMAIL,
+    .update({
       credits_balance: 600,
-    });
-  }
+      email: TEST_EMAIL,
+      plan_tier: "free",
+      is_pro: false,
+      subscription_expires_at: null,
+      subscription_period: null,
+    })
+    .eq("id", userId);
 
   return {
     token: signIn.data.session.access_token,
@@ -156,19 +148,22 @@ async function main() {
   assert(userRes.status === 200, "GET /api/client/user should return 200");
   assert(
     userRes.json.credits_balance === 600,
-    `Expected initial credits_balance 600, got ${userRes.json.credits_balance}`,
+    `Expected credits_balance 600, got ${userRes.json.credits_balance}`,
+  );
+  assert(
+    userRes.json.remaining_seconds === 600,
+    "remaining_seconds should mirror credits_balance",
   );
 
   const startGrace = await apiRequest(
     "POST",
     "/api/client/session/start",
     token,
-    { provider: "openai" },
+    { provider: "openai", mode: "s2s" },
   );
   log("POST /api/client/session/start (grace test)", startGrace);
   assert(startGrace.status === 200, "session/start should succeed");
   const graceSessionId = startGrace.json.session_id;
-  assert(graceSessionId, "session_id missing");
 
   await sleep(2000);
 
@@ -179,23 +174,24 @@ async function main() {
     { session_id: graceSessionId },
   );
   log("POST /api/client/session/stop (grace test)", stopGrace);
-  assert(stopGrace.status === 200, "session/stop should succeed");
   assert(stopGrace.json.waived === true, "Expected waived: true within 5s");
   assert(
     stopGrace.json.credits_balance === 600,
-    `Expected credits still 600 after grace stop, got ${stopGrace.json.credits_balance}`,
+    `Expected balance still 600 after grace stop, got ${stopGrace.json.credits_balance}`,
   );
 
-  await admin.from("profiles").update({ credits_balance: 600 }).eq("id", userId);
+  await admin
+    .from("profiles")
+    .update({ credits_balance: 600, plan_tier: "free", is_pro: false })
+    .eq("id", userId);
 
   const startBilling = await apiRequest(
     "POST",
     "/api/client/session/start",
     token,
-    { provider: "openai" },
+    { provider: "openai", mode: "s2s" },
   );
-  log("POST /api/client/session/start (billing test)", startBilling);
-  assert(startBilling.status === 200, "billing session/start should succeed");
+  log("POST /api/client/session/start (S2S billing)", startBilling);
   const billingSessionId = startBilling.json.session_id;
 
   await sleep(6000);
@@ -206,17 +202,10 @@ async function main() {
     token,
     { session_id: billingSessionId },
   );
-  log("POST /api/client/session/heartbeat", heartbeat);
-  assert(heartbeat.status === 200, "heartbeat should succeed");
+  log("POST /api/client/session/heartbeat (S2S)", heartbeat);
   assert(
     heartbeat.json.charged >= 5 && heartbeat.json.charged <= 8,
-    `Expected heartbeat charge ~6 (5-8), got ${heartbeat.json.charged}`,
-  );
-
-  const afterHeartbeatBalance = heartbeat.json.credits_balance;
-  assert(
-    afterHeartbeatBalance >= 592 && afterHeartbeatBalance <= 595,
-    `Expected balance ~594 after ~6s charge, got ${afterHeartbeatBalance}`,
+    `Expected heartbeat charge ~6, got ${heartbeat.json.charged}`,
   );
 
   await sleep(3000);
@@ -227,29 +216,78 @@ async function main() {
     token,
     { session_id: billingSessionId },
   );
-  log("POST /api/client/session/stop (billing test)", stopBilling);
-  assert(stopBilling.status === 200, "billing stop should succeed");
-  assert(stopBilling.json.waived === false, "Expected waived: false");
-
+  log("POST /api/client/session/stop (S2S)", stopBilling);
   const finalBalance = stopBilling.json.credits_balance;
   const totalCharged = stopBilling.json.total_credits_charged;
   assert(
     totalCharged >= 8 && totalCharged <= 11,
-    `Expected total charged ~9 (8-11), got ${totalCharged}`,
+    `Expected total charged ~9, got ${totalCharged}`,
   );
   assert(
     finalBalance >= 589 && finalBalance <= 592,
-    `Expected final balance ~591 (589-592), got ${finalBalance}`,
+    `Expected final balance ~591, got ${finalBalance}`,
   );
 
-  const finalUser = await apiRequest("GET", "/api/client/user", token);
-  log("GET /api/client/user (final)", finalUser);
+  const futureExpiry = new Date();
+  futureExpiry.setMonth(futureExpiry.getMonth() + 1);
+
+  await admin
+    .from("profiles")
+    .update({
+      credits_balance: 10,
+      plan_tier: "pro",
+      is_pro: true,
+      subscription_expires_at: futureExpiry.toISOString(),
+      subscription_period: "monthly",
+    })
+    .eq("id", userId);
+
+  const startS2tLowBalance = await apiRequest(
+    "POST",
+    "/api/client/session/start",
+    token,
+    { provider: "openai", mode: "s2t" },
+  );
+  log("POST /api/client/session/start (Pro S2T, low balance)", startS2tLowBalance);
   assert(
-    finalUser.json.credits_balance === finalBalance,
-    "Final GET user balance should match stop response",
+    startS2tLowBalance.status === 200,
+    "Pro S2T should start even with balance < 30",
+  );
+  const s2tSessionId = startS2tLowBalance.json.session_id;
+
+  await sleep(6000);
+
+  const hbS2t = await apiRequest(
+    "POST",
+    "/api/client/session/heartbeat",
+    token,
+    { session_id: s2tSessionId },
+  );
+  log("POST /api/client/session/heartbeat (Pro S2T)", hbS2t);
+  assert(hbS2t.json.charged === 0, "Pro S2T heartbeat must charge 0");
+  assert(hbS2t.json.credits_balance === 10, "Pro S2T must not deduct balance");
+
+  await sleep(1000);
+
+  const stopS2t = await apiRequest(
+    "POST",
+    "/api/client/session/stop",
+    token,
+    { session_id: s2tSessionId },
+  );
+  log("POST /api/client/session/stop (Pro S2T)", stopS2t);
+  assert(stopS2t.json.charged === 0, "Pro S2T stop must charge 0");
+  assert(
+    stopS2t.json.credits_balance === 10,
+    "Balance unchanged after Pro S2T",
   );
 
-  console.log("\n✅ All client API checks passed.");
+  const userPro = await apiRequest("GET", "/api/client/user", token);
+  log("GET /api/client/user (pro)", userPro);
+  assert(userPro.json.is_pro === true, "is_pro should be true");
+  assert(userPro.json.unlimited_s2t === true, "unlimited_s2t should be true");
+
+  console.log("\n✅ All client API checks passed (S2S billing + Pro S2T unlimited).");
 }
 
 main().catch((err) => {

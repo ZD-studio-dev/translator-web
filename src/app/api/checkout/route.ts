@@ -1,4 +1,5 @@
 import {
+  normalizePackId,
   resolveCheckoutVariantId,
   type CheckoutPayload,
 } from "@/config/pricing";
@@ -12,11 +13,16 @@ function parseCheckoutBody(body: unknown): CheckoutPayload | null {
     return { plan: "pro_monthly" };
   }
   const record = body as Record<string, unknown>;
-  const packId = record.pack_id;
-  if (packId === "starter" || packId === "popular" || packId === "pro") {
+  const packId = normalizePackId(
+    typeof record.pack_id === "string" ? record.pack_id : undefined,
+  );
+  if (packId) {
     return { pack_id: packId };
   }
   const plan = record.plan;
+  if (plan === "pro_quarterly") {
+    return { plan: "pro_quarterly" };
+  }
   if (plan === "pro_monthly") {
     return { plan: "pro_monthly" };
   }

@@ -2,6 +2,7 @@ export const instant = false;
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { DashboardClient } from "@/app/dashboard/dashboard-client";
+import { isProActive } from "@/utils/api/client-session";
 import { createClient } from "@/utils/supabase/server";
 import { parseCreditsBalance } from "@/utils/credits";
 
@@ -27,7 +28,9 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("email, plan, is_pro, subscription_status, plan_tier, credits_balance")
+    .select(
+      "email, plan, is_pro, subscription_status, plan_tier, credits_balance, subscription_period, subscription_expires_at",
+    )
     .eq("id", user.id)
     .single();
 
@@ -39,12 +42,13 @@ export default async function DashboardPage() {
     .limit(10);
 
   const email = profile?.email ?? user.email ?? "Unknown";
-  const planTierRaw = profile?.plan_tier ?? (profile?.is_pro ? "pro" : "free");
-  const planTier =
-    planTierRaw === "pro" || profile?.is_pro || profile?.plan === "pro"
-      ? "pro"
-      : "free";
   const creditsBalance = parseCreditsBalance(profile?.credits_balance);
+  const proActive = isProActive({
+    plan_tier: profile?.plan_tier,
+    is_pro: profile?.is_pro,
+    plan: profile?.plan,
+    subscription_expires_at: profile?.subscription_expires_at,
+  });
 
   const storeUrl = process.env.NEXT_PUBLIC_LEMONSQUEEZY_STORE_URL?.replace(
     /\/$/,
@@ -54,11 +58,19 @@ export default async function DashboardPage() {
   const winDownloadUrl = process.env.NEXT_PUBLIC_WIN_DOWNLOAD_URL?.trim() || null;
   const macDownloadUrl = process.env.NEXT_PUBLIC_MAC_DOWNLOAD_URL?.trim() || null;
 
+  let subscriptionPeriod: "monthly" | "quarterly" | null = null;
+  if (profile?.subscription_period === "monthly") subscriptionPeriod = "monthly";
+  if (profile?.subscription_period === "quarterly") {
+    subscriptionPeriod = "quarterly";
+  }
+
   return (
     <DashboardClient
       email={email}
-      planTier={planTier}
+      isPro={proActive}
       creditsBalance={creditsBalance}
+      subscriptionPeriod={subscriptionPeriod}
+      subscriptionExpiresAt={profile?.subscription_expires_at ?? null}
       billingUrl={billingUrl}
       winDownloadUrl={winDownloadUrl}
       macDownloadUrl={macDownloadUrl}

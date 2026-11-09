@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { getClientUserId } from "@/utils/api/client-auth";
-import { parseCredits, type ProfileCreditsRow } from "@/utils/api/client-session";
+import {
+  isProActive,
+  normalizeSubscriptionPeriod,
+  parseCredits,
+  type ProfileCreditsRow,
+} from "@/utils/api/client-session";
 import { createAdminClient } from "@/utils/supabase/admin";
 
 export async function GET(request: Request) {
@@ -13,7 +18,9 @@ export async function GET(request: Request) {
     const admin = createAdminClient();
     const { data: profile, error } = await admin
       .from("profiles")
-      .select("email, plan_tier, credits_balance, is_pro, plan")
+      .select(
+        "email, plan_tier, credits_balance, is_pro, plan, subscription_period, subscription_expires_at",
+      )
       .eq("id", auth.userId)
       .single();
 
@@ -22,18 +29,23 @@ export async function GET(request: Request) {
     }
 
     const row = profile as ProfileCreditsRow;
+    const remainingSeconds = parseCredits(row.credits_balance);
     const planTier =
       row.plan_tier ?? (row.plan === "pro" ? "pro" : "free");
-    const isPro =
-      row.is_pro === true || planTier === "pro" || row.plan === "pro";
+    const proActive = isProActive(row);
 
     return NextResponse.json({
       id: auth.userId,
       user_id: auth.userId,
       email: row.email,
       plan_tier: planTier,
-      credits_balance: parseCredits(row.credits_balance),
-      is_pro: isPro,
+      credits_balance: remainingSeconds,
+      is_pro: proActive,
+      remaining_seconds: remainingSeconds,
+      remaining_minutes: Math.floor(remainingSeconds / 60),
+      unlimited_s2t: proActive,
+      subscription_period: normalizeSubscriptionPeriod(row.subscription_period),
+      subscription_expires_at: row.subscription_expires_at ?? null,
     });
   } catch (err) {
     console.error("GET /api/client/user error:", err);

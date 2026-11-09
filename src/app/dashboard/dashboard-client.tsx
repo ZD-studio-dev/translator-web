@@ -9,14 +9,14 @@ import { PricingSection } from "@/components/PricingSection";
 import { LanguageToggle } from "@/components/language-toggle";
 import { useLanguage } from "@/i18n/language-provider";
 import type { Locale } from "@/i18n/dictionaries";
-import {
-  formatCreditsAsLiveDuration,
-} from "@/utils/credits";
+import { formatVoiceTimeRemaining } from "@/utils/credits";
 
 type DashboardClientProps = {
   email: string;
-  planTier: "free" | "pro";
+  isPro: boolean;
   creditsBalance: number;
+  subscriptionPeriod: "monthly" | "quarterly" | null;
+  subscriptionExpiresAt: string | null;
   billingUrl: string | null;
   winDownloadUrl: string | null;
   macDownloadUrl: string | null;
@@ -37,10 +37,21 @@ function scrollToTopUp() {
   });
 }
 
+function formatExpiresAt(iso: string | null, locale: Locale) {
+  if (!iso) return null;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  return new Intl.DateTimeFormat(locale === "zh" ? "zh-CN" : "en-US", {
+    dateStyle: "medium",
+  }).format(date);
+}
+
 export function DashboardClient({
   email,
-  planTier,
+  isPro,
   creditsBalance,
+  subscriptionPeriod,
+  subscriptionExpiresAt,
   billingUrl,
   winDownloadUrl,
   macDownloadUrl,
@@ -48,8 +59,7 @@ export function DashboardClient({
 }: DashboardClientProps) {
   const { t, locale } = useLanguage();
   const d = t.dashboard;
-
-  const isPro = planTier === "pro";
+  const expiresLabel = formatExpiresAt(subscriptionExpiresAt, locale);
 
   function typeLabel(type: string) {
     const map = d.transactionTypes as Record<string, string>;
@@ -81,12 +91,12 @@ export function DashboardClient({
                 {d.creditsOverview}
               </p>
               <p className="mt-2 text-sm text-zinc-400">{email}</p>
-              <div className="mt-4 flex flex-wrap items-end gap-3">
-                <p className="text-4xl font-semibold tabular-nums tracking-tight text-white sm:text-5xl">
-                  {creditsBalance.toLocaleString()}
-                  <span className="ml-2 text-lg font-medium text-zinc-400">
-                    Credits
-                  </span>
+              <p className="mt-3 text-xs font-medium uppercase tracking-wider text-zinc-500">
+                {d.voiceTimeLabel}
+              </p>
+              <div className="mt-2 flex flex-wrap items-end gap-3">
+                <p className="text-3xl font-semibold tabular-nums tracking-tight text-white sm:text-4xl">
+                  {formatVoiceTimeRemaining(creditsBalance, locale)}
                 </p>
                 <span
                   className={`mb-1 inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${
@@ -98,9 +108,19 @@ export function DashboardClient({
                   {isPro ? d.badgePro : d.badgeFree}
                 </span>
               </div>
-              <p className="mt-3 text-sm text-zinc-400">
-                {formatCreditsAsLiveDuration(creditsBalance, locale)}
-              </p>
+              {isPro ? (
+                <p className="mt-3 inline-flex items-center rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-sm font-medium text-emerald-300">
+                  {d.unlimitedS2t}
+                </p>
+              ) : null}
+              {isPro && expiresLabel ? (
+                <p className="mt-2 text-sm text-zinc-400">
+                  {d.subscriptionExpires}: {expiresLabel}
+                  {subscriptionPeriod
+                    ? ` (${subscriptionPeriod === "quarterly" ? "Quarterly" : "Monthly"})`
+                    : ""}
+                </p>
+              ) : null}
             </div>
             <button
               type="button"

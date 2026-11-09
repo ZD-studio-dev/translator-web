@@ -6,6 +6,8 @@ export const LOW_CREDITS_STOP_THRESHOLD = 10;
 export const GRACE_PERIOD_SEC = 5;
 export const HEARTBEAT_INTERVAL_SEC = 30;
 
+export type SessionMode = "s2t" | "s2s";
+
 export type TranslationSessionRow = {
   id: string;
   user_id: string;
@@ -16,6 +18,7 @@ export type TranslationSessionRow = {
   total_seconds: number;
   total_credits_charged: number;
   provider: string | null;
+  session_mode?: string | null;
 };
 
 export type ProfileCreditsRow = {
@@ -24,7 +27,90 @@ export type ProfileCreditsRow = {
   credits_balance: number;
   is_pro: boolean | null;
   plan?: string | null;
+  subscription_expires_at?: string | null;
+  subscription_period?: string | null;
+  subscription_status?: string | null;
 };
+
+export function parseSessionMode(value: unknown): SessionMode {
+  return value === "s2t" ? "s2t" : "s2s";
+}
+
+export function getSessionModeFromRow(session: TranslationSessionRow): SessionMode {
+  return parseSessionMode(session.session_mode);
+}
+
+const PRO_PLAN_TIERS = new Set(["pro", "pro_monthly", "pro_quarterly"]);
+
+export function isProTier(planTier: string | null | undefined): boolean {
+  if (!planTier) return false;
+  return PRO_PLAN_TIERS.has(planTier.toLowerCase());
+}
+
+/** Active Pro membership (unlimited S2T + S2S billing rules). */
+export function isProActive(profile: {
+  plan_tier?: string | null;
+  is_pro?: boolean | null;
+  plan?: string | null;
+  subscription_expires_at?: string | null;
+}): boolean {
+  const tier = profile.plan_tier?.toLowerCase() ?? null;
+  const tierIsPro =
+    isProTier(tier) ||
+    profile.is_pro === true ||
+    profile.plan === "pro" ||
+    tier === "pro_monthly" ||
+    tier === "pro_quarterly";
+
+  if (!tierIsPro) {
+    return false;
+  }
+
+  const expiresRaw = profile.subscription_expires_at;
+  if (!expiresRaw) {
+    return true;
+  }
+
+  const expiresAt = new Date(expiresRaw);
+  if (Number.isNaN(expiresAt.getTime())) {
+    return true;
+  }
+
+  return expiresAt > new Date();
+}
+
+export function shouldChargeSessionSeconds(
+  proActive: boolean,
+  mode: SessionMode,
+): boolean {
+  if (proActive && mode === "s2t") {
+    return false;
+  }
+  return true;
+}
+
+export function computeBillableCharge(
+  proActive: boolean,
+  mode: SessionMode,
+  elapsedSeconds: number,
+  remainingSeconds: number,
+): number {
+  if (!shouldChargeSessionSeconds(proActive, mode)) {
+    return 0;
+  }
+  return Math.min(remainingSeconds, elapsedSeconds);
+}
+
+export function normalizeSubscriptionPeriod(
+  value: string | null | undefined,
+): "monthly" | "quarterly" | null {
+  if (value === "monthly" || value === "quarterly") {
+    return value;
+  }
+  if (value === "pro_monthly") return "monthly";
+  if (value === "pro_quarterly") return "quarterly";
+  return null;
+}
 
 export function parseCredits(value: unknown): number {
   const n = Number(value ?? 0);
