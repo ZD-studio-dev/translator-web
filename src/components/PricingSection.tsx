@@ -3,6 +3,12 @@
 import { useState } from "react";
 import { GetStartedButton } from "@/app/get-started-button";
 import { CheckoutButton } from "@/components/checkout-button";
+import {
+  formatUsd,
+  PACK_USD,
+  PRICING_USD,
+  PRO_QUARTERLY_COMPARE_AT_USD,
+} from "@/config/pricing";
 import { useLanguage } from "@/i18n/language-provider";
 
 type PricingSectionProps = {
@@ -29,9 +35,9 @@ export function PricingSection({
       : "text-zinc-300 hover:bg-zinc-800 hover:text-white";
 
   const packCards = [
-    { id: "pack_1h" as const, highlight: false, copy: p.packs.pack1h },
-    { id: "pack_3h" as const, highlight: true, copy: p.packs.pack3h },
-    { id: "pack_10h" as const, highlight: false, copy: p.packs.pack10h },
+    { id: "pack_1h" as const, highlight: false, bestValue: false, copy: p.packs.pack1h },
+    { id: "pack_3h" as const, highlight: true, bestValue: false, copy: p.packs.pack3h },
+    { id: "pack_10h" as const, highlight: false, bestValue: true, copy: p.packs.pack10h },
   ];
 
   return (
@@ -122,7 +128,7 @@ export function PricingSection({
                 {p.membership.proMonthly.name}
               </p>
               <p className="mt-1 text-3xl font-semibold text-white">
-                $19
+                {formatUsd(PRICING_USD.proMonthly)}
                 <span className="text-base font-normal text-zinc-500">
                   {c.perMonth}
                 </span>
@@ -150,20 +156,33 @@ export function PricingSection({
               />
             </div>
 
-            <div className="relative flex flex-col rounded-2xl border border-amber-500/40 bg-zinc-900 p-8 ring-1 ring-amber-500/25">
-              <span className="absolute -top-3 right-6 rounded-full bg-amber-400 px-3 py-0.5 text-xs font-semibold text-zinc-950">
-                {p.membership.proQuarterly.badge}
-              </span>
+            <div className="relative flex flex-col rounded-2xl border-2 border-amber-400/70 bg-gradient-to-b from-amber-500/15 via-zinc-900 to-zinc-950 p-8 shadow-xl shadow-amber-500/25 ring-2 ring-amber-400/35 lg:scale-[1.02]">
+              <div className="absolute -top-3 right-6 flex flex-wrap justify-end gap-1.5">
+                <span className="rounded-full bg-amber-400 px-3 py-0.5 text-xs font-semibold text-zinc-950">
+                  {p.membership.proQuarterly.badge}
+                </span>
+              </div>
               <p className="text-lg font-semibold text-white">
                 {p.membership.proQuarterly.name}
               </p>
+              <p className="mt-2 text-sm text-zinc-500">
+                <span className="mr-2 line-through decoration-zinc-500 decoration-2">
+                  {formatUsd(PRO_QUARTERLY_COMPARE_AT_USD)}
+                </span>
+                <span className="text-zinc-400">
+                  {p.membership.proQuarterly.compareAtNote}
+                </span>
+              </p>
               <p className="mt-1 text-3xl font-semibold text-white">
-                $45
+                {formatUsd(PRICING_USD.proQuarterly)}
                 <span className="text-base font-normal text-zinc-500">
                   /3 mo
                 </span>
               </p>
-              <p className="mt-2 text-sm font-medium text-amber-300/90">
+              <p className="mt-2 text-sm font-semibold text-emerald-400">
+                {p.membership.proQuarterly.savingsCallout}
+              </p>
+              <p className="mt-3 text-sm font-medium text-amber-200">
                 {p.membership.proQuarterly.highlight}
               </p>
               <p className="mt-1 text-xs text-zinc-500">
@@ -182,39 +201,56 @@ export function PricingSection({
               <CheckoutButton
                 payload={{ plan: "pro_quarterly" }}
                 label={p.membership.proQuarterly.cta}
-                className="mt-8 flex h-11 w-full items-center justify-center rounded-lg bg-amber-400 text-sm font-medium text-zinc-950 transition-colors hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-8 flex h-11 w-full items-center justify-center rounded-lg bg-gradient-to-r from-amber-300 to-amber-500 text-sm font-semibold text-zinc-950 shadow-lg shadow-amber-500/40 transition-all hover:from-amber-200 hover:to-amber-400 hover:shadow-amber-400/50 disabled:cursor-not-allowed disabled:opacity-60"
               />
             </div>
           </div>
         ) : (
           <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {packCards.map(({ id, highlight, copy }) => (
+            {packCards.map(({ id, highlight, bestValue, copy }) => (
               <div
                 key={id}
                 className={`relative flex flex-col rounded-2xl p-8 ${
                   highlight
-                    ? "border border-amber-500/50 bg-zinc-900 ring-1 ring-amber-500/25"
-                    : "border border-zinc-800 bg-zinc-950/60"
+                    ? "border-2 border-amber-400/70 bg-gradient-to-b from-amber-500/10 via-zinc-900 to-zinc-950 shadow-lg shadow-amber-500/20 ring-2 ring-amber-400/30 md:scale-[1.03]"
+                    : bestValue
+                      ? "border border-orange-500/40 bg-zinc-900/80 ring-1 ring-orange-500/20"
+                      : "border border-zinc-800 bg-zinc-950/60"
                 }`}
               >
                 {highlight && "badge" in copy && copy.badge ? (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber-400 px-3 py-0.5 text-xs font-semibold text-zinc-950">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber-400 px-3 py-0.5 text-xs font-semibold text-zinc-950 shadow-md shadow-amber-500/30">
                     {copy.badge}
+                  </span>
+                ) : null}
+                {bestValue && "bestValueBadge" in copy && copy.bestValueBadge ? (
+                  <span className="absolute -top-3 right-4 max-w-[11rem] rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-3 py-0.5 text-center text-[11px] font-semibold leading-tight text-white shadow-md shadow-orange-500/40">
+                    {copy.bestValueBadge}
                   </span>
                 ) : null}
                 <p className="text-lg font-semibold text-white">{copy.name}</p>
                 <p className="mt-1 text-3xl font-semibold text-white">
-                  {copy.price}
+                  {formatUsd(PACK_USD[id])}
                 </p>
                 <p className="mt-2 text-sm font-medium text-emerald-400/90">
                   {copy.timeLine}
                 </p>
+                {"valueCallout" in copy && copy.valueCallout ? (
+                  <p className="mt-2 text-sm font-semibold text-amber-300">
+                    {copy.valueCallout}
+                  </p>
+                ) : null}
                 <p className="mt-3 text-xs leading-relaxed text-zinc-500">
                   {p.packs.neverExpire}
                 </p>
-                <ul className="mt-5 flex-1 space-y-2 text-sm text-zinc-400">
+                <ul className="mt-5 flex-1 space-y-2.5 text-sm text-zinc-300">
                   {copy.bullets.map((line) => (
-                    <li key={line}>{line}</li>
+                    <li key={line} className="flex gap-2">
+                      <span className="text-emerald-500/90" aria-hidden>
+                        ✓
+                      </span>
+                      <span>{line}</span>
+                    </li>
                   ))}
                 </ul>
                 <CheckoutButton
@@ -222,8 +258,10 @@ export function PricingSection({
                   label={copy.cta}
                   className={`mt-8 flex h-11 w-full items-center justify-center rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
                     highlight
-                      ? "bg-amber-400 text-zinc-950 hover:bg-amber-300"
-                      : "border border-zinc-600 text-zinc-100 hover:bg-zinc-900"
+                      ? "bg-gradient-to-r from-amber-300 to-amber-500 font-semibold text-zinc-950 shadow-lg shadow-amber-500/35 hover:from-amber-200 hover:to-amber-400"
+                      : bestValue
+                        ? "border border-orange-500/60 bg-orange-500/15 text-orange-100 hover:bg-orange-500/25"
+                        : "border border-zinc-600 text-zinc-100 hover:bg-zinc-900"
                   }`}
                 />
               </div>

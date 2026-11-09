@@ -1,6 +1,49 @@
 export type CheckoutPlan = "pro_monthly" | "pro_quarterly";
 export type CheckoutPackId = "pack_1h" | "pack_3h" | "pack_10h";
 
+/** Display/checkout list prices (USD) — keep in sync with Lemon Squeezy variants. */
+export const PRICING_USD = {
+  proMonthly: 14.9,
+  proQuarterly: 34.9,
+  /** 34.90 / 3 — shown as equivalent monthly on quarterly card */
+  proQuarterlyEquivalentMonthly: 11.63,
+  pack1h: 4.9,
+  pack3h: 12.9,
+  pack10h: 29.9,
+} as const;
+
+export const PACK_USD: Record<CheckoutPackId, number> = {
+  pack_1h: PRICING_USD.pack1h,
+  pack_3h: PRICING_USD.pack3h,
+  pack_10h: PRICING_USD.pack10h,
+};
+
+export const PACK_MINUTES: Record<CheckoutPackId, number> = {
+  pack_1h: 60,
+  pack_3h: 180,
+  pack_10h: 600,
+};
+
+export function packPerMinuteUsd(packId: CheckoutPackId): number {
+  return PACK_USD[packId] / PACK_MINUTES[packId];
+}
+
+export function formatPerMinuteUsd(amount: number): string {
+  return `$${amount.toFixed(2)}`;
+}
+
+export function formatUsd(amount: number): string {
+  return `$${amount.toFixed(2)}`;
+}
+
+/** 3× monthly list price — quarterly card strike-through compare-at */
+export const PRO_QUARTERLY_COMPARE_AT_USD =
+  Math.round(PRICING_USD.proMonthly * 3 * 100) / 100;
+
+export const PRO_QUARTERLY_TOTAL_SAVINGS_USD =
+  Math.round((PRO_QUARTERLY_COMPARE_AT_USD - PRICING_USD.proQuarterly) * 100) /
+  100;
+
 /** Seconds granted (stored in `credits_balance`). */
 export const TIME_PACK_GRANTS_SECONDS: Record<CheckoutPackId, number> = {
   pack_1h: 3600,
