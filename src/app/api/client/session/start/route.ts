@@ -3,6 +3,7 @@ import { getClientUserId } from "@/utils/api/client-auth";
 import {
   HEARTBEAT_INTERVAL_SEC,
   isProActive,
+  EphemeralCredentialsError,
   issueEphemeralCredentials,
   MIN_CREDITS_TO_START,
   parseCredits,
@@ -92,7 +93,25 @@ export async function POST(request: Request) {
     }
 
     const sessionId = session.id as string;
-    const credentials = await issueEphemeralCredentials(sessionId, provider);
+    let credentials;
+    try {
+      credentials = await issueEphemeralCredentials(sessionId, provider);
+    } catch (credErr) {
+      if (credErr instanceof EphemeralCredentialsError) {
+        await admin
+          .from("translation_sessions")
+          .update({
+            status: "ended",
+            ended_at: new Date().toISOString(),
+          })
+          .eq("id", sessionId);
+        return NextResponse.json(
+          { error: credErr.message, provider },
+          { status: 503 },
+        );
+      }
+      throw credErr;
+    }
 
     return NextResponse.json({
       session_id: sessionId,

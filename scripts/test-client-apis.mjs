@@ -38,6 +38,8 @@ const SUPABASE_URL = env.NEXT_PUBLIC_SUPABASE_URL;
 const ANON_KEY = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const SERVICE_ROLE_KEY = env.SUPABASE_SERVICE_ROLE_KEY;
 const BASE_URL = env.CLIENT_API_BASE_URL || "http://localhost:3000";
+const DEFAULT_SESSION_PROVIDER =
+  env.TEST_SESSION_PROVIDER || "qwen";
 
 const TEST_EMAIL =
   env.TEST_CLIENT_EMAIL || "client-api-test@zd-translate.local";
@@ -159,7 +161,7 @@ async function main() {
     "POST",
     "/api/client/session/start",
     token,
-    { provider: "openai", mode: "s2s" },
+    { provider: DEFAULT_SESSION_PROVIDER, mode: "s2s" },
   );
   log("POST /api/client/session/start (grace test)", startGrace);
   assert(startGrace.status === 200, "session/start should succeed");
@@ -189,7 +191,7 @@ async function main() {
     "POST",
     "/api/client/session/start",
     token,
-    { provider: "openai", mode: "s2s" },
+    { provider: DEFAULT_SESSION_PROVIDER, mode: "s2s" },
   );
   log("POST /api/client/session/start (S2S billing)", startBilling);
   const billingSessionId = startBilling.json.session_id;
@@ -246,7 +248,7 @@ async function main() {
     "POST",
     "/api/client/session/start",
     token,
-    { provider: "openai", mode: "s2t" },
+    { provider: DEFAULT_SESSION_PROVIDER, mode: "s2t" },
   );
   log("POST /api/client/session/start (Pro S2T, low balance)", startS2tLowBalance);
   assert(

@@ -173,10 +173,24 @@ export type EphemeralCredentials = {
   ephemeral_token: string;
 };
 
-const OPENAI_REALTIME_MODEL = "gpt-4o-realtime-preview";
-const OPENAI_REALTIME_WS_URL = `wss://api.openai.com/v1/realtime?model=${OPENAI_REALTIME_MODEL}`;
-const QWEN_REALTIME_WS_URL =
-  "wss://dashscope.aliyuncs.com/api-ws/v1/realtime";
+export class EphemeralCredentialsError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "EphemeralCredentialsError";
+  }
+}
+
+const OPENAI_REALTIME_MODEL =
+  process.env.OPENAI_REALTIME_MODEL?.trim() ?? "gpt-4o-realtime-preview";
+const OPENAI_REALTIME_WS_URL =
+  process.env.OPENAI_REALTIME_WS_URL?.trim() ??
+  `wss://api.openai.com/v1/realtime?model=${OPENAI_REALTIME_MODEL}`;
+const DASHSCOPE_TOKENS_URL =
+  process.env.DASHSCOPE_TOKENS_URL?.trim() ??
+  "https://dashscope.aliyuncs.com/api/v1/tokens?expire_in_seconds=1800";
+const QWEN_WS_URL =
+  process.env.DASHSCOPE_WS_URL?.trim() ??
+  "wss://dashscope.aliyuncs.com/api-ws/v1/inference";
 const DOUBAO_REALTIME_WS_URL =
   process.env.DOUBAO_WS_URL ??
   "wss://openspeech.bytedance.com/api/v3/realtime/dialogue";
@@ -185,116 +199,124 @@ const DOUBAO_RESOURCE_ID =
 const DOUBAO_APP_KEY =
   process.env.DOUBAO_APP_KEY ?? "PlgvMymc7f3tQnJ6";
 
-function mockEphemeralCredentials(
-  sessionId: string,
-  provider: RealtimeProvider,
-  wsUrl: string,
-): EphemeralCredentials {
-  return {
-    ws_url: wsUrl,
-    ephemeral_token: `eph_mock_${provider}_${sessionId}`,
-  };
+const PLACEHOLDER_KEY_RE =
+  /xxxx|your[_-]?key|placeholder|changeme|replace[_-]?me|example/i;
+
+function isUsableApiKey(
+  key: string | undefined,
+  options?: { minLength?: number },
+): key is string {
+  const trimmed = key?.trim();
+  if (!trimmed) return false;
+  if (PLACEHOLDER_KEY_RE.test(trimmed)) return false;
+  const minLength = options?.minLength ?? 8;
+  if (trimmed.length < minLength) return false;
+  return true;
 }
 
 async function issueOpenAiCredentials(
-  sessionId: string,
-): Promise<EphemeralCredentials | null> {
+  _sessionId: string,
+): Promise<EphemeralCredentials> {
   const apiKey = process.env.OPENAI_API_KEY?.trim();
-  if (!apiKey) {
-    return null;
+  if (!isUsableApiKey(apiKey)) {
+    throw new EphemeralCredentialsError("OPENAI_API_KEY is not configured");
   }
 
   try {
-    const res = await fetch("https://api.openai.com/v1/realtime/sessions", {
+    const res = await fetch("https://api.openai.com/v1/realtime/client_secrets", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: OPENAI_REALTIME_MODEL,
-        voice: "verse",
+        expires_after: { anchor: "created_at", seconds: 600 },
+        session: {
+          type: "realtime",
+          model: OPENAI_REALTIME_MODEL,
+        },
       }),
     });
 
-    if (!res.ok) {
-      console.error("OpenAI Realtime session error:", await res.text());
-      return null;
+    if (res.ok) {
+      const data = (await res.json()) as {
+        value?: string;
+        client_secret?: { value?: string };
+      };
+      const token = data.value ?? data.client_secret?.value;
+      if (token) {
+        return {
+          ws_url: OPENAI_REALTIME_WS_URL,
+          ephemeral_token: token,
+        };
+      }
+      console.error("OpenAI client_secrets missing token in response");
+    } else {
+      console.error("OpenAI client_secrets error:", await res.text());
     }
-
-    const data = (await res.json()) as {
-      client_secret?: { value?: string };
-    };
-    const token = data.client_secret?.value;
-    if (!token) {
-      return null;
-    }
-
-    return {
-      ws_url: OPENAI_REALTIME_WS_URL,
-      ephemeral_token: token,
-    };
   } catch (err) {
-    console.error("OpenAI Realtime session error:", err);
-    return null;
+    console.error("OpenAI client_secrets error:", err);
   }
+
+  return {
+    ws_url: OPENAI_REALTIME_WS_URL,
+    ephemeral_token: apiKey,
+  };
 }
 
 async function issueQwenCredentials(
-  sessionId: string,
-): Promise<EphemeralCredentials | null> {
+  _sessionId: string,
+): Promise<EphemeralCredentials> {
   const apiKey = process.env.DASHSCOPE_API_KEY?.trim();
-  if (!apiKey) {
-    return null;
+  if (!isUsableApiKey(apiKey)) {
+    throw new EphemeralCredentialsError("DASHSCOPE_API_KEY is not configured");
   }
 
   try {
-    const res = await fetch(
-      "https://dashscope.aliyuncs.com/api/v1/tokens?expire_in_seconds=60",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-        },
+    const res = await fetch(DASHSCOPE_TOKENS_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
       },
-    );
+    });
 
-    if (!res.ok) {
-      console.error("DashScope token error:", await res.text());
-      return null;
-    }
+    if (res.ok) {
+      const data = (await res.json()) as {
+        token?: string;
+        code?: string;
+        message?: string;
+      };
 
-    const data = (await res.json()) as {
-      token?: string;
-      code?: string;
-      message?: string;
-    };
-
-    if (!data.token) {
+      if (data.token) {
+        return {
+          ws_url: QWEN_WS_URL,
+          ephemeral_token: data.token,
+        };
+      }
       console.error(
         "DashScope token missing in response:",
-        data.code ?? data.message ?? sessionId,
+        data.code ?? data.message,
       );
-      return null;
+    } else {
+      console.error("DashScope token error:", await res.text());
     }
-
-    return {
-      ws_url: QWEN_REALTIME_WS_URL,
-      ephemeral_token: data.token,
-    };
   } catch (err) {
     console.error("DashScope token error:", err);
-    return null;
   }
+
+  return {
+    ws_url: QWEN_WS_URL,
+    ephemeral_token: apiKey,
+  };
 }
 
-function issueDoubaoCredentials(
-  sessionId: string,
-): EphemeralCredentials | null {
+function issueDoubaoCredentials(sessionId: string): EphemeralCredentials {
   const appId = process.env.DOUBAO_APP_ID?.trim();
   const accessKey = process.env.DOUBAO_ACCESS_KEY?.trim();
-  if (!appId || !accessKey) {
-    return null;
+  if (!isUsableApiKey(appId) || !isUsableApiKey(accessKey)) {
+    throw new EphemeralCredentialsError(
+      "DOUBAO_APP_ID / DOUBAO_ACCESS_KEY is not configured",
+    );
   }
 
   const expiresAt = Math.floor(Date.now() / 1000) + 60;
@@ -318,27 +340,16 @@ export async function issueEphemeralCredentials(
   provider: RealtimeProvider,
 ): Promise<EphemeralCredentials> {
   if (provider === "openai") {
-    const creds = await issueOpenAiCredentials(sessionId);
-    return (
-      creds ??
-      mockEphemeralCredentials(sessionId, provider, OPENAI_REALTIME_WS_URL)
-    );
+    return issueOpenAiCredentials(sessionId);
   }
 
   if (provider === "qwen") {
-    const creds = await issueQwenCredentials(sessionId);
-    return (
-      creds ?? mockEphemeralCredentials(sessionId, provider, QWEN_REALTIME_WS_URL)
-    );
+    return issueQwenCredentials(sessionId);
   }
 
   if (provider === "doubao") {
-    const creds = issueDoubaoCredentials(sessionId);
-    return (
-      creds ??
-      mockEphemeralCredentials(sessionId, provider, DOUBAO_REALTIME_WS_URL)
-    );
+    return issueDoubaoCredentials(sessionId);
   }
 
-  return mockEphemeralCredentials(sessionId, "openai", OPENAI_REALTIME_WS_URL);
+  throw new EphemeralCredentialsError(`Unsupported provider: ${provider}`);
 }
