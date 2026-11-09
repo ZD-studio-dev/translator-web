@@ -3,6 +3,7 @@ import {
   resolveCheckoutVariantId,
   type CheckoutPayload,
 } from "@/config/pricing";
+import { resolveSiteOrigin } from "@/utils/site-origin";
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
@@ -77,6 +78,8 @@ export async function POST(request: Request) {
   }
 
   const userId = user.id;
+  const siteOrigin = resolveSiteOrigin(request);
+  const dashboardUrl = `${siteOrigin}/dashboard`;
 
   const response = await fetch(LEMON_CHECKOUTS_URL, {
     method: "POST",
@@ -89,6 +92,11 @@ export async function POST(request: Request) {
       data: {
         type: "checkouts",
         attributes: {
+          product_options: {
+            redirect_url: `${dashboardUrl}?payment=success`,
+            receipt_button_text: "Return to Dashboard",
+            receipt_link_url: dashboardUrl,
+          },
           checkout_data: {
             email: userEmail,
             custom: {

@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Download, Plus } from "lucide-react";
+import { Suspense, useEffect, useState } from "react";
 import type { DashboardCreditTransaction } from "@/app/dashboard/page";
 import { SignOutButton } from "@/app/dashboard/sign-out-button";
 import { UpgradeProButton } from "@/app/dashboard/upgrade-pro-button";
@@ -37,6 +39,41 @@ function scrollToTopUp() {
   });
 }
 
+function PaymentSuccessBanner() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { t } = useLanguage();
+  const [visible, setVisible] = useState(
+    () => searchParams.get("payment") === "success",
+  );
+
+  useEffect(() => {
+    if (searchParams.get("payment") !== "success") {
+      setVisible(false);
+      return;
+    }
+    setVisible(true);
+    const timer = window.setTimeout(() => {
+      setVisible(false);
+      router.replace("/dashboard", { scroll: false });
+    }, 5000);
+    return () => window.clearTimeout(timer);
+  }, [searchParams, router]);
+
+  if (!visible) {
+    return null;
+  }
+
+  return (
+    <div
+      className="border-b border-emerald-500/30 bg-emerald-500/15 px-6 py-3 text-center text-sm font-medium text-emerald-200"
+      role="status"
+    >
+      {t.dashboard.paymentSuccessBanner}
+    </div>
+  );
+}
+
 function formatExpiresAt(iso: string | null, locale: Locale) {
   if (!iso) return null;
   const date = new Date(iso);
@@ -68,6 +105,9 @@ export function DashboardClient({
 
   return (
     <div className="min-h-full bg-zinc-950 text-zinc-100">
+      <Suspense fallback={null}>
+        <PaymentSuccessBanner />
+      </Suspense>
       <header className="border-b border-zinc-800/80">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-6">
           <Link

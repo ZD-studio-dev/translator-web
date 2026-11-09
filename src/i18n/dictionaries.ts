@@ -171,6 +171,8 @@ export const dictionaries = {
       account: "Account",
       proPlan: "Pro Plan",
       freePlan: "Free Plan",
+      paymentSuccessBanner:
+        "🎉 Payment successful! Your membership and voice time balance have been updated.",
       creditsOverview: "Account & voice time",
       voiceTimeLabel: "Remaining S2S voice time",
       unlimitedS2t: "Subtitles (S2T): ♾️ Unlimited",
@@ -402,6 +404,8 @@ export const dictionaries = {
       account: "账户",
       proPlan: "Pro 方案",
       freePlan: "免费方案",
+      paymentSuccessBanner:
+        "🎉 支付成功！您的会员权益与语音时长已更新。",
       creditsOverview: "账户与语音时长",
       voiceTimeLabel: "剩余 S2S 语音翻译时长",
       unlimitedS2t: "字幕翻译（S2T）：♾️ 无限畅享",
