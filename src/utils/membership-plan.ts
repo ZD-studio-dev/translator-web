@@ -13,6 +13,44 @@ export type MembershipSnapshot = {
   hasSubscription: boolean;
 };
 
+const PROFILE_SELECT =
+  "email, plan, is_pro, subscription_status, plan_tier, credits_balance, subscription_period, subscription_expires_at";
+
+export type BillingProfile = ProfileCreditsRow & {
+  customer_portal_url: string | null;
+};
+
+export async function loadBillingProfile(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<BillingProfile | null> {
+  const withPortal = await supabase
+    .from("profiles")
+    .select(`${PROFILE_SELECT}, customer_portal_url`)
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (!withPortal.error && withPortal.data) {
+    const row = withPortal.data as BillingProfile;
+    const portalUrl = row.customer_portal_url?.trim() || null;
+    return { ...row, customer_portal_url: portalUrl };
+  }
+
+  const missingColumn = /customer_portal_url/i.test(withPortal.error?.message ?? "");
+  if (!missingColumn) return null;
+
+  const fallback = await supabase
+    .from("profiles")
+    .select(PROFILE_SELECT)
+    .eq("id", userId)
+    .maybeSingle();
+  if (!fallback.data) return null;
+  return {
+    ...(fallback.data as ProfileCreditsRow),
+    customer_portal_url: null,
+  };
+}
+
 function explicitPlanTier(planTier: string | null | undefined): CheckoutPlan | null {
   const normalized = planTier?.trim().toLowerCase();
   if (normalized === "pro_monthly" || normalized === "pro_quarterly") {

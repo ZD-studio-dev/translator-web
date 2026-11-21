@@ -21,6 +21,9 @@ type LemonResourceAttributes = {
   status?: string;
   variant_id?: number | string | null;
   renews_at?: string | null;
+  urls?: {
+    customer_portal?: string | null;
+  } | null;
   first_subscription_item?: {
     variant_id?: number | string | null;
   } | null;
@@ -52,6 +55,30 @@ function readCustomPlan(plan: string | undefined): CheckoutPlan | null {
 
 function subscriptionPeriodFor(plan: CheckoutPlan): "monthly" | "quarterly" {
   return plan === "pro_quarterly" ? "quarterly" : "monthly";
+}
+
+function readCustomerPortalUrl(
+  attributes: LemonResourceAttributes | undefined,
+): string | null {
+  const url = attributes?.urls?.customer_portal?.trim();
+  return url || null;
+}
+
+async function saveCustomerPortalUrl(userId: string, portalUrl: string | null) {
+  if (!portalUrl) return;
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("profiles")
+    .update({ customer_portal_url: portalUrl })
+    .eq("id", userId);
+  if (!error) return;
+  if (/customer_portal_url/i.test(error.message)) {
+    console.error(
+      "profiles.customer_portal_url is missing; subscription plan was still updated",
+    );
+    return;
+  }
+  throw error;
 }
 
 function verifySignature(rawBody: string, signatureHeader: string | null) {
@@ -280,12 +307,16 @@ async function handleSubscriptionPlanChange(
     throw error;
   }
 
+  const customerPortalUrl = readCustomerPortalUrl(attributes);
+  await saveCustomerPortalUrl(userId, customerPortalUrl);
+
   return NextResponse.json({
     received: true,
     updated: true,
     kind: "subscription_plan",
     plan_tier: plan,
     subscription_status: status,
+    customer_portal_url_saved: Boolean(customerPortalUrl),
   });
 }
 
@@ -319,6 +350,8 @@ async function handleSubscriptionPaymentSuccess(
 
   const label = isQuarterly ? "Pro Quarterly" : "Pro Monthly";
   const description = `${label} voice time grant - Invoice #${invoiceId}`;
+
+  await saveCustomerPortalUrl(userId, readCustomerPortalUrl(attributes));
 
   const result = await applyTimeGrant({
     userId,

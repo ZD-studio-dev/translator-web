@@ -9,7 +9,6 @@ import {
   PACK_USD,
   PRICING_USD,
   PRO_QUARTERLY_COMPARE_AT_USD,
-  resolveCustomerPortalUrl,
   type CheckoutPlan,
 } from "@/config/pricing";
 import { useLanguage } from "@/i18n/language-provider";
@@ -53,7 +52,7 @@ export function PricingSection({
   const p = t.pricing;
   const c = t.common;
   const [tab, setTab] = useState<"membership" | "packs">(defaultTab);
-  const portalUrl = resolveCustomerPortalUrl(customerPortalUrl);
+  const portalUrl = customerPortalUrl?.trim() || null;
   const activePlan: MembershipPlanTier = isPro
     ? planTier === "pro_quarterly"
       ? "pro_quarterly"
@@ -204,6 +203,7 @@ export function PricingSection({
                 currentLabel={p.currentPlan}
                 portalLabel={p.switchToQuarterly}
                 portalUrl={portalUrl}
+                grantedNotice={p.grantedMembershipNotice}
                 className="mt-5 flex h-10 w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-sm font-bold text-white shadow-lg shadow-blue-200 transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
               />
             </article>
@@ -247,6 +247,7 @@ export function PricingSection({
                 currentLabel={p.currentPlan}
                 portalLabel={p.switchToQuarterly}
                 portalUrl={portalUrl}
+                grantedNotice={p.grantedMembershipNotice}
                 className="mt-5 flex h-10 w-full items-center justify-center rounded-xl bg-gradient-to-r from-sky-500 via-blue-600 to-violet-600 text-sm font-bold text-white shadow-lg shadow-violet-200 transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
               />
             </article>
@@ -323,6 +324,7 @@ function MembershipPlanButton({
   currentLabel,
   portalLabel,
   portalUrl,
+  grantedNotice,
   className,
 }: {
   action: PlanAction;
@@ -330,9 +332,12 @@ function MembershipPlanButton({
   checkoutLabel: string;
   currentLabel: string;
   portalLabel: string;
-  portalUrl: string;
+  portalUrl: string | null;
+  grantedNotice: string;
   className: string;
 }) {
+  const [showGrantedNotice, setShowGrantedNotice] = useState(false);
+
   if (action === "checkout") {
     return (
       <CheckoutButton
@@ -344,6 +349,25 @@ function MembershipPlanButton({
   }
 
   if (action === "portal") {
+    if (!portalUrl) {
+      return (
+        <div className="w-full">
+          <button
+            type="button"
+            className={className}
+            onClick={() => setShowGrantedNotice(true)}
+          >
+            {portalLabel}
+          </button>
+          {showGrantedNotice ? (
+            <p className="mt-2 text-xs leading-5 text-slate-500" role="status">
+              {grantedNotice}
+            </p>
+          ) : null}
+        </div>
+      );
+    }
+
     return (
       <a
         href={portalUrl}

@@ -64,6 +64,8 @@ export const dictionaries = {
         "Pro members get unlimited real-time subtitles (S2T). Live voice interpretation (S2S) is billed per second from your voice time balance—top up anytime.",
       currentPlan: "Current Plan",
       switchToQuarterly: "Switch to Quarterly",
+      grantedMembershipNotice:
+        "This membership was granted directly by the system and does not need to be managed in the billing center.",
       tabAria: "Pricing options",
       tabMembership: "Pro Membership",
       tabPacks: "Extra Voice Time Packs",
@@ -188,6 +190,8 @@ export const dictionaries = {
       proSummary:
         "Pro is active — unlimited S2T subtitles. S2S voice uses your balance; each cycle adds included minutes. Top up with time packs anytime.",
       manageSubscription: "Manage Subscription",
+      grantedMembershipNotice:
+        "This membership was granted directly by the system and does not need to be managed in the billing center.",
       desktopTitle: "Desktop Client Download",
       desktopBody:
         "Download the desktop app and sign in with your account to start translating across any window.",
@@ -305,6 +309,8 @@ export const dictionaries = {
         "Pro 会员无限畅享实时字幕（S2T）。实时语音同传（S2S）按秒从语音时长余额扣减，可随时购买加时包。",
       currentPlan: "当前方案",
       switchToQuarterly: "升级至季度方案",
+      grantedMembershipNotice:
+        "当前会员由系统直接授予，无需通过账单中心管理。",
       tabAria: "定价选项",
       tabMembership: "Pro 会员",
       tabPacks: "额外加时包",
@@ -422,6 +428,8 @@ export const dictionaries = {
       proSummary:
         "Pro 已生效 — S2T 字幕无限。S2S 语音从余额按秒扣费；每周期自动补充所含时长，可随时购买加时包。",
       manageSubscription: "管理订阅",
+      grantedMembershipNotice:
+        "当前会员由系统直接授予，无需通过账单中心管理。",
       desktopTitle: "桌面客户端下载",
       desktopBody:
         "下载桌面应用并使用本账户登录，即可在任意窗口开始翻译。",

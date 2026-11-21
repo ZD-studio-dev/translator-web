@@ -20,8 +20,7 @@ type DashboardClientProps = {
   subscriptionPeriod: "monthly" | "quarterly" | null;
   subscriptionExpiresAt: string | null;
   planTier: MembershipPlanTier;
-  hasSubscription: boolean;
-  customerPortalUrl: string;
+  customerPortalUrl: string | null;
   winDownloadUrl: string | null;
   macDownloadUrl: string | null;
   transactions: DashboardCreditTransaction[];
@@ -92,7 +91,6 @@ export function DashboardClient({
   subscriptionPeriod,
   subscriptionExpiresAt,
   planTier,
-  hasSubscription,
   customerPortalUrl,
   winDownloadUrl,
   macDownloadUrl,
@@ -101,6 +99,8 @@ export function DashboardClient({
   const { t, locale } = useLanguage();
   const d = t.dashboard;
   const expiresLabel = formatExpiresAt(subscriptionExpiresAt, locale);
+  const [showGrantedNotice, setShowGrantedNotice] = useState(false);
+  const portalUrl = customerPortalUrl?.trim() || null;
 
   function typeLabel(type: string) {
     const map = d.transactionTypes as Record<string, string>;
@@ -196,15 +196,32 @@ export function DashboardClient({
                 </div>
               ) : null}
             </div>
-            {isPro && hasSubscription ? (
-              <a
-                href={customerPortalUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex h-10 shrink-0 items-center justify-center rounded-lg border border-slate-300 bg-white px-5 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50"
-              >
-                {d.manageSubscription}
-              </a>
+            {isPro ? (
+              <div className="shrink-0">
+                {portalUrl ? (
+                  <a
+                    href={portalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-300 bg-white px-5 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50"
+                  >
+                    {d.manageSubscription}
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setShowGrantedNotice(true)}
+                    className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-300 bg-white px-5 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50"
+                  >
+                    {d.manageSubscription}
+                  </button>
+                )}
+                {showGrantedNotice ? (
+                  <p className="mt-2 max-w-xs text-xs leading-5 text-slate-500" role="status">
+                    {d.grantedMembershipNotice}
+                  </p>
+                ) : null}
+              </div>
             ) : null}
           </div>
         </section>

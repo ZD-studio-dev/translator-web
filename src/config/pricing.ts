@@ -1,12 +1,5 @@
 export type CheckoutPlan = "pro_monthly" | "pro_quarterly";
 
-/** Logged-in Lemon Squeezy orders page. Used when no customer portal URL is stored. */
-export const LEMON_CUSTOMER_PORTAL_URL = "https://app.lemonsqueezy.com/my-orders";
-
-export function resolveCustomerPortalUrl(explicit?: string | null): string {
-  const value = explicit?.trim();
-  return value || LEMON_CUSTOMER_PORTAL_URL;
-}
 export type CheckoutPackId = "pack_1h" | "pack_3h" | "pack_10h";
 
 /** Display/checkout list prices (USD) — keep in sync with Lemon Squeezy variants. */

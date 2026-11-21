@@ -2,9 +2,7 @@ export const instant = false;
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { DashboardClient } from "@/app/dashboard/dashboard-client";
-import { resolveCustomerPortalUrl } from "@/config/pricing";
-import { type ProfileCreditsRow } from "@/utils/api/client-session";
-import { resolveMembershipPlan } from "@/utils/membership-plan";
+import { loadBillingProfile, resolveMembershipPlan } from "@/utils/membership-plan";
 import { createClient } from "@/utils/supabase/server";
 import { parseCreditsBalance } from "@/utils/credits";
 
@@ -28,13 +26,7 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select(
-      "email, plan, is_pro, subscription_status, plan_tier, credits_balance, subscription_period, subscription_expires_at",
-    )
-    .eq("id", user.id)
-    .single();
+  const profile = await loadBillingProfile(supabase, user.id);
 
   const { data: transactions } = await supabase
     .from("credit_transactions")
@@ -45,16 +37,7 @@ export default async function DashboardPage() {
 
   const email = profile?.email ?? user.email ?? "Unknown";
   const creditsBalance = parseCreditsBalance(profile?.credits_balance);
-  const membership = await resolveMembershipPlan(
-    supabase,
-    user.id,
-    (profile as ProfileCreditsRow | null) ?? null,
-  );
-
-  const customerPortalUrl = resolveCustomerPortalUrl(
-    process.env.LEMONSQUEEZY_CUSTOMER_PORTAL_URL ??
-      process.env.NEXT_PUBLIC_LEMONSQUEEZY_CUSTOMER_PORTAL_URL,
-  );
+  const membership = await resolveMembershipPlan(supabase, user.id, profile);
   const winDownloadUrl =
     process.env.NEXT_PUBLIC_WINDOWS_DOWNLOAD_URL?.trim() ||
     process.env.NEXT_PUBLIC_WIN_DOWNLOAD_URL?.trim() ||
@@ -72,8 +55,7 @@ export default async function DashboardPage() {
       subscriptionPeriod={membership.subscriptionPeriod}
       subscriptionExpiresAt={profile?.subscription_expires_at ?? null}
       planTier={membership.planTier}
-      hasSubscription={membership.hasSubscription}
-      customerPortalUrl={customerPortalUrl}
+      customerPortalUrl={profile?.customer_portal_url ?? null}
       winDownloadUrl={winDownloadUrl}
       macDownloadUrl={macDownloadUrl}
       transactions={(transactions ?? []) as DashboardCreditTransaction[]}
