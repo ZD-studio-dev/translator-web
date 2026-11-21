@@ -7,6 +7,7 @@ import {
   ChevronDown,
   LogIn,
 } from "lucide-react";
+import { useState } from "react";
 import { GetStartedButton } from "@/app/get-started-button";
 import { LanguageToggle } from "@/components/language-toggle";
 import { PricingSection } from "@/components/PricingSection";
@@ -55,12 +56,12 @@ function ProductPreview({ zh }: { zh: boolean }) {
           <section className="rounded-2xl border border-blue-100 bg-white/60 p-3.5 shadow-sm">
             <div className="flex items-center gap-2.5">
               <Image src="/ui-icons/mic-blue.svg" alt="" width={23} height={23} className="h-5.5 w-5.5" />
-              <span className="text-sm font-black text-slate-900">{zh ? "我在说（中文）" : "You speak (Chinese)"}</span>
+              <span className="text-sm font-black text-slate-900">{zh ? "你说（中文）" : "You speak (Chinese)"}</span>
               <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-bold text-emerald-700">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />{zh ? "实时翻译中" : "Live"}
               </span>
             </div>
-            <p className="mt-2 pl-8 text-sm font-black text-slate-950 sm:text-base">{zh ? "我们下周一起开项目评审会。" : "Let's hold the project review next week."}</p>
+            <p className="mt-2 pl-8 text-sm font-black text-slate-950 sm:text-base">我们下周一开项目评审会吧。</p>
             <div className="mt-3 grid grid-cols-[.8fr_28px_1.25fr] items-center gap-3 pl-8">
               <div className="flex h-10 items-center justify-center gap-1 px-2">
                 {[6, 13, 23, 35, 17, 29, 40, 25, 32, 18, 27, 12, 7].map((height, index) => (
@@ -71,10 +72,10 @@ function ProductPreview({ zh }: { zh: boolean }) {
               <div>
                 <div className="mb-1.5 flex items-center gap-2 text-xs font-black text-slate-900 sm:text-sm">
                   <Image src="/ui-icons/speaker-blue.svg" alt="" width={22} height={22} className="h-5.5 w-5.5" />
-                  {zh ? "对方听到（English）" : "They hear (English)"}
+                  {zh ? "对方听到（英文）" : "They hear (English)"}
                 </div>
                 <p className="rounded-xl bg-blue-100 px-3 py-2 text-xs font-bold leading-4 text-slate-950 sm:text-sm">
-                  We will hold the project review meeting next Monday.
+                  Let&apos;s hold the project review meeting next Monday.
                 </p>
               </div>
             </div>
@@ -174,9 +175,10 @@ const meetingApps = [
 ];
 
 function InstallGuide({ zh }: { zh: boolean }) {
+  const [activeId, setActiveId] = useState<"mac" | "windows">("mac");
   const guides = [
     {
-      id: "mac",
+      id: "mac" as const,
       name: "macOS",
       input: "BlackHole 16ch",
       output: "BlackHole 2ch",
@@ -188,7 +190,7 @@ function InstallGuide({ zh }: { zh: boolean }) {
         : ["Install BlackHole 16ch and BlackHole 2ch", "Set the meeting speaker to BlackHole 16ch", "Set the meeting microphone to BlackHole 2ch", "Open ZD Meeting Translator and start your meeting"],
     },
     {
-      id: "windows",
+      id: "windows" as const,
       name: "Windows",
       input: "CABLE A",
       output: "CABLE B",
@@ -201,19 +203,46 @@ function InstallGuide({ zh }: { zh: boolean }) {
     },
   ];
 
+  const guide = guides.find((item) => item.id === activeId) ?? guides[0];
+
   return (
     <div className="mt-5">
-      <div className="mx-auto flex max-w-xl rounded-xl bg-slate-100 p-1">
-        <div className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-700 text-sm font-bold text-white shadow-md shadow-blue-200">
-          <Image src="/ui-icons/apple-white.svg" alt="" width={18} height={18} className="h-4.5 w-4.5" /> macOS
-        </div>
-        <div className="flex h-10 flex-1 items-center justify-center gap-2 text-sm font-bold text-slate-700">
-          <Image src="/ui-icons/windows-blue.svg" alt="" width={18} height={18} className="h-4.5 w-4.5" /> Windows
-        </div>
+      <div className="mx-auto flex max-w-xl rounded-xl bg-slate-100 p-1" role="tablist" aria-label={zh ? "选择操作系统" : "Choose an operating system"}>
+        {guides.map((item) => {
+          const active = item.id === activeId;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => setActiveId(item.id)}
+              className={`flex h-10 flex-1 items-center justify-center gap-2 rounded-lg text-sm font-bold ${
+                active
+                  ? "bg-gradient-to-r from-blue-500 to-blue-700 text-white shadow-md shadow-blue-200"
+                  : "text-slate-700"
+              }`}
+            >
+              <Image
+                src={item.id === "mac" ? "/ui-icons/apple-white.svg" : "/ui-icons/windows-blue.svg"}
+                alt=""
+                width={18}
+                height={18}
+                className={`h-4.5 w-4.5 ${
+                  item.id === "mac" && !active
+                    ? "brightness-0 opacity-70"
+                    : item.id === "windows" && active
+                      ? "brightness-0 invert"
+                      : ""
+                }`}
+              />
+              {item.name}
+            </button>
+          );
+        })}
       </div>
-      <div className="mt-4 space-y-5">
-        {guides.map((guide) => (
-          <article key={guide.id} className="grid gap-5 rounded-2xl border border-blue-200 bg-blue-50/55 p-4 shadow-sm lg:grid-cols-[1.36fr_.64fr] lg:px-6">
+      <div className="mt-4">
+          <article className="grid gap-5 rounded-2xl border border-blue-200 bg-blue-50/55 p-4 shadow-sm lg:grid-cols-[1.36fr_.64fr] lg:px-6">
             <div className="min-w-0">
               <p className="text-sm font-black text-slate-950">{guide.title}</p>
               <div className="mt-3 grid grid-cols-[1fr_24px_1fr_62px_76px] items-center gap-2">
@@ -255,7 +284,6 @@ function InstallGuide({ zh }: { zh: boolean }) {
               </ol>
             </div>
           </article>
-        ))}
       </div>
     </div>
   );
@@ -330,11 +358,13 @@ export function HomePageClient({ userEmail }: HomePageClientProps) {
                 ))}
               </ul>
               <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
-                <GetStartedButton className="inline-flex h-12 items-center justify-center gap-2.5 rounded-xl bg-blue-600 px-6 text-sm font-bold text-white shadow-xl shadow-blue-300/45 transition hover:-translate-y-0.5 hover:bg-blue-700">
-                  <Image src="/ui-icons/apple-white.svg" alt="" width={20} height={20} className="h-5 w-5" /> Download for macOS
+                <GetStartedButton className="inline-flex h-12 items-center justify-center gap-2.5 whitespace-nowrap rounded-xl bg-blue-600 px-6 text-sm font-bold text-white shadow-xl shadow-blue-300/45 transition hover:-translate-y-0.5 hover:bg-blue-700">
+                  <Image src="/ui-icons/apple-white.svg" alt="" width={20} height={20} className="h-5 w-5" />
+                  <span className="whitespace-nowrap">{zh ? "下载 macOS 版" : "Download for macOS"}</span>
                 </GetStartedButton>
-                <GetStartedButton className="inline-flex h-12 items-center justify-center gap-2.5 rounded-xl border border-blue-300 bg-white/90 px-6 text-sm font-bold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-500 hover:bg-white">
-                  <Image src="/ui-icons/windows-blue.svg" alt="" width={20} height={20} className="h-5 w-5" /> Download for Windows
+                <GetStartedButton className="inline-flex h-12 items-center justify-center gap-2.5 whitespace-nowrap rounded-xl border border-blue-300 bg-white/90 px-6 text-sm font-bold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-500 hover:bg-white">
+                  <Image src="/ui-icons/windows-blue.svg" alt="" width={20} height={20} className="h-5 w-5" />
+                  <span className="whitespace-nowrap">{zh ? "下载 Windows 版" : "Download for Windows"}</span>
                 </GetStartedButton>
               </div>
             </div>

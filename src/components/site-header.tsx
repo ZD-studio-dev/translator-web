@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { AudioLines } from "lucide-react";
 import { LanguageToggle } from "@/components/language-toggle";
 import { useLanguage } from "@/i18n/language-provider";
 
@@ -43,8 +44,14 @@ export function SiteHeader({
       >
         <Link
           href="https://www.zdtranslate.com/"
-          className="text-sm font-semibold tracking-tight text-slate-900"
+          className="inline-flex items-center gap-2.5 text-sm font-semibold tracking-tight text-slate-900"
         >
+          <span
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-violet-500 text-white"
+            aria-hidden
+          >
+            <AudioLines className="h-4 w-4" />
+          </span>
           {c.brand}
         </Link>
         <div className="flex items-center gap-3">

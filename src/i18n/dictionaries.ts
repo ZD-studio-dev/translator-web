@@ -98,8 +98,7 @@ export const dictionaries = {
           name: "Pro Quarterly",
           compareAtNote: "3× monthly price",
           savingsCallout: "🔥 Just $11.63/mo — save $9.80",
-          highlight:
-            "🔥 150 extra S2S minutes vs monthly (450 min/quarter total)",
+          highlight: "+90 bonus mins vs monthly",
           s2sLine: "Includes 27,000 seconds (450 min) S2S voice each quarter",
           benefits: [
             "Everything in Pro Monthly",
@@ -338,7 +337,7 @@ export const dictionaries = {
           name: "Pro 季度会员",
           compareAtNote: "按月度价合计",
           savingsCallout: "🔥 相当于每月仅需 $11.63（立省 $9.8）",
-          highlight: "🔥 比月付多送 150 分钟（季度共 450 分钟 S2S）",
+          highlight: "多送 90 分钟",
           s2sLine: "每周期含 27,000 秒（450 分钟）S2S 语音时长",
           benefits: [
             "包含月度会员全部权益",
