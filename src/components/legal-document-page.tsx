@@ -1,41 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { LanguageToggle } from "@/components/language-toggle";
+import { SiteHeader } from "@/components/site-header";
 import { legalContent, type LegalDocumentContent } from "@/i18n/legal-content";
 import { useLanguage } from "@/i18n/language-provider";
 
 type LegalDocumentPageProps = {
   doc: "terms" | "privacy";
-  isLoggedIn: boolean;
+  userEmail: string | null;
 };
 
-export function LegalDocumentPage({ doc, isLoggedIn }: LegalDocumentPageProps) {
+export function LegalDocumentPage({ doc, userEmail }: LegalDocumentPageProps) {
   const { locale, t } = useLanguage();
-  const c = t.common;
   const content: LegalDocumentContent = legalContent[locale][doc];
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
-      <header className="sticky top-0 z-10 border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-4xl items-center justify-between gap-4 px-6">
-          <Link
-            href="/"
-            className="text-sm font-semibold tracking-tight text-white"
-          >
-            {c.brand}
-          </Link>
-          <div className="flex items-center gap-3">
-            <LanguageToggle />
-            <Link
-              href={isLoggedIn ? "/dashboard" : "/login"}
-              className="rounded-lg border border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-200 transition-colors hover:border-zinc-500 hover:bg-zinc-900"
-            >
-              {isLoggedIn ? c.dashboard : c.signIn}
-            </Link>
-          </div>
-        </div>
-      </header>
+      <SiteHeader
+        userEmail={userEmail}
+        contentMaxWidthClass="max-w-4xl"
+      />
 
       <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-12 sm:py-16">
         <article className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 sm:p-10">

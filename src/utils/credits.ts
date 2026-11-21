@@ -11,16 +11,24 @@ export function parseCreditsBalance(value: unknown): number {
   return 0;
 }
 
+export function formatVoiceTimeRemaining(
+  totalSeconds: number,
+  locale: "en" | "zh",
+): string {
+  const seconds = Math.max(0, Math.floor(totalSeconds));
+  const minutes = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+
+  if (locale === "zh") {
+    return `${minutes} 分钟（${secs} 秒）`;
+  }
+  return `${minutes} min (${secs} sec)`;
+}
+
+/** @deprecated Alias for voice time display — balance is stored in seconds. */
 export function formatCreditsAsLiveDuration(
   credits: number,
   locale: "en" | "zh",
 ): string {
-  const totalSeconds = Math.max(0, Math.floor(credits));
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-
-  if (locale === "zh") {
-    return `≈ ${minutes} 分 ${seconds} 秒实时同传剩余`;
-  }
-  return `≈ ${minutes} mins ${seconds} secs of live translation remaining`;
+  return formatVoiceTimeRemaining(credits, locale);
 }

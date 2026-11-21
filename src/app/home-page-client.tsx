@@ -8,13 +8,22 @@ import {
   LogIn,
 } from "lucide-react";
 import { GetStartedButton } from "@/app/get-started-button";
-import { PricingSection } from "@/components/PricingSection";
 import { LanguageToggle } from "@/components/language-toggle";
+import { PricingSection } from "@/components/PricingSection";
 import { useLanguage } from "@/i18n/language-provider";
 
 type HomePageClientProps = {
-  isLoggedIn: boolean;
+  userEmail: string | null;
 };
+
+function emailLocalPart(email: string): string {
+  const at = email.indexOf("@");
+  return at > 0 ? email.slice(0, at) : email;
+}
+
+function avatarInitial(email: string): string {
+  return (emailLocalPart(email).trim()[0] ?? "?").toUpperCase();
+}
 
 function BrandMark({ compact = false }: { compact?: boolean }) {
   return (
@@ -252,11 +261,13 @@ function InstallGuide({ zh }: { zh: boolean }) {
   );
 }
 
-export function HomePageClient({ isLoggedIn }: HomePageClientProps) {
+export function HomePageClient({ userEmail }: HomePageClientProps) {
   const { locale, t } = useLanguage();
   const zh = locale === "zh";
   const h = t.home;
   const c = t.common;
+  const legal = t.legal;
+  const isLoggedIn = Boolean(userEmail?.trim());
 
   const bullets = zh
     ? ["跨语言沟通，不让任何一方停下来。", "不改变你熟悉的会议方式。", "对方无需安装任何软件。"]
@@ -278,10 +289,23 @@ export function HomePageClient({ isLoggedIn }: HomePageClientProps) {
           </nav>
           <div className="flex items-center gap-2 sm:gap-3">
             <LanguageToggle />
-            <Link href={isLoggedIn ? "/dashboard" : "/login"} className="inline-flex h-10 items-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700">
-              <LogIn className="h-4 w-4" />
-              <span className="hidden sm:inline">{isLoggedIn ? c.dashboard : c.signIn}</span>
-            </Link>
+            {isLoggedIn && userEmail ? (
+              <Link
+                href="/dashboard"
+                title={userEmail}
+                className="inline-flex h-10 max-w-[190px] items-center gap-2 rounded-xl bg-blue-600 px-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700 sm:px-3"
+              >
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/20 text-xs font-black ring-1 ring-white/40">
+                  {avatarInitial(userEmail)}
+                </span>
+                <span className="hidden truncate sm:inline">{emailLocalPart(userEmail)}</span>
+              </Link>
+            ) : (
+              <Link href="/login" className="inline-flex h-10 items-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700">
+                <LogIn className="h-4 w-4" />
+                <span className="hidden sm:inline">{c.signIn}</span>
+              </Link>
+            )}
           </div>
         </div>
       </header>
@@ -376,8 +400,9 @@ export function HomePageClient({ isLoggedIn }: HomePageClientProps) {
           <div className="flex items-center gap-3"><BrandMark compact /><span className="font-bold text-slate-800">Meeting Translator</span></div>
           <p>{h.footer}</p>
           <div className="flex items-center gap-4">
-            <Link href="/terms" className="hover:text-blue-600">{t.legal.termsOfService}</Link>
-            <Link href="/privacy" className="hover:text-blue-600">{t.legal.privacyPolicy}</Link>
+            <Link href="/terms" className="hover:text-blue-600">{legal.termsOfService}</Link>
+            <Link href="/privacy" className="hover:text-blue-600">{legal.privacyPolicy}</Link>
+            <a href="mailto:support@zdtranslate.com" className="hover:text-blue-600">support@zdtranslate.com</a>
           </div>
         </div>
       </footer>

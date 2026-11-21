@@ -4,6 +4,12 @@ import { Check, Clock3, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { GetStartedButton } from "@/app/get-started-button";
 import { CheckoutButton } from "@/components/checkout-button";
+import {
+  formatUsd,
+  PACK_USD,
+  PRICING_USD,
+  PRO_QUARTERLY_COMPARE_AT_USD,
+} from "@/config/pricing";
 import { useLanguage } from "@/i18n/language-provider";
 
 type PricingSectionProps = {
@@ -19,7 +25,7 @@ export function PricingSection({
   showTitle = true,
   embedded = false,
 }: PricingSectionProps) {
-  const { locale, t } = useLanguage();
+  const { t } = useLanguage();
   const p = t.pricing;
   const c = t.common;
   const [tab, setTab] = useState<"membership" | "packs">(defaultTab);
@@ -28,6 +34,27 @@ export function PricingSection({
     active
       ? "bg-blue-600 text-white shadow-lg shadow-blue-200"
       : "text-slate-500 hover:bg-white hover:text-slate-900";
+
+  const packCards = [
+    { id: "pack_1h" as const, highlight: false, bestValue: false, copy: p.packs.pack1h },
+    { id: "pack_3h" as const, highlight: true, bestValue: false, copy: p.packs.pack3h },
+    { id: "pack_10h" as const, highlight: false, bestValue: true, copy: p.packs.pack10h },
+  ];
+
+  const checkIcon = (tone: "soft" | "blue" | "violet" = "blue") => (
+    <span
+      className={`mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full ${
+        tone === "soft"
+          ? "bg-blue-50 text-blue-600"
+          : tone === "violet"
+            ? "bg-violet-600 text-white"
+            : "bg-blue-600 text-white"
+      }`}
+      aria-hidden
+    >
+      <Check className="h-3 w-3" />
+    </span>
+  );
 
   return (
     <section
@@ -84,26 +111,22 @@ export function PricingSection({
 
         {tab === "membership" ? (
           <div className="mx-auto mt-7 grid max-w-5xl items-stretch gap-4 lg:grid-cols-3">
-            <article className="flex min-h-[370px] flex-col rounded-[22px] border border-slate-200 bg-white p-6 shadow-[0_14px_32px_rgba(15,23,42,0.07)]">
+            <article className="flex min-h-[390px] flex-col rounded-[22px] border border-slate-200 bg-white p-6 shadow-[0_14px_32px_rgba(15,23,42,0.07)]">
               <div className="flex items-center justify-between gap-4">
                 <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
                   {p.membership.free.badge}
                 </span>
-                <Sparkles className="h-4.5 w-4.5 text-slate-400" />
+                <Sparkles className="h-5 w-5 text-slate-400" />
               </div>
-              <p className="mt-4 text-lg font-black text-slate-950">
-                {p.membership.free.name}
-              </p>
+              <p className="mt-4 text-lg font-black text-slate-950">{p.membership.free.name}</p>
               <p className="mt-1 text-4xl font-black tracking-tight text-slate-950">$0</p>
               <p className="mt-4 rounded-xl bg-emerald-50 px-3 py-2.5 text-xs font-bold leading-5 text-emerald-700">
-                {p.membership.free.creditsLine}
+                {p.membership.free.timeLine}
               </p>
               <ul className="mt-5 flex-1 space-y-2.5 text-[13px] leading-5 text-slate-600">
                 {p.membership.free.benefits.map((line) => (
                   <li key={line} className="flex gap-2.5">
-                    <span className="mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600" aria-hidden>
-                      <Check className="h-3 w-3" />
-                    </span>
+                    {checkIcon("soft")}
                     <span>{line}</span>
                   </li>
                 ))}
@@ -113,120 +136,127 @@ export function PricingSection({
               </GetStartedButton>
             </article>
 
-            <article className="relative flex min-h-[370px] flex-col rounded-[22px] border-2 border-blue-500 bg-white p-6 shadow-[0_18px_42px_rgba(37,99,235,0.16)]">
+            <article className="relative flex min-h-[390px] flex-col rounded-[22px] border-2 border-blue-500 bg-white p-6 shadow-[0_18px_42px_rgba(37,99,235,0.16)]">
               <span className="absolute -top-3 right-5 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 px-3 py-1 text-[11px] font-bold text-white shadow-lg">
-                {p.membership.pro.badge}
+                {p.membership.proMonthly.badge}
               </span>
               <div className="flex items-center justify-between gap-4">
                 <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">PRO</span>
-                <Clock3 className="h-4.5 w-4.5 text-blue-600" />
+                <Clock3 className="h-5 w-5 text-blue-600" />
               </div>
-              <p className="mt-4 text-lg font-black text-slate-950">
-                {p.membership.pro.name}
-              </p>
+              <p className="mt-4 text-lg font-black text-slate-950">{p.membership.proMonthly.name}</p>
               <p className="mt-1 text-4xl font-black tracking-tight text-slate-950">
-                $19<span className="ml-1 text-sm font-semibold text-slate-400">{c.perMonth}</span>
+                {formatUsd(PRICING_USD.proMonthly)}
+                <span className="ml-1 text-sm font-semibold text-slate-400">{c.perMonth}</span>
               </p>
               <p className="mt-4 rounded-xl bg-emerald-50 px-3 py-2.5 text-xs font-bold leading-5 text-emerald-700">
-                {p.membership.pro.creditsLine}
+                {p.membership.proMonthly.highlight}
               </p>
-              <ul className="mt-5 flex-1 space-y-2.5 text-[13px] leading-5 text-slate-600">
-                {p.membership.pro.benefits.map((line) => (
+              <p className="mt-2 text-xs leading-5 text-slate-500">{p.membership.proMonthly.s2sLine}</p>
+              <ul className="mt-4 flex-1 space-y-2.5 text-[13px] leading-5 text-slate-600">
+                {p.membership.proMonthly.benefits.map((line) => (
                   <li key={line} className="flex gap-2.5">
-                    <span className="mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-blue-600 text-white" aria-hidden>
-                      <Check className="h-3 w-3" />
-                    </span>
+                    {checkIcon()}
                     <span>{line}</span>
                   </li>
                 ))}
               </ul>
               <CheckoutButton
                 payload={{ plan: "pro_monthly" }}
-                label={p.membership.pro.cta}
+                label={p.membership.proMonthly.cta}
                 className="mt-5 flex h-10 w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-sm font-bold text-white shadow-lg shadow-blue-200 transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
               />
             </article>
 
-            <article className="relative flex min-h-[370px] flex-col rounded-[22px] border-2 border-violet-500 bg-[linear-gradient(145deg,#ffffff_0%,#fbf9ff_100%)] p-6 shadow-[0_18px_42px_rgba(124,58,237,0.16)]">
+            <article className="relative flex min-h-[390px] flex-col rounded-[22px] border-2 border-violet-500 bg-[linear-gradient(145deg,#ffffff_0%,#fbf9ff_100%)] p-6 shadow-[0_18px_42px_rgba(124,58,237,0.16)]">
               <span className="absolute -top-3 right-5 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 px-3 py-1 text-[11px] font-bold text-white shadow-lg">
-                {locale === "zh" ? "省 22%" : "Save 22%"}
+                {p.membership.proQuarterly.badge}
               </span>
               <div className="flex items-center justify-between gap-4">
                 <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700">PRO</span>
-                <Clock3 className="h-4.5 w-4.5 text-violet-600" />
+                <Clock3 className="h-5 w-5 text-violet-600" />
               </div>
-              <p className="mt-4 text-lg font-black text-slate-950">
-                {locale === "zh" ? "Pro 季度会员" : "Pro Quarterly"}
+              <p className="mt-4 text-lg font-black text-slate-950">{p.membership.proQuarterly.name}</p>
+              <p className="mt-1 text-xs text-slate-400">
+                <span className="mr-2 line-through decoration-slate-400 decoration-2">
+                  {formatUsd(PRO_QUARTERLY_COMPARE_AT_USD)}
+                </span>
+                {p.membership.proQuarterly.compareAtNote}
               </p>
               <p className="mt-1 text-4xl font-black tracking-tight text-slate-950">
-                $34.90
-                <span className="ml-1 text-sm font-semibold text-slate-400">
-                  {locale === "zh" ? "/季" : "/quarter"}
-                </span>
+                {formatUsd(PRICING_USD.proQuarterly)}
+                <span className="ml-1 text-sm font-semibold text-slate-400">{c.perQuarter}</span>
               </p>
-              <p className="mt-4 rounded-xl bg-emerald-50 px-3 py-2.5 text-xs font-bold leading-5 text-emerald-700">
-                {locale === "zh"
-                  ? "季度共 450 分钟 S2S 语音"
-                  : "450 minutes of S2S voice per quarter"}
+              <p className="mt-2 text-xs font-bold text-emerald-600">{p.membership.proQuarterly.savingsCallout}</p>
+              <p className="mt-3 rounded-xl bg-violet-50 px-3 py-2.5 text-xs font-bold leading-5 text-violet-700">
+                {p.membership.proQuarterly.highlight}
               </p>
-              <ul className="mt-5 flex-1 space-y-2.5 text-[13px] leading-5 text-slate-600">
-                {(locale === "zh"
-                  ? ["包含月度会员全部权益", "更多语音同传时长", "可叠加额外加时包"]
-                  : [
-                      "Includes all monthly Pro benefits",
-                      "More live interpretation time",
-                      "Stack additional credit packs anytime",
-                    ]
-                ).map((line) => (
+              <p className="mt-2 text-xs leading-5 text-slate-500">{p.membership.proQuarterly.s2sLine}</p>
+              <ul className="mt-4 flex-1 space-y-2.5 text-[13px] leading-5 text-slate-600">
+                {p.membership.proQuarterly.benefits.map((line) => (
                   <li key={line} className="flex gap-2.5">
-                    <span className="mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-violet-600 text-white" aria-hidden>
-                      <Check className="h-3 w-3" />
-                    </span>
+                    {checkIcon("violet")}
                     <span>{line}</span>
                   </li>
                 ))}
               </ul>
-              <button
-                type="button"
-                disabled
-                title={locale === "zh" ? "季度订阅结账尚未配置" : "Quarterly checkout is not configured yet"}
-                className="mt-5 flex h-10 w-full cursor-not-allowed items-center justify-center rounded-xl bg-gradient-to-r from-sky-500 via-blue-600 to-violet-600 text-sm font-bold text-white shadow-lg shadow-violet-200"
-              >
-                {locale === "zh" ? "订阅 — $34.90/季" : "Subscribe — $34.90/quarter"}
-              </button>
+              <CheckoutButton
+                payload={{ plan: "pro_quarterly" }}
+                label={p.membership.proQuarterly.cta}
+                className="mt-5 flex h-10 w-full items-center justify-center rounded-xl bg-gradient-to-r from-sky-500 via-blue-600 to-violet-600 text-sm font-bold text-white shadow-lg shadow-violet-200 transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
+              />
             </article>
           </div>
         ) : (
           <div className="mt-7 grid gap-4 md:grid-cols-3">
-            {(
-              [
-                { id: "starter" as const, highlight: false, copy: p.packs.starter },
-                { id: "popular" as const, highlight: true, copy: p.packs.popular },
-                { id: "pro" as const, highlight: false, copy: p.packs.pro },
-              ] as const
-            ).map(({ id, highlight, copy }) => (
+            {packCards.map(({ id, highlight, bestValue, copy }) => (
               <article
                 key={id}
-                className={`relative flex min-h-[360px] flex-col rounded-[24px] bg-white p-7 transition hover:-translate-y-1 ${highlight ? "border-2 border-violet-500 shadow-[0_22px_60px_rgba(124,58,237,0.16)]" : "border border-slate-200 shadow-[0_16px_40px_rgba(15,23,42,0.06)]"}`}
+                className={`relative flex min-h-[350px] flex-col rounded-[22px] bg-white p-6 transition hover:-translate-y-1 ${
+                  highlight
+                    ? "border-2 border-violet-500 shadow-[0_18px_42px_rgba(124,58,237,0.16)]"
+                    : bestValue
+                      ? "border-2 border-orange-400 shadow-[0_18px_42px_rgba(249,115,22,0.13)]"
+                      : "border border-slate-200 shadow-[0_14px_32px_rgba(15,23,42,0.07)]"
+                }`}
               >
-                {highlight && copy.badge ? (
-                  <span className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-violet-600 px-4 py-1.5 text-xs font-bold text-white shadow-lg">
+                {highlight && "badge" in copy && copy.badge ? (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-violet-600 px-3 py-1 text-[11px] font-bold text-white shadow-lg">
                     {copy.badge}
                   </span>
                 ) : null}
-                <p className="text-xl font-black text-slate-950">{copy.name}</p>
-                <p className="mt-3 text-4xl font-black tracking-tight text-slate-950">{copy.price}</p>
-                <p className="mt-5 rounded-xl bg-emerald-50 px-3 py-2.5 text-sm font-bold leading-6 text-emerald-700">{copy.creditsLine}</p>
-                <p className="mt-4 text-xs leading-6 text-slate-400">{p.packs.neverExpire}</p>
-                <ul className="mt-7 flex-1 space-y-3 text-sm leading-6 text-slate-600">
+                {bestValue && "bestValueBadge" in copy && copy.bestValueBadge ? (
+                  <span className="absolute -top-3 right-4 max-w-[11rem] rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-3 py-1 text-center text-[11px] font-bold leading-tight text-white shadow-lg">
+                    {copy.bestValueBadge}
+                  </span>
+                ) : null}
+                <p className="text-lg font-black text-slate-950">{copy.name}</p>
+                <p className="mt-2 text-4xl font-black tracking-tight text-slate-950">{formatUsd(PACK_USD[id])}</p>
+                <p className="mt-4 rounded-xl bg-emerald-50 px-3 py-2.5 text-xs font-bold leading-5 text-emerald-700">
+                  {copy.timeLine}
+                </p>
+                {"valueCallout" in copy && copy.valueCallout ? (
+                  <p className="mt-2 text-xs font-bold text-orange-600">{copy.valueCallout}</p>
+                ) : null}
+                <p className="mt-3 text-xs leading-5 text-slate-400">{p.packs.neverExpire}</p>
+                <ul className="mt-5 flex-1 space-y-2.5 text-[13px] leading-5 text-slate-600">
                   {copy.bullets.map((line) => (
-                    <li key={line} className="flex gap-2.5"><Check className="mt-1 h-4 w-4 shrink-0 text-blue-600" />{line}</li>
+                    <li key={line} className="flex gap-2.5">
+                      {checkIcon(highlight ? "violet" : "blue")}
+                      <span>{line}</span>
+                    </li>
                   ))}
                 </ul>
                 <CheckoutButton
                   payload={{ pack_id: id }}
                   label={copy.cta}
-                  className={`mt-7 flex h-11 w-full items-center justify-center rounded-xl text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-60 ${highlight ? "bg-violet-600 text-white shadow-lg shadow-violet-200 hover:bg-violet-700" : "border-2 border-blue-600 text-blue-700 hover:bg-blue-50"}`}
+                  className={`mt-5 flex h-10 w-full items-center justify-center rounded-xl text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                    highlight
+                      ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-lg shadow-violet-200 hover:-translate-y-0.5"
+                      : bestValue
+                        ? "bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-200 hover:-translate-y-0.5"
+                        : "border-2 border-blue-600 text-blue-700 hover:bg-blue-50"
+                  }`}
                 />
               </article>
             ))}

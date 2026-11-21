@@ -1,7 +1,9 @@
 import {
+  normalizePackId,
   resolveCheckoutVariantId,
   type CheckoutPayload,
 } from "@/config/pricing";
+import { resolveSiteOrigin } from "@/utils/site-origin";
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
@@ -12,11 +14,16 @@ function parseCheckoutBody(body: unknown): CheckoutPayload | null {
     return { plan: "pro_monthly" };
   }
   const record = body as Record<string, unknown>;
-  const packId = record.pack_id;
-  if (packId === "starter" || packId === "popular" || packId === "pro") {
+  const packId = normalizePackId(
+    typeof record.pack_id === "string" ? record.pack_id : undefined,
+  );
+  if (packId) {
     return { pack_id: packId };
   }
   const plan = record.plan;
+  if (plan === "pro_quarterly") {
+    return { plan: "pro_quarterly" };
+  }
   if (plan === "pro_monthly") {
     return { plan: "pro_monthly" };
   }
@@ -71,6 +78,8 @@ export async function POST(request: Request) {
   }
 
   const userId = user.id;
+  const siteOrigin = resolveSiteOrigin(request);
+  const dashboardUrl = `${siteOrigin}/dashboard`;
 
   const response = await fetch(LEMON_CHECKOUTS_URL, {
     method: "POST",
@@ -83,6 +92,11 @@ export async function POST(request: Request) {
       data: {
         type: "checkouts",
         attributes: {
+          product_options: {
+            redirect_url: `${dashboardUrl}?payment=success`,
+            receipt_button_text: "Return to Dashboard",
+            receipt_link_url: dashboardUrl,
+          },
           checkout_data: {
             email: userEmail,
             custom: {

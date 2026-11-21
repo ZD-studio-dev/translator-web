@@ -1,7 +1,8 @@
 import {
-  CREDIT_PACK_GRANTS,
-  PRO_MONTHLY_CREDIT_GRANT,
-  type CheckoutPackId,
+  normalizePackId,
+  PRO_MONTHLY_VOICE_SECONDS,
+  PRO_QUARTERLY_VOICE_SECONDS,
+  TIME_PACK_GRANTS_SECONDS,
 } from "@/config/pricing";
 import { parseCreditsBalance } from "@/utils/credits";
 import { createAdminClient } from "@/utils/supabase/admin";
@@ -48,10 +49,6 @@ function verifySignature(rawBody: string, signatureHeader: string | null) {
   }
 }
 
-function isPackId(value: string | undefined): value is CheckoutPackId {
-  return value === "starter" || value === "popular" || value === "pro";
-}
-
 async function transactionExistsForMarker(
   userId: string,
   marker: string,
@@ -71,11 +68,22 @@ async function transactionExistsForMarker(
   return Boolean(data);
 }
 
-async function fetchProfileCredits(userId: string) {
+type ProfileBillingRow = {
+  credits_balance: unknown;
+  plan_tier: string | null;
+  is_pro: boolean | null;
+  subscription_status: string | null;
+  subscription_expires_at: string | null;
+  subscription_period: string | null;
+};
+
+async function fetchProfileBilling(userId: string) {
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("profiles")
-    .select("credits_balance, plan_tier, is_pro, subscription_status")
+    .select(
+      "credits_balance, plan_tier, is_pro, subscription_status, subscription_expires_at, subscription_period",
+    )
     .eq("id", userId)
     .single();
 
@@ -83,24 +91,46 @@ async function fetchProfileCredits(userId: string) {
     throw new Error("Profile not found");
   }
 
+  const row = data as ProfileBillingRow;
   return {
-    creditsBalance: parseCreditsBalance(data.credits_balance),
-    planTier: data.plan_tier as string | null,
-    isPro: data.is_pro === true,
-    subscriptionStatus: data.subscription_status as string | null,
+    creditsBalance: parseCreditsBalance(row.credits_balance),
+    planTier: row.plan_tier,
+    isPro: row.is_pro === true,
+    subscriptionStatus: row.subscription_status,
+    subscriptionExpiresAt: row.subscription_expires_at,
+    subscriptionPeriod: row.subscription_period,
   };
 }
 
-async function applyCreditGrant(params: {
+function addCalendarMonths(base: Date, months: number): Date {
+  const next = new Date(base);
+  next.setMonth(next.getMonth() + months);
+  return next;
+}
+
+function computeExtendedSubscriptionExpiry(
+  currentExpiresAt: string | null,
+  months: number,
+): string {
+  const now = new Date();
+  const current = currentExpiresAt ? new Date(currentExpiresAt) : null;
+  const base =
+    current && !Number.isNaN(current.getTime()) && current > now
+      ? current
+      : now;
+  return addCalendarMonths(base, months).toISOString();
+}
+
+async function applyTimeGrant(params: {
   userId: string;
-  grantAmount: number;
+  grantSeconds: number;
   type: string;
   description: string;
   profilePatch?: Record<string, unknown>;
 }) {
   const admin = createAdminClient();
-  const profile = await fetchProfileCredits(params.userId);
-  const newBalance = profile.creditsBalance + params.grantAmount;
+  const profile = await fetchProfileBilling(params.userId);
+  const newBalance = profile.creditsBalance + params.grantSeconds;
 
   const { error: profileError } = await admin
     .from("profiles")
@@ -117,7 +147,7 @@ async function applyCreditGrant(params: {
   const { error: txError } = await admin.from("credit_transactions").insert({
     user_id: params.userId,
     session_id: null,
-    amount: params.grantAmount,
+    amount: params.grantSeconds,
     balance_after: newBalance,
     type: params.type,
     description: params.description,
@@ -127,7 +157,7 @@ async function applyCreditGrant(params: {
     throw txError;
   }
 
-  return { newBalance, grantAmount: params.grantAmount };
+  return { newBalance, grantAmount: params.grantSeconds };
 }
 
 async function handleOrderCreated(
@@ -135,11 +165,13 @@ async function handleOrderCreated(
   custom: LemonCustomData,
   orderId: string,
 ) {
-  if (!isPackId(custom.pack_id)) {
+  const packId = normalizePackId(custom.pack_id);
+  if (!packId) {
     return NextResponse.json({
       received: true,
       skipped: true,
-      reason: "order_created without pack_id (subscription grants use subscription_payment_success)",
+      reason:
+        "order_created without pack_id (subscription grants use subscription_payment_success)",
     });
   }
 
@@ -148,12 +180,12 @@ async function handleOrderCreated(
     return NextResponse.json({ received: true, duplicate: true, marker });
   }
 
-  const grantAmount = CREDIT_PACK_GRANTS[custom.pack_id];
-  const description = `Credit Pack (${custom.pack_id}) - Order #${orderId}`;
+  const grantSeconds = TIME_PACK_GRANTS_SECONDS[packId];
+  const description = `Voice time pack (${packId}) - Order #${orderId}`;
 
-  const result = await applyCreditGrant({
+  const result = await applyTimeGrant({
     userId,
-    grantAmount,
+    grantSeconds,
     type: "topup",
     description,
   });
@@ -161,8 +193,8 @@ async function handleOrderCreated(
   return NextResponse.json({
     received: true,
     granted: true,
-    kind: "credit_pack",
-    pack_id: custom.pack_id,
+    kind: "time_pack",
+    pack_id: packId,
     ...result,
   });
 }
@@ -170,22 +202,40 @@ async function handleOrderCreated(
 async function handleSubscriptionPaymentSuccess(
   userId: string,
   invoiceId: string,
+  plan: string | undefined,
 ) {
   const marker = `Invoice #${invoiceId}`;
   if (await transactionExistsForMarker(userId, marker)) {
     return NextResponse.json({ received: true, duplicate: true, marker });
   }
 
-  const description = `Pro Monthly Subscription Grant - Invoice #${invoiceId}`;
-  const result = await applyCreditGrant({
+  const isQuarterly = plan === "pro_quarterly";
+  const grantSeconds = isQuarterly
+    ? PRO_QUARTERLY_VOICE_SECONDS
+    : PRO_MONTHLY_VOICE_SECONDS;
+  const subscriptionPeriod = isQuarterly ? "quarterly" : "monthly";
+  const months = isQuarterly ? 3 : 1;
+
+  const profile = await fetchProfileBilling(userId);
+  const subscriptionExpiresAt = computeExtendedSubscriptionExpiry(
+    profile.subscriptionExpiresAt,
+    months,
+  );
+
+  const label = isQuarterly ? "Pro Quarterly" : "Pro Monthly";
+  const description = `${label} voice time grant - Invoice #${invoiceId}`;
+
+  const result = await applyTimeGrant({
     userId,
-    grantAmount: PRO_MONTHLY_CREDIT_GRANT,
+    grantSeconds,
     type: "subscription_grant",
     description,
     profilePatch: {
       plan_tier: "pro",
       is_pro: true,
       subscription_status: "active",
+      subscription_period: subscriptionPeriod,
+      subscription_expires_at: subscriptionExpiresAt,
       plan: "pro",
     },
   });
@@ -193,7 +243,9 @@ async function handleSubscriptionPaymentSuccess(
   return NextResponse.json({
     received: true,
     granted: true,
-    kind: "pro_monthly",
+    kind: isQuarterly ? "pro_quarterly" : "pro_monthly",
+    subscription_period: subscriptionPeriod,
+    subscription_expires_at: subscriptionExpiresAt,
     ...result,
   });
 }
@@ -224,6 +276,7 @@ async function handleSubscriptionExpired(userId: string) {
       plan_tier: "free",
       is_pro: false,
       subscription_status: "expired",
+      subscription_period: null,
       plan: "free",
     })
     .eq("id", userId);
@@ -286,7 +339,11 @@ export async function handleLemonWebhook(request: Request) {
           { status: 400 },
         );
       }
-      return await handleSubscriptionPaymentSuccess(userId, resourceId);
+      return await handleSubscriptionPaymentSuccess(
+        userId,
+        resourceId,
+        custom.plan,
+      );
     }
 
     if (eventName === "subscription_cancelled") {

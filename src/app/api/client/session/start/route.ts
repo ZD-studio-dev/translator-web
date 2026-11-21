@@ -1,16 +1,24 @@
 import { NextResponse } from "next/server";
 import { getClientUserId } from "@/utils/api/client-auth";
 import {
+  buildClientUserStatusFields,
+  CLIENT_PROFILE_SELECT,
+  EphemeralCredentialsError,
   HEARTBEAT_INTERVAL_SEC,
+  isUserPro,
   issueEphemeralCredentials,
   MIN_CREDITS_TO_START,
   parseCredits,
+  parseSessionModeFromBody,
   type ProfileCreditsRow,
+  type SessionMode,
 } from "@/utils/api/client-session";
 import { createAdminClient } from "@/utils/supabase/admin";
 
 type StartBody = {
   provider?: "openai" | "qwen" | "doubao";
+  mode?: SessionMode | string;
+  session_mode?: SessionMode | string;
 };
 
 export async function POST(request: Request) {
@@ -31,11 +39,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid provider" }, { status: 400 });
   }
 
+  const mode = parseSessionModeFromBody(body);
+
   try {
     const admin = createAdminClient();
     const { data: profile, error: profileError } = await admin
       .from("profiles")
-      .select("credits_balance")
+      .select(CLIENT_PROFILE_SELECT)
       .eq("id", auth.userId)
       .single();
 
@@ -43,15 +53,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
 
-    const creditsBalance = parseCredits(
-      (profile as ProfileCreditsRow).credits_balance,
-    );
+    const profileRow = profile as ProfileCreditsRow;
+    const creditsBalance = parseCredits(profileRow.credits_balance);
+    const proActive = isUserPro(profileRow, admin);
+    const userStatus = buildClientUserStatusFields(profileRow, {
+      creditsBalance,
+    });
+    const skipBalanceCheck = proActive && mode === "s2t";
 
-    if (creditsBalance < MIN_CREDITS_TO_START) {
+    if (!skipBalanceCheck && creditsBalance < MIN_CREDITS_TO_START) {
       return NextResponse.json(
         {
           error: "Insufficient credits",
-          credits_balance: creditsBalance,
+          ...userStatus,
         },
         { status: 402 },
       );
@@ -68,6 +82,7 @@ export async function POST(request: Request) {
         total_seconds: 0,
         total_credits_charged: 0,
         provider,
+        session_mode: mode,
       })
       .select("id")
       .single();
@@ -81,15 +96,34 @@ export async function POST(request: Request) {
     }
 
     const sessionId = session.id as string;
-    const credentials = await issueEphemeralCredentials(sessionId, provider);
+    let credentials;
+    try {
+      credentials = await issueEphemeralCredentials(sessionId, provider);
+    } catch (credErr) {
+      if (credErr instanceof EphemeralCredentialsError) {
+        await admin
+          .from("translation_sessions")
+          .update({
+            status: "ended",
+            ended_at: new Date().toISOString(),
+          })
+          .eq("id", sessionId);
+        return NextResponse.json(
+          { error: credErr.message, provider },
+          { status: 503 },
+        );
+      }
+      throw credErr;
+    }
 
     return NextResponse.json({
       session_id: sessionId,
       ws_url: credentials.ws_url,
       ephemeral_token: credentials.ephemeral_token,
-      credits_balance: creditsBalance,
       heartbeat_interval_sec: HEARTBEAT_INTERVAL_SEC,
       provider,
+      mode,
+      ...userStatus,
     });
   } catch (err) {
     console.error("POST /api/client/session/start error:", err);

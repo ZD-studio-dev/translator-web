@@ -118,7 +118,7 @@ async function main() {
       event_name: "order_created",
       custom_data: {
         user_id: userId,
-        pack_id: "starter",
+        pack_id: "pack_1h",
       },
     },
     data: {
@@ -162,11 +162,11 @@ async function main() {
   console.log(JSON.stringify(latestTx, null, 2));
 
   assert(
-    balanceAfter === balanceBefore + 1800,
-    `Expected balance ${balanceBefore + 1800}, got ${balanceAfter}`,
+    balanceAfter === balanceBefore + 3600,
+    `Expected balance ${balanceBefore + 3600}, got ${balanceAfter}`,
   );
   assert(latestTx?.type === "topup", `Expected type topup, got ${latestTx?.type}`);
-  assert(latestTx?.amount === 1800, `Expected amount 1800, got ${latestTx?.amount}`);
+  assert(latestTx?.amount === 3600, `Expected amount 3600, got ${latestTx?.amount}`);
   assert(
     latestTx?.description?.includes(`Order #${orderId}`),
     "Description should include order id for idempotency",

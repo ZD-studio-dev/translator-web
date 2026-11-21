@@ -10,6 +10,7 @@ export const dictionaries = {
       dashboard: "Dashboard",
       loading: "Loading…",
       perMonth: "/mo",
+      perQuarter: "/3 mo",
     },
     home: {
       heroTitle: "Real-Time AI Translation, Right on Your Screen.",
@@ -19,24 +20,6 @@ export const dictionaries = {
       ctaSecondary: "View Pricing",
       demoBadge:
         "🎬 Interactive Demo Coming Soon — Live Screen & Audio Translation",
-      proofTitle: "TRUSTED BY GLOBAL PROFESSIONALS, GAMERS & CREATORS",
-      testimonials: [
-        {
-          quote:
-            "Cut my cross-border meeting prep to zero. The real-time audio translation feels like having a human interpreter.",
-          author: "Alex M., Product Manager",
-        },
-        {
-          quote:
-            "Finally I can play unlocalized games and read foreign research papers right on my screen with a single hotkey.",
-          author: "David K., Software Engineer",
-        },
-        {
-          quote:
-            "Way faster and more accurate than browser extensions. It stays out of the way until the exact second I need it.",
-          author: "Sarah L., UX Designer",
-        },
-      ],
       featuresTitle: "Built for Speed, Accuracy, and Zero Friction",
       features: [
         {
@@ -76,64 +59,91 @@ export const dictionaries = {
       footer: "© 2026 ZD Translate. All rights reserved.",
     },
     pricing: {
-      title: "Membership + Credit Packs",
+      title: "Membership + Extra Voice Time",
       subtitle:
-        "1 Credit = 1 second of live AI voice interpretation. Choose a monthly plan for power users, or top up credits anytime—they never expire.",
+        "Pro members get unlimited real-time subtitles (S2T). Live voice interpretation (S2S) is billed per second from your voice time balance—top up anytime.",
       tabAria: "Pricing options",
-      tabMembership: "Membership Plans",
-      tabPacks: "Credit Packs",
+      tabMembership: "Pro Membership",
+      tabPacks: "Extra Voice Time Packs",
       footnote:
-        "Secure checkout via Lemon Squeezy. Credit packs are ideal for one-time purchases (including regional payment methods where available).",
-      embeddedTitle: "Top up credits or upgrade",
+        "Secure checkout via Lemon Squeezy. Time packs never expire and stack with any plan.",
+      embeddedTitle: "Buy voice time or upgrade",
       membership: {
         free: {
           badge: "Free Trial",
           name: "Free Trial",
-          creditsLine: "600 Credits included (≈ 10 min live interpretation)",
+          timeLine: "600 seconds free trial time (10 minutes)",
           benefits: [
-            "600 credits on signup — try real-time interpretation",
-            "Standard voice models & latency",
-            "Desktop client access with pay-as-you-go usage",
+            "Try S2T subtitles & S2S voice — billed per second",
+            "Standard models & latency",
+            "Desktop client with same account",
           ],
           cta: "Get Started Free",
         },
-        pro: {
-          badge: "Best for daily use",
+        proMonthly: {
+          badge: "Monthly",
           name: "Pro Monthly",
-          creditsLine:
-            "7,200 Credits every month (≈ 120 min live interpretation)",
+          highlight: "♾️ Unlimited S2T subtitles + 120 min/mo S2S voice",
+          s2sLine: "Includes 7,200 seconds (120 min) S2S voice each month",
           benefits: [
-            "0.3s ultra-low latency pipeline",
-            "Voice cloning & premium audio quality",
-            "Floating overlay for Zoom, Discord & lectures",
-            "Member discount on credit pack top-ups",
+            "Unlimited live subtitle translation (S2T)",
+            "0.3s ultra-low latency for S2S voice",
+            "Voice cloning & premium audio",
+            "Overlay for Zoom, Discord & lectures",
           ],
-          cta: "Subscribe — $19/mo",
+          cta: "Subscribe — $14.90/mo",
+        },
+        proQuarterly: {
+          badge: "Save 22%",
+          name: "Pro Quarterly",
+          compareAtNote: "3× monthly price",
+          savingsCallout: "🔥 Just $11.63/mo — save $9.80",
+          highlight:
+            "🔥 150 extra S2S minutes vs monthly (450 min/quarter total)",
+          s2sLine: "Includes 27,000 seconds (450 min) S2S voice each quarter",
+          benefits: [
+            "Everything in Pro Monthly",
+            "Best value for daily voice interpretation",
+            "Quarterly billing, stack extra time packs",
+          ],
+          cta: "Subscribe — $34.90/3 mo",
         },
       },
       packs: {
-        neverExpire: "Credits never expire · pay once, use anytime",
-        starter: {
-          name: "Starter Pack",
-          price: "$4.99",
-          creditsLine: "1,800 Credits (≈ 30 min)",
-          bullets: ["Great for occasional meetings", "Stack with any plan"],
-          cta: "Buy Starter Pack",
+        neverExpire: "Voice time never expires · stacks with membership",
+        pack1h: {
+          name: "1 Hour Pack",
+          price: "$4.90",
+          timeLine: "+60 minutes S2S voice (3,600 sec)",
+          bullets: [
+            "Top-up for ad-hoc meetings",
+            "Never expires — stacks with any membership",
+          ],
+          cta: "Buy 1 Hour",
         },
-        popular: {
-          name: "Popular Pack",
+        pack3h: {
+          name: "3 Hour Pack",
           badge: "Most Popular",
-          price: "$12.99",
-          creditsLine: "5,400 Credits (≈ 90 min)",
-          bullets: ["Best value for regular interpreters", "Works with Free or Pro"],
-          cta: "Buy Popular Pack",
+          price: "$12.90",
+          timeLine: "+180 minutes S2S voice (10,800 sec)",
+          valueCallout: "🔥 ~$0.07/min (better value than 1 Hour Pack)",
+          bullets: [
+            "Business interpretation favorite",
+            "Lower cost per minute",
+            "Long-valid balance — use until depleted",
+          ],
+          cta: "Buy 3 Hours",
         },
-        pro: {
-          name: "Pro Pack",
-          price: "$29.99",
-          creditsLine: "14,400 Credits (≈ 4 hours)",
-          bullets: ["Marathon sessions & all-day events", "Priority fulfillment"],
-          cta: "Buy Pro Pack",
+        pack10h: {
+          name: "10 Hour Pack",
+          price: "$29.90",
+          timeLine: "+600 minutes S2S voice (36,000 sec)",
+          bestValueBadge: "💎 Power users · Save 15%",
+          bullets: [
+            "All-day events & marathon meetings",
+            "Lowest per-minute rate — built for heavy users",
+          ],
+          cta: "Buy 10 Hours",
         },
       },
     },
@@ -162,25 +172,30 @@ export const dictionaries = {
       account: "Account",
       proPlan: "Pro Plan",
       freePlan: "Free Plan",
-      creditsOverview: "Credits & account",
+      paymentSuccessBanner:
+        "🎉 Payment successful! Your membership and voice time balance have been updated.",
+      creditsOverview: "Account & voice time",
+      voiceTimeLabel: "Remaining S2S voice time",
+      unlimitedS2t: "Subtitles (S2T): ♾️ Unlimited",
+      subscriptionExpires: "Membership renews / expires",
       badgeFree: "Free",
       badgePro: "Pro",
-      topUpCredits: "Top Up Credits",
+      topUpCredits: "Buy Voice Time",
       subscription: "Membership",
       freeSummary:
-        "You are on the Free plan with pay-as-you-go credits. Upgrade to Pro for 7,200 monthly credits, ultra-low latency, and voice cloning.",
+        "Free plan: S2T and S2S use your voice-second balance (1 sec = 1 sec). Upgrade Pro for unlimited S2T plus monthly S2S voice time.",
       proSummary:
-        "Pro is active — you receive 7,200 credits each billing cycle plus member perks. Top up anytime with credit packs.",
+        "Pro is active — unlimited S2T subtitles. S2S voice uses your balance; each cycle adds included minutes. Top up with time packs anytime.",
       manageSubscription: "Manage Subscription",
       desktopTitle: "Desktop Client Download",
       desktopBody:
         "Download the desktop app and sign in with your account to start translating across any window.",
       desktopIntro:
-        "Run real-time interpretation on your desktop. Usage is billed per second from your credit balance.",
+        "Run real-time interpretation on your desktop. S2S voice is billed per second from your balance; Pro S2T subtitles are unlimited.",
       desktopSteps: [
         "Download and install the client for your OS.",
         "Sign in with the same email you use on this website.",
-        "Press Start in the app — live interpretation consumes 1 credit per second.",
+        "Press Start — S2S voice uses 1 second of balance per second of audio.",
       ],
       downloadDesktop: "Download Desktop App",
       downloadWindows: "Download for Windows (.exe)",
@@ -189,9 +204,9 @@ export const dictionaries = {
         "Windows (.exe) download link is not configured yet — check back soon.",
       downloadMacSoon:
         "macOS (.dmg) download link is not configured yet — check back soon.",
-      recentActivity: "Recent Credit Activity",
+      recentActivity: "Recent usage & top-ups",
       noTransactions:
-        "No credit activity yet. Start a session in the desktop client to see per-second usage here.",
+        "No activity yet. Start a session in the desktop client to see per-second S2S usage here.",
       colTime: "Time",
       colType: "Type",
       colDescription: "Description",
@@ -206,7 +221,7 @@ export const dictionaries = {
         adjustment: "Adjustment",
       },
       signOut: "Sign Out",
-      upgradePro: "Upgrade to Pro — $19/mo",
+      upgradePro: "Upgrade to Pro — $14.90/mo",
       upgradeRedirecting: "Redirecting…",
       checkoutFailed: "Failed to create checkout session",
     },
@@ -238,6 +253,7 @@ export const dictionaries = {
       dashboard: "控制台",
       loading: "加载中…",
       perMonth: "/月",
+      perQuarter: "/季",
     },
     home: {
       heroTitle: "实时 AI 翻译，就在你的屏幕上。",
@@ -246,24 +262,6 @@ export const dictionaries = {
       ctaPrimary: "免费开始",
       ctaSecondary: "查看价格",
       demoBadge: "🎬 互动演示即将上线 — 屏幕与音频实时翻译",
-      proofTitle: "深受全球职场人、玩家与创作者信赖",
-      testimonials: [
-        {
-          quote:
-            "跨国会议准备时间几乎归零。实时语音翻译就像身边有一位同声传译。",
-          author: "Alex M.，产品经理",
-        },
-        {
-          quote:
-            "终于可以用一个快捷键，在屏幕上畅玩未本地化游戏并阅读外文论文。",
-          author: "David K.，软件工程师",
-        },
-        {
-          quote:
-            "比浏览器插件更快、更准。只在需要的那一秒出现，完全不打扰。",
-          author: "Sarah L.，UX 设计师",
-        },
-      ],
       featuresTitle: "为速度、准确与零摩擦而生",
       features: [
         {
@@ -303,63 +301,84 @@ export const dictionaries = {
       footer: "© 2026 ZD Translate. 保留所有权利。",
     },
     pricing: {
-      title: "会员订阅 + 积分加油包",
+      title: "会员订阅 + 额外语音时长",
       subtitle:
-        "1 积分 = 1 秒实时 AI 语音同传。高频用户选月度会员，按需用户可随时购买永不过期的积分包。",
+        "Pro 会员无限畅享实时字幕（S2T）。实时语音同传（S2S）按秒从语音时长余额扣减，可随时购买加时包。",
       tabAria: "定价选项",
-      tabMembership: "会员方案",
-      tabPacks: "积分加油包",
+      tabMembership: "Pro 会员",
+      tabPacks: "额外加时包",
       footnote:
-        "通过 Lemon Squeezy 安全结账。积分包适合单次购买（在支持的地区可使用本地支付方式）。",
-      embeddedTitle: "充值积分或升级会员",
+        "通过 Lemon Squeezy 安全结账。加时包永不过期，可与任意方案叠加。",
+      embeddedTitle: "购买语音时长或升级会员",
       membership: {
         free: {
           badge: "免费体验",
           name: "Free Trial",
-          creditsLine: "注册即送 600 积分（约 10 分钟实时同传）",
+          timeLine: "注册即送 600 秒（10 分钟）免费体验时长",
           benefits: [
-            "注册赠送 600 积分，体验实时同传",
-            "基础语音模型与标准延迟",
-            "桌面客户端按秒消耗积分",
+            "体验 S2T 字幕与 S2S 语音 — 按秒计费",
+            "标准模型与延迟",
+            "桌面端同账号登录",
           ],
           cta: "免费开始",
         },
-        pro: {
-          badge: "高频用户首选",
+        proMonthly: {
+          badge: "月度",
           name: "Pro 月度会员",
-          creditsLine: "每月自动发放 7,200 积分（约 120 分钟同传）",
+          highlight: "♾️ 无限 S2T 字幕 + 每月 120 分钟 S2S 语音",
+          s2sLine: "每周期含 7,200 秒（120 分钟）S2S 语音时长",
           benefits: [
-            "0.3 秒极速延迟通道",
-            "原声克隆（Voice Cloning）",
-            "Zoom / Discord / 网课全场景悬浮窗",
-            "加油包会员专享折扣",
+            "无限实时字幕翻译（S2T）",
+            "S2S 语音 0.3 秒极速延迟",
+            "原声克隆与高品质音频",
+            "Zoom / Discord / 网课悬浮窗",
           ],
-          cta: "订阅 Pro — $19/月",
+          cta: "订阅 — $14.90/月",
+        },
+        proQuarterly: {
+          badge: "省 22%",
+          name: "Pro 季度会员",
+          compareAtNote: "按月度价合计",
+          savingsCallout: "🔥 相当于每月仅需 $11.63（立省 $9.8）",
+          highlight: "🔥 比月付多送 150 分钟（季度共 450 分钟 S2S）",
+          s2sLine: "每周期含 27,000 秒（450 分钟）S2S 语音时长",
+          benefits: [
+            "包含月度会员全部权益",
+            "高频语音同传更划算",
+            "按季计费，可叠加加时包",
+          ],
+          cta: "订阅 — $34.90/季",
         },
       },
       packs: {
-        neverExpire: "积分永不过期 · 一次购买随时使用",
-        starter: {
-          name: "Starter 加油包",
-          price: "$4.99",
-          creditsLine: "1,800 积分（约 30 分钟）",
-          bullets: ["适合偶尔开会", "可与任意会员等级叠加"],
-          cta: "购买 Starter",
+        neverExpire: "语音时长永不过期 · 可与会员叠加",
+        pack1h: {
+          name: "1 小时加时包",
+          price: "$4.90",
+          timeLine: "+60 分钟 S2S 语音（3,600 秒）",
+          bullets: ["临时会议加餐", "永不过期，可与任意会员叠加"],
+          cta: "购买 1 小时",
         },
-        popular: {
-          name: "Popular 加油包",
-          badge: "主推",
-          price: "$12.99",
-          creditsLine: "5,400 积分（约 90 分钟）",
-          bullets: ["常规同传性价比之选", "Free / Pro 均可使用"],
-          cta: "购买 Popular",
+        pack3h: {
+          name: "3 小时加时包",
+          badge: "推荐",
+          price: "$12.90",
+          timeLine: "+180 分钟 S2S 语音（10,800 秒）",
+          valueCallout: "🔥 约合 $0.07/分钟（比 1 小时包更划算）",
+          bullets: [
+            "商务同传首选",
+            "单分钟性价比更高",
+            "长期有效，用完即止",
+          ],
+          cta: "购买 3 小时",
         },
-        pro: {
-          name: "Pro 加油包",
-          price: "$29.99",
-          creditsLine: "14,400 积分（约 4 小时）",
-          bullets: ["马拉松会议与全天活动", "大额充值更省心"],
-          cta: "购买 Pro 包",
+        pack10h: {
+          name: "10 小时加时包",
+          price: "$29.90",
+          timeLine: "+600 分钟 S2S 语音（36,000 秒）",
+          bestValueBadge: "💎 适合高频会议·立省 15%",
+          bullets: ["全天活动 / 马拉松会议", "单价最低，资深用户必备"],
+          cta: "购买 10 小时",
         },
       },
     },
@@ -387,34 +406,39 @@ export const dictionaries = {
       account: "账户",
       proPlan: "Pro 方案",
       freePlan: "免费方案",
-      creditsOverview: "账户与算力",
+      paymentSuccessBanner:
+        "🎉 支付成功！您的会员权益与语音时长已更新。",
+      creditsOverview: "账户与语音时长",
+      voiceTimeLabel: "剩余 S2S 语音翻译时长",
+      unlimitedS2t: "字幕翻译（S2T）：♾️ 无限畅享",
+      subscriptionExpires: "会员到期 / 续费时间",
       badgeFree: "FREE",
       badgePro: "PRO",
-      topUpCredits: "充值积分",
+      topUpCredits: "购买语音时长",
       subscription: "会员订阅",
       freeSummary:
-        "当前为 Free 方案，按积分按秒计费。升级 Pro 可每月获得 7,200 积分，并解锁极速延迟与原声克隆。",
+        "Free 方案：S2T / S2S 均按秒消耗余额。升级 Pro 可无限 S2T，并每周期获赠 S2S 语音时长。",
       proSummary:
-        "Pro 会员已生效 — 每周期自动发放 7,200 积分及会员权益。可随时购买加油包补充算力。",
+        "Pro 已生效 — S2T 字幕无限。S2S 语音从余额按秒扣费；每周期自动补充含有时长，可随时购买加时包。",
       manageSubscription: "管理订阅",
       desktopTitle: "桌面客户端下载",
       desktopBody:
         "下载桌面应用并使用本账户登录，即可在任意窗口开始翻译。",
       desktopIntro:
-        "在桌面端运行实时同传，按秒从积分余额扣费。",
+        "桌面端实时同传：S2S 语音按秒扣余额；Pro 的 S2T 字幕无限畅享。",
       desktopSteps: [
         "下载并安装对应系统的客户端。",
         "使用与本站相同的账号登录软件。",
-        "在客户端点击开始 — 实时同传按 1 积分 / 秒消耗。",
+        "点击开始 — S2S 语音按 1 秒余额 / 秒音频扣费。",
       ],
       downloadDesktop: "下载桌面应用",
       downloadWindows: "Windows 版下载 (.exe)",
       downloadMac: "macOS 版下载 (.dmg)",
       downloadWindowsSoon: "Windows (.exe) 下载链接尚未配置，敬请期待。",
       downloadMacSoon: "macOS (.dmg) 下载链接尚未配置，敬请期待。",
-      recentActivity: "最近积分明细",
+      recentActivity: "最近用量与充值",
       noTransactions:
-        "暂无积分流水。在桌面客户端开始同传后，可在此查看按秒扣费记录。",
+        "暂无记录。在客户端开始 S2S 会话后，可在此查看按秒扣费。",
       colTime: "时间",
       colType: "类型",
       colDescription: "说明",
@@ -429,7 +453,7 @@ export const dictionaries = {
         adjustment: "调整",
       },
       signOut: "退出登录",
-      upgradePro: "升级 Pro — $19/月",
+      upgradePro: "升级 Pro — $14.90/月",
       upgradeRedirecting: "跳转中…",
       checkoutFailed: "创建支付会话失败",
     },

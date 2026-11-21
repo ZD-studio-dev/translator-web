@@ -16,5 +16,5 @@ export default async function TermsPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  return <LegalDocumentPage doc="terms" isLoggedIn={!!user} />;
+  return <LegalDocumentPage doc="terms" userEmail={user?.email ?? null} />;
 }

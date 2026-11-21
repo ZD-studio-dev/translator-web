@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { getClientUserId } from "@/utils/api/client-auth";
 import {
+  buildClientUserStatusFields,
+  CLIENT_PROFILE_SELECT,
+  computeBillableCharge,
   elapsedSecondsSince,
   fetchActiveSession,
+  getSessionModeFromRow,
   HEARTBEAT_MAX_ELAPSED_SEC,
   insertCreditTransaction,
+  isUserPro,
   LOW_CREDITS_STOP_THRESHOLD,
   parseCredits,
   type ProfileCreditsRow,
@@ -47,7 +52,7 @@ export async function POST(request: Request) {
 
     const { data: profile, error: profileError } = await admin
       .from("profiles")
-      .select("credits_balance")
+      .select(CLIENT_PROFILE_SELECT)
       .eq("id", auth.userId)
       .single();
 
@@ -55,24 +60,33 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
 
+    const profileRow = profile as ProfileCreditsRow;
+    const proActive = isUserPro(profileRow, admin);
+    const mode = getSessionModeFromRow(session);
+
     const now = new Date();
     const nowIso = now.toISOString();
-    let creditsBalance = parseCredits(
-      (profile as ProfileCreditsRow).credits_balance,
-    );
+    let creditsBalance = parseCredits(profileRow.credits_balance);
 
     const elapsedRaw = elapsedSecondsSince(session.last_billed_at, now);
     const elapsedSeconds = Math.min(elapsedRaw, HEARTBEAT_MAX_ELAPSED_SEC);
-    const charge = Math.min(creditsBalance, elapsedSeconds);
+    const charge = computeBillableCharge(
+      proActive,
+      mode,
+      elapsedSeconds,
+      creditsBalance,
+    );
     const newBalance = creditsBalance - charge;
 
-    const { error: profileUpdateError } = await admin
-      .from("profiles")
-      .update({ credits_balance: newBalance })
-      .eq("id", auth.userId);
+    if (charge > 0) {
+      const { error: profileUpdateError } = await admin
+        .from("profiles")
+        .update({ credits_balance: newBalance })
+        .eq("id", auth.userId);
 
-    if (profileUpdateError) {
-      throw profileUpdateError;
+      if (profileUpdateError) {
+        throw profileUpdateError;
+      }
     }
 
     const sessionRow = session as TranslationSessionRow;
@@ -90,18 +104,23 @@ export async function POST(request: Request) {
       throw sessionUpdateError;
     }
 
-    await insertCreditTransaction(admin, {
-      userId: auth.userId,
-      sessionId,
-      amount: -charge,
-      balanceAfter: newBalance,
-      type: "session_usage",
-      description: "Heartbeat usage",
-    });
+    if (charge > 0) {
+      await insertCreditTransaction(admin, {
+        userId: auth.userId,
+        sessionId,
+        amount: -charge,
+        balanceAfter: newBalance,
+        type: "session_usage",
+        description:
+          mode === "s2s" ? "S2S voice session (heartbeat)" : "Session heartbeat",
+      });
+      creditsBalance = newBalance;
+    }
 
-    creditsBalance = newBalance;
-
-    if (creditsBalance < LOW_CREDITS_STOP_THRESHOLD) {
+    if (
+      charge > 0 &&
+      creditsBalance < LOW_CREDITS_STOP_THRESHOLD
+    ) {
       await admin
         .from("translation_sessions")
         .update({ status: "terminated_no_credits" })
@@ -110,16 +129,20 @@ export async function POST(request: Request) {
 
       return NextResponse.json({
         should_stop: true,
-        credits_balance: Math.max(0, creditsBalance),
         charged: charge,
+        charged_seconds: charge,
         message: "Out of credits",
+        ...buildClientUserStatusFields(profileRow, {
+          creditsBalance: Math.max(0, creditsBalance),
+        }),
       });
     }
 
     return NextResponse.json({
       should_stop: false,
-      credits_balance: creditsBalance,
       charged: charge,
+      charged_seconds: charge,
+      ...buildClientUserStatusFields(profileRow, { creditsBalance }),
     });
   } catch (err) {
     console.error("POST /api/client/session/heartbeat error:", err);

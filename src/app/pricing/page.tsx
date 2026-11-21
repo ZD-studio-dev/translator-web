@@ -1,19 +1,31 @@
 export const instant = false;
+
 import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
 import { AudioLines } from "lucide-react";
 import { PricingSection } from "@/components/PricingSection";
 import { LanguageToggle } from "@/components/language-toggle";
+import { createClient } from "@/utils/supabase/server";
 
 export const metadata: Metadata = {
   title: "Pricing — ZD Translate",
   description:
-    "Membership plans and pay-as-you-go credit packs for real-time AI voice translation. 1 credit = 1 second of live interpretation.",
+    "Membership plans and pay-as-you-go voice-time packs for real-time AI voice translation.",
 };
+
+function emailLocalPart(email: string): string {
+  const at = email.indexOf("@");
+  return at > 0 ? email.slice(0, at) : email;
+}
 
 export default async function PricingPage() {
   await connection();
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const userEmail = user?.email ?? null;
 
   return (
     <div className="min-h-screen bg-white text-slate-950">
@@ -25,7 +37,28 @@ export default async function PricingPage() {
             </span>
             Meeting Translator
           </Link>
-          <LanguageToggle />
+          <div className="flex items-center gap-3">
+            <LanguageToggle />
+            {userEmail ? (
+              <Link
+                href="/dashboard"
+                title={userEmail}
+                className="flex h-10 max-w-[190px] items-center gap-2 rounded-xl bg-blue-600 px-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700 sm:px-3"
+              >
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/20 text-xs font-black ring-1 ring-white/40">
+                  {(emailLocalPart(userEmail)[0] ?? "?").toUpperCase()}
+                </span>
+                <span className="hidden truncate sm:inline">{emailLocalPart(userEmail)}</span>
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="inline-flex h-10 items-center rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700"
+              >
+                Sign in
+              </Link>
+            )}
+          </div>
         </div>
       </header>
       <main>
