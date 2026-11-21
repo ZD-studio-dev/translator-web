@@ -5,7 +5,7 @@ export const LOCALE_STORAGE_KEY = "locale";
 export const dictionaries = {
   en: {
     common: {
-      brand: "ZD Translate",
+      brand: "ZD Meeting Translator",
       signIn: "Sign In",
       dashboard: "Dashboard",
       loading: "Loading…",
@@ -37,7 +37,7 @@ export const dictionaries = {
         {
           title: "Context-Aware AI Engine",
           description:
-            "Go beyond literal word-for-word translation. ZD Translate understands idioms, technical jargon, and context to deliver natural results.",
+            "Go beyond literal word-for-word translation. ZD Meeting Translator understands idioms, technical jargon, and context to deliver natural results.",
           label: "AI Context Engine",
         },
       ],
@@ -45,7 +45,7 @@ export const dictionaries = {
       faqs: [
         {
           q: "How does the desktop app sync with my Pro account?",
-          a: "Simply sign in to the ZD Translate desktop client using the same email account. Your Pro privileges unlock automatically in real time.",
+          a: "Simply sign in to the ZD Meeting Translator desktop client using the same email account. Your Pro privileges unlock automatically in real time.",
         },
         {
           q: "Can I cancel my subscription at any time?",
@@ -53,10 +53,10 @@ export const dictionaries = {
         },
         {
           q: "Does it work over fullscreen apps, games, and video calls?",
-          a: "Absolutely. ZD Translate runs as a lightweight native overlay that works seamlessly across any window, PDF, browser, or meeting app.",
+          a: "Absolutely. ZD Meeting Translator runs as a lightweight native overlay that works seamlessly across any window, PDF, browser, or meeting app.",
         },
       ],
-      footer: "© 2026 ZD Translate. All rights reserved.",
+      footer: "© 2026 ZD Meeting Translator. All rights reserved.",
     },
     pricing: {
       title: "Membership + Extra Voice Time",
@@ -156,7 +156,7 @@ export const dictionaries = {
       or: "OR",
       email: "Email",
       password: "Password",
-      emailPlaceholder: "you@company.com",
+      emailPlaceholder: "you@example.com",
       pleaseWait: "Please wait…",
       signIn: "Sign in",
       signUp: "Sign up",
@@ -200,10 +200,8 @@ export const dictionaries = {
       downloadDesktop: "Download Desktop App",
       downloadWindows: "Download for Windows (.exe)",
       downloadMac: "Download for macOS (.dmg)",
-      downloadWindowsSoon:
-        "Windows (.exe) download link is not configured yet — check back soon.",
-      downloadMacSoon:
-        "macOS (.dmg) download link is not configured yet — check back soon.",
+      downloadWindowsSoon: "Coming soon",
+      downloadMacSoon: "Coming soon",
       recentActivity: "Recent usage & top-ups",
       noTransactions:
         "No activity yet. Start a session in the desktop client to see per-second S2S usage here.",
@@ -230,7 +228,7 @@ export const dictionaries = {
       privacyPolicy: "Privacy Policy",
     },
     desktopAuth: {
-      authorizingTitle: "Authorizing ZD Translate Desktop…",
+      authorizingTitle: "Authorizing ZD Meeting Translator Desktop…",
       authorizingBody:
         "Redirecting your login to the desktop app on this computer. If nothing happens, use the button below.",
       openClient: "Open desktop client",
@@ -248,7 +246,7 @@ export const dictionaries = {
   },
   zh: {
     common: {
-      brand: "ZD Translate",
+      brand: "ZD Meeting Translator",
       signIn: "登录",
       dashboard: "控制台",
       loading: "加载中…",
@@ -279,7 +277,7 @@ export const dictionaries = {
         {
           title: "上下文感知 AI 引擎",
           description:
-            "超越逐词直译。ZD Translate 理解习语、术语与语境，输出自然流畅的译文。",
+            "超越逐词直译。ZD Meeting Translator 理解习语、术语与语境，输出自然流畅的译文。",
           label: "AI 语境引擎",
         },
       ],
@@ -287,7 +285,7 @@ export const dictionaries = {
       faqs: [
         {
           q: "桌面端如何与 Pro 账户同步？",
-          a: "使用同一邮箱登录 ZD Translate 桌面客户端，Pro 权益将实时自动解锁。",
+          a: "使用同一邮箱登录 ZD Meeting Translator 桌面客户端，Pro 权益将实时自动解锁。",
         },
         {
           q: "可以随时取消订阅吗？",
@@ -295,10 +293,10 @@ export const dictionaries = {
         },
         {
           q: "全屏应用、游戏与视频会议能用吗？",
-          a: "可以。ZD Translate 以轻量原生悬浮层运行，适用于任意窗口、PDF、浏览器或会议应用。",
+          a: "可以。ZD Meeting Translator 以轻量原生悬浮层运行，适用于任意窗口、PDF、浏览器或会议应用。",
         },
       ],
-      footer: "© 2026 ZD Translate. 保留所有权利。",
+      footer: "© 2026 ZD Meeting Translator. 保留所有权利。",
     },
     pricing: {
       title: "会员订阅 + 额外语音时长",
@@ -391,7 +389,7 @@ export const dictionaries = {
       or: "或",
       email: "邮箱",
       password: "密码",
-      emailPlaceholder: "you@company.com",
+      emailPlaceholder: "you@example.com",
       pleaseWait: "请稍候…",
       signIn: "登录",
       signUp: "注册",
@@ -434,8 +432,8 @@ export const dictionaries = {
       downloadDesktop: "下载桌面应用",
       downloadWindows: "Windows 版下载 (.exe)",
       downloadMac: "macOS 版下载 (.dmg)",
-      downloadWindowsSoon: "Windows (.exe) 下载链接尚未配置，敬请期待。",
-      downloadMacSoon: "macOS (.dmg) 下载链接尚未配置，敬请期待。",
+      downloadWindowsSoon: "即将推出",
+      downloadMacSoon: "即将推出",
       recentActivity: "最近用量与充值",
       noTransactions:
         "暂无记录。在客户端开始 S2S 会话后，可在此查看按秒扣费。",
@@ -462,7 +460,7 @@ export const dictionaries = {
       privacyPolicy: "隐私政策",
     },
     desktopAuth: {
-      authorizingTitle: "正在授权登录 ZD Translate 桌面客户端…",
+      authorizingTitle: "正在授权登录 ZD Meeting Translator 桌面客户端…",
       authorizingBody:
         "正在将登录凭证传回本机桌面应用。若未自动跳转，请点击下方按钮。",
       openClient: "打开客户端",

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { AudioLines } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useEffect, useState } from "react";
 import { LanguageToggle } from "@/components/language-toggle";
@@ -142,8 +143,14 @@ function LoginForm() {
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-12">
         <Link
           href="/"
-          className="mb-8 text-sm font-semibold tracking-tight text-slate-900"
+          className="mb-8 inline-flex items-center gap-2.5 text-sm font-semibold tracking-tight text-slate-900"
         >
+          <span
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 text-white shadow-[0_10px_28px_rgba(37,99,235,0.25)]"
+            aria-hidden
+          >
+            <AudioLines className="h-5 w-5" />
+          </span>
           {c.brand}
         </Link>
 

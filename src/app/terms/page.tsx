@@ -5,8 +5,8 @@ import { LegalDocumentPage } from "@/components/legal-document-page";
 import { createClient } from "@/utils/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Terms of Service — ZD Translate",
-  description: "Terms of Service for ZD Translate.",
+  title: "Terms of Service — ZD Meeting Translator",
+  description: "Terms of Service for ZD Meeting Translator.",
 };
 
 export default async function TermsPage() {

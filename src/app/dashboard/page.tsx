@@ -52,8 +52,14 @@ export default async function DashboardPage() {
     "",
   );
   const billingUrl = storeUrl ? `${storeUrl}/billing` : null;
-  const winDownloadUrl = process.env.NEXT_PUBLIC_WIN_DOWNLOAD_URL?.trim() || null;
-  const macDownloadUrl = process.env.NEXT_PUBLIC_MAC_DOWNLOAD_URL?.trim() || null;
+  const winDownloadUrl =
+    process.env.NEXT_PUBLIC_WINDOWS_DOWNLOAD_URL?.trim() ||
+    process.env.NEXT_PUBLIC_WIN_DOWNLOAD_URL?.trim() ||
+    null;
+  const macDownloadUrl =
+    process.env.NEXT_PUBLIC_MACOS_DOWNLOAD_URL?.trim() ||
+    process.env.NEXT_PUBLIC_MAC_DOWNLOAD_URL?.trim() ||
+    null;
 
   let subscriptionPeriod: "monthly" | "quarterly" | null = null;
   if (profile?.subscription_period === "monthly") subscriptionPeriod = "monthly";

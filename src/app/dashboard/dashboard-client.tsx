@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Download, Plus } from "lucide-react";
+import { AudioLines, Download, Plus } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import type { DashboardCreditTransaction } from "@/app/dashboard/page";
 import { SignOutButton } from "@/app/dashboard/sign-out-button";
@@ -112,8 +112,14 @@ export function DashboardClient({
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-6">
           <Link
             href="/"
-            className="text-sm font-semibold tracking-tight text-slate-900"
+            className="inline-flex items-center gap-2.5 text-sm font-semibold tracking-tight text-slate-900"
           >
+            <span
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-violet-500 text-white"
+              aria-hidden
+            >
+              <AudioLines className="h-4 w-4" />
+            </span>
             {t.common.brand}
           </Link>
           <div className="flex items-center gap-3">
@@ -219,7 +225,15 @@ export function DashboardClient({
                 {d.downloadWindows}
               </a>
             ) : (
-              <p className="text-sm text-slate-500">{d.downloadWindowsSoon}</p>
+              <button
+                type="button"
+                disabled
+                className="inline-flex h-10 cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-400"
+              >
+                <Download className="h-4 w-4" aria-hidden />
+                {d.downloadWindows}
+                <span>· {d.downloadWindowsSoon}</span>
+              </button>
             )}
             {macDownloadUrl ? (
               <a
@@ -230,7 +244,15 @@ export function DashboardClient({
                 {d.downloadMac}
               </a>
             ) : (
-              <p className="text-sm text-slate-500">{d.downloadMacSoon}</p>
+              <button
+                type="button"
+                disabled
+                className="inline-flex h-10 cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-400"
+              >
+                <Download className="h-4 w-4" aria-hidden />
+                {d.downloadMac}
+                <span>· {d.downloadMacSoon}</span>
+              </button>
             )}
           </div>
         </section>
