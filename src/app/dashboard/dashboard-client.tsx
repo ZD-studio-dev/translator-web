@@ -66,7 +66,7 @@ function PaymentSuccessBanner() {
 
   return (
     <div
-      className="border-b border-emerald-500/30 bg-emerald-500/15 px-6 py-3 text-center text-sm font-medium text-emerald-200"
+      className="border-b border-emerald-200 bg-emerald-50 px-6 py-3 text-center text-sm font-medium text-emerald-800"
       role="status"
     >
       {t.dashboard.paymentSuccessBanner}
@@ -104,15 +104,15 @@ export function DashboardClient({
   }
 
   return (
-    <div className="min-h-full bg-zinc-950 text-zinc-100">
+    <div className="min-h-full bg-[#F8FAFC] text-slate-900">
       <Suspense fallback={null}>
         <PaymentSuccessBanner />
       </Suspense>
-      <header className="border-b border-zinc-800/80">
+      <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-6">
           <Link
             href="/"
-            className="text-sm font-semibold tracking-tight text-white"
+            className="text-sm font-semibold tracking-tight text-slate-900"
           >
             {t.common.brand}
           </Link>
@@ -124,37 +124,37 @@ export function DashboardClient({
       </header>
 
       <main className="mx-auto max-w-5xl space-y-8 px-6 py-10">
-        <section className="rounded-xl border border-zinc-800 bg-gradient-to-br from-zinc-900/80 to-zinc-950 p-6 sm:p-8">
+        <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+              <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
                 {d.creditsOverview}
               </p>
-              <p className="mt-2 text-sm text-zinc-400">{email}</p>
-              <p className="mt-3 text-xs font-medium uppercase tracking-wider text-zinc-500">
+              <p className="mt-2 text-sm text-slate-600">{email}</p>
+              <p className="mt-3 text-xs font-medium uppercase tracking-wider text-slate-500">
                 {d.voiceTimeLabel}
               </p>
               <div className="mt-2 flex flex-wrap items-end gap-3">
-                <p className="text-3xl font-semibold tabular-nums tracking-tight text-white sm:text-4xl">
+                <p className="text-3xl font-semibold tabular-nums tracking-tight text-slate-900 sm:text-4xl">
                   {formatVoiceTimeRemaining(creditsBalance, locale)}
                 </p>
                 <span
                   className={`mb-1 inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${
                     isPro
-                      ? "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30"
-                      : "bg-zinc-800 text-zinc-300 ring-1 ring-zinc-700"
+                      ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+                      : "bg-slate-100 text-slate-600 ring-1 ring-slate-200"
                   }`}
                 >
                   {isPro ? d.badgePro : d.badgeFree}
                 </span>
               </div>
               {isPro ? (
-                <p className="mt-3 inline-flex items-center rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-sm font-medium text-emerald-300">
+                <p className="mt-3 inline-flex items-center rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-800">
                   {d.unlimitedS2t}
                 </p>
               ) : null}
               {isPro && expiresLabel ? (
-                <p className="mt-2 text-sm text-zinc-400">
+                <p className="mt-2 text-sm text-slate-600">
                   {d.subscriptionExpires}: {expiresLabel}
                   {subscriptionPeriod
                     ? ` (${subscriptionPeriod === "quarterly" ? "Quarterly" : "Monthly"})`
@@ -165,7 +165,7 @@ export function DashboardClient({
             <button
               type="button"
               onClick={scrollToTopUp}
-              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-5 text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-200"
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-[#2563EB] px-5 text-sm font-medium text-white transition-colors hover:bg-[#1D4ED8]"
             >
               <Plus className="h-4 w-4" aria-hidden />
               {d.topUpCredits}
@@ -173,11 +173,11 @@ export function DashboardClient({
           </div>
         </section>
 
-        <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 sm:p-8">
-          <h2 className="text-sm font-semibold text-white">{d.subscription}</h2>
+        <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <h2 className="text-sm font-semibold text-slate-900">{d.subscription}</h2>
           {!isPro ? (
             <>
-              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-400">
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">
                 {d.freeSummary}
               </p>
               <div className="mt-5">
@@ -186,13 +186,13 @@ export function DashboardClient({
             </>
           ) : (
             <>
-              <p className="mt-2 text-sm text-zinc-400">{d.proSummary}</p>
+              <p className="mt-2 text-sm text-slate-600">{d.proSummary}</p>
               {billingUrl ? (
                 <a
                   href={billingUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-5 inline-flex h-10 items-center justify-center rounded-lg border border-zinc-600 px-5 text-sm font-medium text-zinc-100 transition-colors hover:bg-zinc-900"
+                  className="mt-5 inline-flex h-10 items-center justify-center rounded-lg border border-slate-300 bg-white px-5 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50"
                 >
                   {d.manageSubscription}
                 </a>
@@ -201,10 +201,10 @@ export function DashboardClient({
           )}
         </section>
 
-        <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 sm:p-8">
-          <h2 className="text-sm font-semibold text-white">{d.desktopTitle}</h2>
-          <p className="mt-2 max-w-2xl text-sm text-zinc-400">{d.desktopIntro}</p>
-          <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm text-zinc-300">
+        <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <h2 className="text-sm font-semibold text-slate-900">{d.desktopTitle}</h2>
+          <p className="mt-2 max-w-2xl text-sm text-slate-600">{d.desktopIntro}</p>
+          <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm text-slate-700">
             {d.desktopSteps.map((step) => (
               <li key={step}>{step}</li>
             ))}
@@ -213,39 +213,39 @@ export function DashboardClient({
             {winDownloadUrl ? (
               <a
                 href={winDownloadUrl}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-zinc-600 px-4 text-sm font-medium text-zinc-100 transition-colors hover:bg-zinc-900"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50"
               >
                 <Download className="h-4 w-4" aria-hidden />
                 {d.downloadWindows}
               </a>
             ) : (
-              <p className="text-sm text-zinc-500">{d.downloadWindowsSoon}</p>
+              <p className="text-sm text-slate-500">{d.downloadWindowsSoon}</p>
             )}
             {macDownloadUrl ? (
               <a
                 href={macDownloadUrl}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-zinc-600 px-4 text-sm font-medium text-zinc-100 transition-colors hover:bg-zinc-900"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50"
               >
                 <Download className="h-4 w-4" aria-hidden />
                 {d.downloadMac}
               </a>
             ) : (
-              <p className="text-sm text-zinc-500">{d.downloadMacSoon}</p>
+              <p className="text-sm text-slate-500">{d.downloadMacSoon}</p>
             )}
           </div>
         </section>
 
-        <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 sm:p-8">
-          <h2 className="text-sm font-semibold text-white">
+        <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <h2 className="text-sm font-semibold text-slate-900">
             {d.recentActivity}
           </h2>
           {transactions.length === 0 ? (
-            <p className="mt-4 text-sm text-zinc-500">{d.noTransactions}</p>
+            <p className="mt-4 text-sm text-slate-500">{d.noTransactions}</p>
           ) : (
             <div className="mt-4 overflow-x-auto">
               <table className="w-full min-w-[640px] text-left text-sm">
                 <thead>
-                  <tr className="border-b border-zinc-800 text-xs uppercase tracking-wider text-zinc-500">
+                  <tr className="border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500">
                     <th className="pb-3 pr-4 font-medium">{d.colTime}</th>
                     <th className="pb-3 pr-4 font-medium">{d.colType}</th>
                     <th className="pb-3 pr-4 font-medium">{d.colDescription}</th>
@@ -257,28 +257,28 @@ export function DashboardClient({
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-800/80">
+                <tbody className="divide-y divide-slate-100">
                   {transactions.map((tx) => {
                     const amount = Number(tx.amount);
                     const isCredit = amount > 0;
                     return (
-                      <tr key={tx.id} className="text-zinc-300">
-                        <td className="py-3 pr-4 whitespace-nowrap text-zinc-400">
+                      <tr key={tx.id} className="text-slate-800">
+                        <td className="whitespace-nowrap py-3 pr-4 text-slate-600">
                           {formatTransactionDate(tx.created_at, locale)}
                         </td>
                         <td className="py-3 pr-4">{typeLabel(tx.type)}</td>
-                        <td className="py-3 pr-4 max-w-xs truncate text-zinc-400">
+                        <td className="max-w-xs truncate py-3 pr-4 text-slate-600">
                           {tx.description ?? "—"}
                         </td>
                         <td
-                          className={`py-3 pr-4 text-right tabular-nums font-medium ${
-                            isCredit ? "text-emerald-400" : "text-zinc-500"
+                          className={`py-3 pr-4 text-right font-medium tabular-nums ${
+                            isCredit ? "text-emerald-700" : "text-slate-500"
                           }`}
                         >
                           {isCredit ? "+" : ""}
                           {amount.toLocaleString()}
                         </td>
-                        <td className="py-3 text-right tabular-nums text-zinc-400">
+                        <td className="py-3 text-right tabular-nums text-slate-600">
                           {Number(tx.balance_after).toLocaleString()}
                         </td>
                       </tr>

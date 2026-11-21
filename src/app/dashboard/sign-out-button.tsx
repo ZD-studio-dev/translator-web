@@ -17,7 +17,7 @@ export function SignOutButton() {
     <button
       type="button"
       onClick={handleSignOut}
-      className="inline-flex items-center gap-2 rounded-lg border border-zinc-700 px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:bg-zinc-900"
+      className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 transition-colors hover:bg-slate-50"
     >
       <LogOut className="h-4 w-4" aria-hidden />
       {t.dashboard.signOut}

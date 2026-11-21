@@ -34,8 +34,8 @@ export function SiteHeader({
     <header
       className={
         sticky
-          ? "sticky top-0 z-10 border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur"
-          : "border-b border-zinc-800/80 bg-zinc-950"
+          ? "sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur"
+          : "border-b border-slate-200 bg-white/80 backdrop-blur"
       }
     >
       <div
@@ -43,7 +43,7 @@ export function SiteHeader({
       >
         <Link
           href="https://www.zdtranslate.com/"
-          className="text-sm font-semibold tracking-tight text-white"
+          className="text-sm font-semibold tracking-tight text-slate-900"
         >
           {c.brand}
         </Link>
@@ -52,23 +52,23 @@ export function SiteHeader({
           {isLoggedIn && userEmail ? (
             <Link
               href="/dashboard"
-              className="flex max-w-[220px] items-center gap-2.5 rounded-lg border border-transparent px-2 py-1.5 transition-colors hover:border-zinc-700 hover:bg-zinc-900/80 hover:shadow-sm hover:shadow-black/20"
+              className="flex max-w-[220px] items-center gap-2.5 rounded-xl border border-transparent px-2 py-1.5 transition-colors hover:border-slate-200 hover:bg-white hover:shadow-sm"
               title={userEmail}
             >
               <span
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-700 text-sm font-semibold text-zinc-100 ring-1 ring-zinc-600"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#2563EB] text-sm font-semibold text-white"
                 aria-hidden
               >
                 {avatarInitial(userEmail)}
               </span>
-              <span className="truncate text-sm font-medium text-zinc-200">
+              <span className="truncate text-sm font-medium text-slate-700">
                 {emailLocalPart(userEmail)}
               </span>
             </Link>
           ) : (
             <Link
               href="/login"
-              className="rounded-lg border border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-200 transition-colors hover:border-zinc-500 hover:bg-zinc-900"
+              className="rounded-xl bg-[#2563EB] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1D4ED8]"
             >
               {c.signIn}
             </Link>

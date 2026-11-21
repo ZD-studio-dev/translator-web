@@ -135,27 +135,27 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-full flex-col bg-zinc-950 text-zinc-100">
+    <div className="flex min-h-full flex-col bg-gradient-to-b from-[#EEF4FF] via-[#F8FAFC] to-white text-slate-900">
       <div className="mx-auto flex w-full max-w-sm justify-end px-6 pt-6">
         <LanguageToggle />
       </div>
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-12">
         <Link
           href="/"
-          className="mb-8 text-sm font-semibold tracking-tight text-white"
+          className="mb-8 text-sm font-semibold tracking-tight text-slate-900"
         >
           {c.brand}
         </Link>
 
-        <div className="w-full max-w-sm rounded-xl border border-zinc-800 bg-zinc-900/80 p-8 shadow-xl shadow-black/40">
-          <h1 className="text-center text-xl font-semibold text-white">
+        <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 shadow-lg">
+          <h1 className="text-center text-xl font-semibold text-slate-900">
             {l.title}
           </h1>
-          <p className="mt-2 text-center text-sm text-zinc-400">{l.subtitle}</p>
+          <p className="mt-2 text-center text-sm text-slate-600">{l.subtitle}</p>
 
           {error ? (
             <p
-              className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-center text-sm text-red-300"
+              className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-center text-sm text-red-700"
               role="alert"
             >
               {error}
@@ -166,7 +166,7 @@ function LoginForm() {
             type="button"
             onClick={handleGoogleLogin}
             disabled={googleLoading || emailLoading}
-            className="mt-8 flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-zinc-600 bg-zinc-950 text-sm font-medium text-white transition-colors hover:border-zinc-500 hover:bg-zinc-900 disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-8 flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-slate-300 bg-white text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <GoogleIcon />
             {googleLoading ? l.redirecting : l.continueGoogle}
@@ -174,10 +174,10 @@ function LoginForm() {
 
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-zinc-700" />
+              <div className="w-full border-t border-slate-200" />
             </div>
             <div className="relative flex justify-center text-xs uppercase tracking-wide">
-              <span className="bg-zinc-900/80 px-3 text-zinc-500">{l.or}</span>
+              <span className="bg-white px-3 text-slate-500">{l.or}</span>
             </div>
           </div>
 
@@ -188,7 +188,7 @@ function LoginForm() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-xs font-medium text-zinc-400"
+                className="block text-xs font-medium text-slate-600"
               >
                 {l.email}
               </label>
@@ -201,13 +201,13 @@ function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={l.emailPlaceholder}
-                className="mt-1.5 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none focus:border-zinc-500 disabled:opacity-60"
+                className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#2563EB] disabled:opacity-60"
               />
             </div>
             <div>
               <label
                 htmlFor="password"
-                className="block text-xs font-medium text-zinc-400"
+                className="block text-xs font-medium text-slate-600"
               >
                 {l.password}
               </label>
@@ -223,14 +223,14 @@ function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="mt-1.5 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none focus:border-zinc-500 disabled:opacity-60"
+                className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#2563EB] disabled:opacity-60"
               />
             </div>
             <div className="flex gap-2">
               <button
                 type="submit"
                 disabled={emailLoading || googleLoading}
-                className="flex h-11 flex-1 items-center justify-center rounded-lg bg-white text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex h-11 flex-1 items-center justify-center rounded-lg bg-[#2563EB] text-sm font-medium text-white transition-colors hover:bg-[#1D4ED8] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {emailLoading
                   ? l.pleaseWait
@@ -245,7 +245,7 @@ function LoginForm() {
                   setMode(mode === "signin" ? "signup" : "signin");
                   setError(null);
                 }}
-                className="flex h-11 flex-1 items-center justify-center rounded-lg border border-zinc-600 text-sm font-medium text-zinc-200 transition-colors hover:bg-zinc-900 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex h-11 flex-1 items-center justify-center rounded-lg border border-slate-300 bg-white text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {mode === "signin" ? l.createAccount : l.useSignIn}
               </button>
@@ -253,8 +253,8 @@ function LoginForm() {
           </form>
         </div>
 
-        <p className="mt-6 text-center text-xs text-zinc-600">
-          <Link href="/" className="text-zinc-500 hover:text-zinc-400">
+        <p className="mt-6 text-center text-xs text-slate-500">
+          <Link href="/" className="text-slate-500 hover:text-slate-900">
             {l.backHome}
           </Link>
         </p>
@@ -269,7 +269,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-full items-center justify-center bg-zinc-950 text-sm text-zinc-400">
+        <div className="flex min-h-full items-center justify-center bg-[#F8FAFC] text-sm text-slate-600">
           {t.common.loading}
         </div>
       }

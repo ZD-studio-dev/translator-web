@@ -95,34 +95,34 @@ function DesktopAuthContent() {
   }, [authState, callbackPort, invalidRequest, router]);
 
   return (
-    <div className="flex min-h-full flex-col bg-zinc-950 text-zinc-100">
+    <div className="flex min-h-full flex-col bg-gradient-to-b from-[#EEF4FF] via-[#F8FAFC] to-white text-slate-900">
       <div className="mx-auto flex w-full max-w-lg justify-end px-6 pt-6">
         <LanguageToggle />
       </div>
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-12">
         <Link
           href="/"
-          className="mb-8 text-sm font-semibold tracking-tight text-white"
+          className="mb-8 text-sm font-semibold tracking-tight text-slate-900"
         >
           {c.brand}
         </Link>
 
-        <div className="w-full max-w-md rounded-xl border border-zinc-800 bg-zinc-900/80 p-8 text-center shadow-xl shadow-black/40">
+        <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-lg">
           {phase === "checking" ? (
             <>
-              <p className="text-sm text-zinc-400">{c.loading}</p>
+              <p className="text-sm text-slate-600">{c.loading}</p>
             </>
           ) : null}
 
           {phase === "invalid_port" ? (
             <>
-              <h1 className="text-lg font-semibold text-white">{d.invalidPortTitle}</h1>
-              <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              <h1 className="text-lg font-semibold text-slate-900">{d.invalidPortTitle}</h1>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">
                 {d.invalidPortBody}
               </p>
               <Link
                 href="/"
-                className="mt-6 inline-block text-sm text-zinc-500 hover:text-zinc-300"
+                className="mt-6 inline-block text-sm text-slate-500 hover:text-slate-900"
               >
                 {d.backHome}
               </Link>
@@ -131,11 +131,11 @@ function DesktopAuthContent() {
 
           {phase === "error" ? (
             <>
-              <h1 className="text-lg font-semibold text-white">{d.errorTitle}</h1>
-              <p className="mt-3 text-sm text-zinc-400">{d.errorBody}</p>
+              <h1 className="text-lg font-semibold text-slate-900">{d.errorTitle}</h1>
+              <p className="mt-3 text-sm text-slate-600">{d.errorBody}</p>
               <Link
                 href="/login"
-                className="mt-6 inline-flex h-10 items-center justify-center rounded-lg border border-zinc-600 px-4 text-sm font-medium text-zinc-200 hover:bg-zinc-900"
+                className="mt-6 inline-flex h-10 items-center justify-center rounded-lg border border-slate-300 bg-white px-4 text-sm font-medium text-slate-900 hover:bg-slate-50"
               >
                 {d.signInAgain}
               </Link>
@@ -145,17 +145,17 @@ function DesktopAuthContent() {
           {phase === "authorizing" ? (
             <>
               <div
-                className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-zinc-600 border-t-white"
+                className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-[#2563EB]"
                 aria-hidden
               />
-              <h1 className="mt-6 text-lg font-semibold text-white">
+              <h1 className="mt-6 text-lg font-semibold text-slate-900">
                 {d.authorizingTitle}
               </h1>
-              <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">
                 {d.authorizingBody}
               </p>
               {callbackPort !== null ? (
-                <p className="mt-2 text-xs text-zinc-500">
+                <p className="mt-2 text-xs text-slate-500">
                   {d.localPortLabel}: {callbackPort}
                 </p>
               ) : null}
@@ -163,11 +163,11 @@ function DesktopAuthContent() {
                 type="button"
                 onClick={openClient}
                 disabled={!session || !clientUrl}
-                className="mt-8 inline-flex h-11 w-full items-center justify-center rounded-lg bg-white text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-8 inline-flex h-11 w-full items-center justify-center rounded-lg bg-[#2563EB] text-sm font-medium text-white transition-colors hover:bg-[#1D4ED8] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {d.openClient}
               </button>
-              <p className="mt-4 text-xs text-zinc-500">{d.manualHint}</p>
+              <p className="mt-4 text-xs text-slate-500">{d.manualHint}</p>
             </>
           ) : null}
         </div>
@@ -182,7 +182,7 @@ export default function DesktopAuthPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-full items-center justify-center bg-zinc-950 text-sm text-zinc-400">
+        <div className="flex min-h-full items-center justify-center bg-[#F8FAFC] text-sm text-slate-600">
           {t.common.loading}
         </div>
       }
