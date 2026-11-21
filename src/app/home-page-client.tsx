@@ -277,7 +277,7 @@ export function HomePageClient({ userEmail }: HomePageClientProps) {
     <div className="min-h-screen overflow-x-hidden bg-white text-slate-950">
       <header className="sticky top-0 z-50 border-b border-blue-100/80 bg-white/90 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-5 px-5 sm:px-6">
-          <Link href="/" className="flex items-center gap-3 font-bold tracking-tight text-slate-950">
+          <Link href="https://www.zdtranslate.com/" className="flex items-center gap-3 font-bold tracking-tight text-slate-950">
             <BrandMark compact />
             <span className="hidden sm:inline">Meeting Translator</span>
           </Link>

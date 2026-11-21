@@ -42,7 +42,7 @@ export function SiteHeader({
         className={`mx-auto flex h-14 ${contentMaxWidthClass} items-center justify-between gap-4 px-6`}
       >
         <Link
-          href="/"
+          href="https://www.zdtranslate.com/"
           className="text-sm font-semibold tracking-tight text-white"
         >
           {c.brand}

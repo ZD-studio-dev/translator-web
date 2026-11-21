@@ -31,7 +31,7 @@ export default async function PricingPage() {
     <div className="min-h-screen bg-white text-slate-950">
       <header className="border-b border-blue-100 bg-white">
         <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
-          <Link href="/" className="flex items-center gap-3 font-bold text-slate-950">
+          <Link href="https://www.zdtranslate.com/" className="flex items-center gap-3 font-bold text-slate-950">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 text-white shadow-lg shadow-blue-200">
               <AudioLines className="h-5 w-5" />
             </span>
