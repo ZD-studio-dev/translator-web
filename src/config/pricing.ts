@@ -1,4 +1,12 @@
 export type CheckoutPlan = "pro_monthly" | "pro_quarterly";
+
+/** Logged-in Lemon Squeezy orders page. Used when no customer portal URL is stored. */
+export const LEMON_CUSTOMER_PORTAL_URL = "https://app.lemonsqueezy.com/my-orders";
+
+export function resolveCustomerPortalUrl(explicit?: string | null): string {
+  const value = explicit?.trim();
+  return value || LEMON_CUSTOMER_PORTAL_URL;
+}
 export type CheckoutPackId = "pack_1h" | "pack_3h" | "pack_10h";
 
 /** Display/checkout list prices (USD) — keep in sync with Lemon Squeezy variants. */
@@ -86,6 +94,40 @@ export type CheckoutPayload =
   | { plan: CheckoutPlan }
   | { pack_id: CheckoutPackId };
 
+function readEnvValue(...names: string[]): string | null {
+  for (const name of names) {
+    const value = process.env[name]?.trim();
+    if (value) return value;
+  }
+  return null;
+}
+
+export function proMonthlyVariantId(): string | null {
+  return readEnvValue(
+    "LEMONSQUEEZY_PRO_MONTHLY_VARIANT_ID",
+    "LEMONSQUEEZY_VARIANT_PRO_MONTHLY",
+    "LEMONSQUEEZY_VARIANT_ID",
+  );
+}
+
+export function proQuarterlyVariantId(): string | null {
+  return readEnvValue(
+    "LEMONSQUEEZY_PRO_QUARTERLY_VARIANT_ID",
+    "LEMONSQUEEZY_VARIANT_PRO_QUARTERLY",
+    "LEMONSQUEEZY_VARIANT_PRO_QUARTERLY_ID",
+  );
+}
+
+/** Match a Lemon Squeezy variant to a Pro plan. Quarterly is checked first. */
+export function matchProPlanByVariantId(variantId: unknown): CheckoutPlan | null {
+  if (variantId == null) return null;
+  const id = String(variantId).trim();
+  if (!id) return null;
+  if (id === proQuarterlyVariantId()) return "pro_quarterly";
+  if (id === proMonthlyVariantId()) return "pro_monthly";
+  return null;
+}
+
 export function resolveCheckoutVariantId(payload: CheckoutPayload): string | null {
   if ("pack_id" in payload) {
     const packVariants: Record<CheckoutPackId, string | undefined> = {
@@ -103,16 +145,8 @@ export function resolveCheckoutVariantId(payload: CheckoutPayload): string | nul
   }
 
   if (payload.plan === "pro_quarterly") {
-    return (
-      process.env.LEMONSQUEEZY_VARIANT_PRO_QUARTERLY ??
-      process.env.LEMONSQUEEZY_VARIANT_PRO_QUARTERLY_ID ??
-      null
-    );
+    return proQuarterlyVariantId();
   }
 
-  return (
-    process.env.LEMONSQUEEZY_VARIANT_PRO_MONTHLY ??
-    process.env.LEMONSQUEEZY_VARIANT_ID ??
-    null
-  );
+  return proMonthlyVariantId();
 }

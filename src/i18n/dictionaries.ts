@@ -62,6 +62,8 @@ export const dictionaries = {
       title: "Membership + Extra Voice Time",
       subtitle:
         "Pro members get unlimited real-time subtitles (S2T). Live voice interpretation (S2S) is billed per second from your voice time balance—top up anytime.",
+      currentPlan: "Current Plan",
+      switchToQuarterly: "Switch to Quarterly",
       tabAria: "Pricing options",
       tabMembership: "Pro Membership",
       tabPacks: "Extra Voice Time Packs",
@@ -137,7 +139,7 @@ export const dictionaries = {
           name: "10 Hour Pack",
           price: "$29.90",
           timeLine: "+600 minutes S2S voice (36,000 sec)",
-          bestValueBadge: "💎 Power users · Save 15%",
+          bestValueBadge: "💎 Power users · Save 39%",
           bullets: [
             "All-day events & marathon meetings",
             "Lowest per-minute rate — built for heavy users",
@@ -301,6 +303,8 @@ export const dictionaries = {
       title: "会员订阅 + 额外语音时长",
       subtitle:
         "Pro 会员无限畅享实时字幕（S2T）。实时语音同传（S2S）按秒从语音时长余额扣减，可随时购买加时包。",
+      currentPlan: "当前方案",
+      switchToQuarterly: "升级至季度方案",
       tabAria: "定价选项",
       tabMembership: "Pro 会员",
       tabPacks: "额外加时包",
@@ -373,7 +377,7 @@ export const dictionaries = {
           name: "10 小时加时包",
           price: "$29.90",
           timeLine: "+600 分钟 S2S 语音（36,000 秒）",
-          bestValueBadge: "💎 适合高频会议·立省 15%",
+          bestValueBadge: "💎 适合高频会议·立省 39%",
           bullets: ["全天活动 / 马拉松会议", "单价最低，资深用户必备"],
           cta: "购买 10 小时",
         },
@@ -416,7 +420,7 @@ export const dictionaries = {
       freeSummary:
         "Free 方案：S2T / S2S 均按秒消耗余额。升级 Pro 可无限 S2T，并每周期获赠 S2S 语音时长。",
       proSummary:
-        "Pro 已生效 — S2T 字幕无限。S2S 语音从余额按秒扣费；每周期自动补充含有时长，可随时购买加时包。",
+        "Pro 已生效 — S2T 字幕无限。S2S 语音从余额按秒扣费；每周期自动补充所含时长，可随时购买加时包。",
       manageSubscription: "管理订阅",
       desktopTitle: "桌面客户端下载",
       desktopBody:

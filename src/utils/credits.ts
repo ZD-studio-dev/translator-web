@@ -20,9 +20,13 @@ export function formatVoiceTimeRemaining(
   const secs = seconds % 60;
 
   if (locale === "zh") {
-    return `${minutes} 分钟（${secs} 秒）`;
+    if (minutes === 0) return `${secs} 秒`;
+    if (secs === 0) return `${minutes} 分`;
+    return `${minutes} 分 ${secs} 秒`;
   }
-  return `${minutes} min (${secs} sec)`;
+  if (minutes === 0) return `${secs} sec`;
+  if (secs === 0) return `${minutes} min`;
+  return `${minutes} min ${secs} sec`;
 }
 
 /** @deprecated Alias for voice time display — balance is stored in seconds. */

@@ -9,26 +9,56 @@ import {
   PACK_USD,
   PRICING_USD,
   PRO_QUARTERLY_COMPARE_AT_USD,
+  resolveCustomerPortalUrl,
+  type CheckoutPlan,
 } from "@/config/pricing";
 import { useLanguage } from "@/i18n/language-provider";
+
+export type MembershipPlanTier = CheckoutPlan | null;
 
 type PricingSectionProps = {
   sectionId?: string;
   defaultTab?: "membership" | "packs";
   showTitle?: boolean;
   embedded?: boolean;
+  isPro?: boolean;
+  planTier?: MembershipPlanTier;
+  customerPortalUrl?: string | null;
 };
+
+type PlanAction = "checkout" | "current" | "portal" | "blocked";
+
+function planAction(
+  plan: CheckoutPlan,
+  isPro: boolean,
+  planTier: MembershipPlanTier,
+): PlanAction {
+  if (!isPro) return "checkout";
+  if (planTier === "pro_quarterly") {
+    return plan === "pro_quarterly" ? "current" : "blocked";
+  }
+  return plan === "pro_monthly" ? "current" : "portal";
+}
 
 export function PricingSection({
   sectionId = "pricing-section",
   defaultTab = "membership",
   showTitle = true,
   embedded = false,
+  isPro = false,
+  planTier = null,
+  customerPortalUrl = null,
 }: PricingSectionProps) {
   const { t } = useLanguage();
   const p = t.pricing;
   const c = t.common;
   const [tab, setTab] = useState<"membership" | "packs">(defaultTab);
+  const portalUrl = resolveCustomerPortalUrl(customerPortalUrl);
+  const activePlan: MembershipPlanTier = isPro
+    ? planTier === "pro_quarterly"
+      ? "pro_quarterly"
+      : "pro_monthly"
+    : null;
 
   const tabClass = (active: boolean) =>
     active
@@ -110,7 +140,12 @@ export function PricingSection({
         </div>
 
         {tab === "membership" ? (
-          <div className="mx-auto mt-7 grid max-w-5xl items-stretch gap-4 lg:grid-cols-3">
+          <div
+            className={`mx-auto mt-7 grid max-w-5xl items-stretch gap-4 ${
+              isPro ? "lg:grid-cols-2" : "lg:grid-cols-3"
+            }`}
+          >
+            {isPro ? null : (
             <article className="flex min-h-[390px] flex-col rounded-[22px] border border-slate-200 bg-white p-6 shadow-[0_14px_32px_rgba(15,23,42,0.07)]">
               <div className="flex items-center justify-between gap-4">
                 <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
@@ -135,6 +170,7 @@ export function PricingSection({
                 {p.membership.free.cta}
               </GetStartedButton>
             </article>
+            )}
 
             <article className="relative flex min-h-[390px] flex-col rounded-[22px] border-2 border-blue-500 bg-white p-6 shadow-[0_18px_42px_rgba(37,99,235,0.16)]">
               <span className="absolute -top-3 right-5 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 px-3 py-1 text-[11px] font-bold text-white shadow-lg">
@@ -161,9 +197,13 @@ export function PricingSection({
                   </li>
                 ))}
               </ul>
-              <CheckoutButton
-                payload={{ plan: "pro_monthly" }}
-                label={p.membership.proMonthly.cta}
+              <MembershipPlanButton
+                action={planAction("pro_monthly", isPro, activePlan)}
+                checkoutPlan="pro_monthly"
+                checkoutLabel={p.membership.proMonthly.cta}
+                currentLabel={p.currentPlan}
+                portalLabel={p.switchToQuarterly}
+                portalUrl={portalUrl}
                 className="mt-5 flex h-10 w-full items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-sm font-bold text-white shadow-lg shadow-blue-200 transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
               />
             </article>
@@ -200,9 +240,13 @@ export function PricingSection({
                   </li>
                 ))}
               </ul>
-              <CheckoutButton
-                payload={{ plan: "pro_quarterly" }}
-                label={p.membership.proQuarterly.cta}
+              <MembershipPlanButton
+                action={planAction("pro_quarterly", isPro, activePlan)}
+                checkoutPlan="pro_quarterly"
+                checkoutLabel={p.membership.proQuarterly.cta}
+                currentLabel={p.currentPlan}
+                portalLabel={p.switchToQuarterly}
+                portalUrl={portalUrl}
                 className="mt-5 flex h-10 w-full items-center justify-center rounded-xl bg-gradient-to-r from-sky-500 via-blue-600 to-violet-600 text-sm font-bold text-white shadow-lg shadow-violet-200 transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
               />
             </article>
@@ -266,5 +310,55 @@ export function PricingSection({
         <p className="mx-auto mt-5 max-w-3xl text-center text-xs leading-6 text-slate-400">{p.footnote}</p>
       </div>
     </section>
+  );
+}
+
+const blockedPlanClassName =
+  "mt-5 flex h-10 w-full cursor-not-allowed items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-sm font-bold text-slate-400";
+
+function MembershipPlanButton({
+  action,
+  checkoutPlan,
+  checkoutLabel,
+  currentLabel,
+  portalLabel,
+  portalUrl,
+  className,
+}: {
+  action: PlanAction;
+  checkoutPlan: CheckoutPlan;
+  checkoutLabel: string;
+  currentLabel: string;
+  portalLabel: string;
+  portalUrl: string;
+  className: string;
+}) {
+  if (action === "checkout") {
+    return (
+      <CheckoutButton
+        payload={{ plan: checkoutPlan }}
+        label={checkoutLabel}
+        className={className}
+      />
+    );
+  }
+
+  if (action === "portal") {
+    return (
+      <a
+        href={portalUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+      >
+        {portalLabel}
+      </a>
+    );
+  }
+
+  return (
+    <button type="button" disabled className={blockedPlanClassName}>
+      {action === "current" ? currentLabel : checkoutLabel}
+    </button>
   );
 }

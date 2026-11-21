@@ -1,8 +1,10 @@
 import {
+  matchProPlanByVariantId,
   normalizePackId,
   PRO_MONTHLY_VOICE_SECONDS,
   PRO_QUARTERLY_VOICE_SECONDS,
   TIME_PACK_GRANTS_SECONDS,
+  type CheckoutPlan,
 } from "@/config/pricing";
 import { parseCreditsBalance } from "@/utils/credits";
 import { createAdminClient } from "@/utils/supabase/admin";
@@ -15,6 +17,15 @@ type LemonCustomData = {
   pack_id?: string;
 };
 
+type LemonResourceAttributes = {
+  status?: string;
+  variant_id?: number | string | null;
+  renews_at?: string | null;
+  first_subscription_item?: {
+    variant_id?: number | string | null;
+  } | null;
+};
+
 type LemonWebhookPayload = {
   meta?: {
     event_name?: string;
@@ -23,11 +34,25 @@ type LemonWebhookPayload = {
   data?: {
     type?: string;
     id?: string;
-    attributes?: {
-      status?: string;
-    };
+    attributes?: LemonResourceAttributes;
   };
 };
+
+function readVariantId(attributes: LemonResourceAttributes | undefined): string | null {
+  const raw = attributes?.variant_id ?? attributes?.first_subscription_item?.variant_id;
+  if (raw == null) return null;
+  const id = String(raw).trim();
+  return id || null;
+}
+
+function readCustomPlan(plan: string | undefined): CheckoutPlan | null {
+  if (plan === "pro_monthly" || plan === "pro_quarterly") return plan;
+  return null;
+}
+
+function subscriptionPeriodFor(plan: CheckoutPlan): "monthly" | "quarterly" {
+  return plan === "pro_quarterly" ? "quarterly" : "monthly";
+}
 
 function verifySignature(rawBody: string, signatureHeader: string | null) {
   const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
@@ -199,24 +224,94 @@ async function handleOrderCreated(
   });
 }
 
+function resolveSubscriptionPlan(
+  attributes: LemonResourceAttributes | undefined,
+  customPlan: string | undefined,
+  existingPlanTier: string | null,
+): CheckoutPlan {
+  const fromVariant = matchProPlanByVariantId(readVariantId(attributes));
+  if (fromVariant) return fromVariant;
+
+  const existing = readCustomPlan(existingPlanTier ?? undefined);
+  // An invoice often keeps the original checkout custom data. Don't let that
+  // downgrade a tier already corrected by subscription_updated.
+  if (!readVariantId(attributes) && existing === "pro_quarterly") {
+    return "pro_quarterly";
+  }
+
+  return readCustomPlan(customPlan) ?? existing ?? "pro_monthly";
+}
+
+async function handleSubscriptionPlanChange(
+  userId: string,
+  payload: LemonWebhookPayload,
+) {
+  const attributes = payload.data?.attributes;
+  const plan =
+    matchProPlanByVariantId(readVariantId(attributes)) ??
+    readCustomPlan(payload.meta?.custom_data?.plan);
+
+  if (!plan) {
+    return NextResponse.json({
+      received: true,
+      skipped: true,
+      reason: "unrecognized subscription variant_id",
+    });
+  }
+
+  const status = attributes?.status?.toLowerCase() || "active";
+  const active = status === "active" || status === "on_trial";
+  const patch: Record<string, unknown> = {
+    plan_tier: plan,
+    subscription_period: subscriptionPeriodFor(plan),
+    subscription_status: status,
+  };
+  if (active) {
+    patch.is_pro = true;
+    patch.plan = "pro";
+  }
+  if (attributes?.renews_at) {
+    patch.subscription_expires_at = attributes.renews_at;
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin.from("profiles").update(patch).eq("id", userId);
+  if (error) {
+    throw error;
+  }
+
+  return NextResponse.json({
+    received: true,
+    updated: true,
+    kind: "subscription_plan",
+    plan_tier: plan,
+    subscription_status: status,
+  });
+}
+
 async function handleSubscriptionPaymentSuccess(
   userId: string,
   invoiceId: string,
   plan: string | undefined,
+  attributes: LemonResourceAttributes | undefined,
 ) {
   const marker = `Invoice #${invoiceId}`;
   if (await transactionExistsForMarker(userId, marker)) {
     return NextResponse.json({ received: true, duplicate: true, marker });
   }
 
-  const isQuarterly = plan === "pro_quarterly";
+  const profile = await fetchProfileBilling(userId);
+  const resolvedPlan = resolveSubscriptionPlan(
+    attributes,
+    plan,
+    profile.planTier,
+  );
+  const isQuarterly = resolvedPlan === "pro_quarterly";
   const grantSeconds = isQuarterly
     ? PRO_QUARTERLY_VOICE_SECONDS
     : PRO_MONTHLY_VOICE_SECONDS;
-  const subscriptionPeriod = isQuarterly ? "quarterly" : "monthly";
+  const subscriptionPeriod = subscriptionPeriodFor(resolvedPlan);
   const months = isQuarterly ? 3 : 1;
-
-  const profile = await fetchProfileBilling(userId);
   const subscriptionExpiresAt = computeExtendedSubscriptionExpiry(
     profile.subscriptionExpiresAt,
     months,
@@ -231,7 +326,7 @@ async function handleSubscriptionPaymentSuccess(
     type: "subscription_grant",
     description,
     profilePatch: {
-      plan_tier: "pro",
+      plan_tier: resolvedPlan,
       is_pro: true,
       subscription_status: "active",
       subscription_period: subscriptionPeriod,
@@ -243,7 +338,8 @@ async function handleSubscriptionPaymentSuccess(
   return NextResponse.json({
     received: true,
     granted: true,
-    kind: isQuarterly ? "pro_quarterly" : "pro_monthly",
+    kind: resolvedPlan,
+    plan_tier: resolvedPlan,
     subscription_period: subscriptionPeriod,
     subscription_expires_at: subscriptionExpiresAt,
     ...result,
@@ -332,6 +428,13 @@ export async function handleLemonWebhook(request: Request) {
       return await handleOrderCreated(userId, custom, resourceId);
     }
 
+    if (
+      eventName === "subscription_created" ||
+      eventName === "subscription_updated"
+    ) {
+      return await handleSubscriptionPlanChange(userId, payload);
+    }
+
     if (eventName === "subscription_payment_success") {
       if (!resourceId) {
         return NextResponse.json(
@@ -343,6 +446,7 @@ export async function handleLemonWebhook(request: Request) {
         userId,
         resourceId,
         custom.plan,
+        payload.data?.attributes,
       );
     }
 

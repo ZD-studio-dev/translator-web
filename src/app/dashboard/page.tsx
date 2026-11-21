@@ -2,7 +2,9 @@ export const instant = false;
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { DashboardClient } from "@/app/dashboard/dashboard-client";
-import { isUserPro, type ProfileCreditsRow } from "@/utils/api/client-session";
+import { resolveCustomerPortalUrl } from "@/config/pricing";
+import { type ProfileCreditsRow } from "@/utils/api/client-session";
+import { resolveMembershipPlan } from "@/utils/membership-plan";
 import { createClient } from "@/utils/supabase/server";
 import { parseCreditsBalance } from "@/utils/credits";
 
@@ -43,15 +45,16 @@ export default async function DashboardPage() {
 
   const email = profile?.email ?? user.email ?? "Unknown";
   const creditsBalance = parseCreditsBalance(profile?.credits_balance);
-  const proActive = profile
-    ? isUserPro(profile as ProfileCreditsRow)
-    : false;
-
-  const storeUrl = process.env.NEXT_PUBLIC_LEMONSQUEEZY_STORE_URL?.replace(
-    /\/$/,
-    "",
+  const membership = await resolveMembershipPlan(
+    supabase,
+    user.id,
+    (profile as ProfileCreditsRow | null) ?? null,
   );
-  const billingUrl = storeUrl ? `${storeUrl}/billing` : null;
+
+  const customerPortalUrl = resolveCustomerPortalUrl(
+    process.env.LEMONSQUEEZY_CUSTOMER_PORTAL_URL ??
+      process.env.NEXT_PUBLIC_LEMONSQUEEZY_CUSTOMER_PORTAL_URL,
+  );
   const winDownloadUrl =
     process.env.NEXT_PUBLIC_WINDOWS_DOWNLOAD_URL?.trim() ||
     process.env.NEXT_PUBLIC_WIN_DOWNLOAD_URL?.trim() ||
@@ -61,20 +64,16 @@ export default async function DashboardPage() {
     process.env.NEXT_PUBLIC_MAC_DOWNLOAD_URL?.trim() ||
     null;
 
-  let subscriptionPeriod: "monthly" | "quarterly" | null = null;
-  if (profile?.subscription_period === "monthly") subscriptionPeriod = "monthly";
-  if (profile?.subscription_period === "quarterly") {
-    subscriptionPeriod = "quarterly";
-  }
-
   return (
     <DashboardClient
       email={email}
-      isPro={proActive}
+      isPro={membership.isPro}
       creditsBalance={creditsBalance}
-      subscriptionPeriod={subscriptionPeriod}
+      subscriptionPeriod={membership.subscriptionPeriod}
       subscriptionExpiresAt={profile?.subscription_expires_at ?? null}
-      billingUrl={billingUrl}
+      planTier={membership.planTier}
+      hasSubscription={membership.hasSubscription}
+      customerPortalUrl={customerPortalUrl}
       winDownloadUrl={winDownloadUrl}
       macDownloadUrl={macDownloadUrl}
       transactions={(transactions ?? []) as DashboardCreditTransaction[]}

@@ -10,11 +10,14 @@ import {
 import { useState } from "react";
 import { GetStartedButton } from "@/app/get-started-button";
 import { LanguageToggle } from "@/components/language-toggle";
-import { PricingSection } from "@/components/PricingSection";
+import { PricingSection, type MembershipPlanTier } from "@/components/PricingSection";
 import { useLanguage } from "@/i18n/language-provider";
 
 type HomePageClientProps = {
   userEmail: string | null;
+  isPro?: boolean;
+  planTier?: MembershipPlanTier;
+  customerPortalUrl?: string | null;
 };
 
 function emailLocalPart(email: string): string {
@@ -289,7 +292,12 @@ function InstallGuide({ zh }: { zh: boolean }) {
   );
 }
 
-export function HomePageClient({ userEmail }: HomePageClientProps) {
+export function HomePageClient({
+  userEmail,
+  isPro = false,
+  planTier = null,
+  customerPortalUrl = null,
+}: HomePageClientProps) {
   const { locale, t } = useLanguage();
   const zh = locale === "zh";
   const h = t.home;
@@ -402,7 +410,11 @@ export function HomePageClient({ userEmail }: HomePageClientProps) {
           </div>
         </section>
 
-        <PricingSection />
+        <PricingSection
+          isPro={isPro}
+          planTier={planTier}
+          customerPortalUrl={customerPortalUrl}
+        />
 
         <section id="faq" className="scroll-mt-24 bg-slate-50/80 px-5 py-14 sm:px-8 sm:py-18">
           <div className="mx-auto max-w-4xl">

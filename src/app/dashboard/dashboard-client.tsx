@@ -7,7 +7,7 @@ import { Suspense, useEffect, useState } from "react";
 import type { DashboardCreditTransaction } from "@/app/dashboard/page";
 import { SignOutButton } from "@/app/dashboard/sign-out-button";
 import { UpgradeProButton } from "@/app/dashboard/upgrade-pro-button";
-import { PricingSection } from "@/components/PricingSection";
+import { PricingSection, type MembershipPlanTier } from "@/components/PricingSection";
 import { LanguageToggle } from "@/components/language-toggle";
 import { useLanguage } from "@/i18n/language-provider";
 import type { Locale } from "@/i18n/dictionaries";
@@ -19,7 +19,9 @@ type DashboardClientProps = {
   creditsBalance: number;
   subscriptionPeriod: "monthly" | "quarterly" | null;
   subscriptionExpiresAt: string | null;
-  billingUrl: string | null;
+  planTier: MembershipPlanTier;
+  hasSubscription: boolean;
+  customerPortalUrl: string;
   winDownloadUrl: string | null;
   macDownloadUrl: string | null;
   transactions: DashboardCreditTransaction[];
@@ -89,7 +91,9 @@ export function DashboardClient({
   creditsBalance,
   subscriptionPeriod,
   subscriptionExpiresAt,
-  billingUrl,
+  planTier,
+  hasSubscription,
+  customerPortalUrl,
   winDownloadUrl,
   macDownloadUrl,
   transactions,
@@ -180,31 +184,29 @@ export function DashboardClient({
         </section>
 
         <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-          <h2 className="text-sm font-semibold text-slate-900">{d.subscription}</h2>
-          {!isPro ? (
-            <>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <h2 className="text-sm font-semibold text-slate-900">{d.subscription}</h2>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">
-                {d.freeSummary}
+                {isPro ? d.proSummary : d.freeSummary}
               </p>
-              <div className="mt-5">
-                <UpgradeProButton />
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="mt-2 text-sm text-slate-600">{d.proSummary}</p>
-              {billingUrl ? (
-                <a
-                  href={billingUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-5 inline-flex h-10 items-center justify-center rounded-lg border border-slate-300 bg-white px-5 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50"
-                >
-                  {d.manageSubscription}
-                </a>
+              {!isPro ? (
+                <div className="mt-5">
+                  <UpgradeProButton />
+                </div>
               ) : null}
-            </>
-          )}
+            </div>
+            {isPro && hasSubscription ? (
+              <a
+                href={customerPortalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-10 shrink-0 items-center justify-center rounded-lg border border-slate-300 bg-white px-5 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50"
+              >
+                {d.manageSubscription}
+              </a>
+            ) : null}
+          </div>
         </section>
 
         <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
@@ -317,6 +319,9 @@ export function DashboardClient({
           defaultTab="packs"
           showTitle={false}
           embedded
+          isPro={isPro}
+          planTier={planTier}
+          customerPortalUrl={customerPortalUrl}
         />
       </main>
     </div>
