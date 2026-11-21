@@ -2,6 +2,7 @@ export const instant = false;
 import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
+import { AudioLines } from "lucide-react";
 import { PricingSection } from "@/components/PricingSection";
 import { LanguageToggle } from "@/components/language-toggle";
 
@@ -15,14 +16,14 @@ export default async function PricingPage() {
   await connection();
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <header className="border-b border-zinc-800/80">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-6">
-          <Link
-            href="/"
-            className="text-sm font-semibold tracking-tight text-white"
-          >
-            ZD Translate
+    <div className="min-h-screen bg-white text-slate-950">
+      <header className="border-b border-blue-100 bg-white">
+        <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
+          <Link href="/" className="flex items-center gap-3 font-bold text-slate-950">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 text-white shadow-lg shadow-blue-200">
+              <AudioLines className="h-5 w-5" />
+            </span>
+            Meeting Translator
           </Link>
           <LanguageToggle />
         </div>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Tencent Meeting">
+  <defs>
+    <linearGradient id="tencentBlue" x1="5" y1="9" x2="43" y2="39" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1485FF"/>
+      <stop offset="1" stop-color="#5368FF"/>
+    </linearGradient>
+  </defs>
+  <path d="m24 12 9.2 9.2L24 30.4l-9.2-9.2z" fill="url(#tencentBlue)"/>
+  <path d="m35 17.5 8 8-9.2 9.2-8-8z" fill="#5570FF"/>
+  <path d="m13 17.5 8 8-9.2 9.2-8-8z" fill="#1688FF"/>
+</svg>

@@ -7,17 +7,17 @@ export function LanguageToggle() {
 
   return (
     <div
-      className="flex items-center gap-1 rounded-lg border border-zinc-700 p-0.5 text-xs font-medium"
+      className="flex items-center gap-0.5 rounded-xl border border-blue-100 bg-blue-50/70 p-1 text-xs font-bold"
       role="group"
       aria-label="Language"
     >
       <button
         type="button"
         onClick={() => setLocale("en")}
-        className={`rounded-md px-2.5 py-1 transition-colors ${
+        className={`rounded-lg px-2.5 py-1.5 transition ${
           locale === "en"
-            ? "bg-zinc-800 text-white"
-            : "text-zinc-400 hover:text-zinc-200"
+            ? "bg-white text-blue-700 shadow-sm"
+            : "text-slate-400 hover:text-slate-700"
         }`}
       >
         EN
@@ -25,10 +25,10 @@ export function LanguageToggle() {
       <button
         type="button"
         onClick={() => setLocale("zh")}
-        className={`rounded-md px-2.5 py-1 transition-colors ${
+        className={`rounded-lg px-2.5 py-1.5 transition ${
           locale === "zh"
-            ? "bg-zinc-800 text-white"
-            : "text-zinc-400 hover:text-zinc-200"
+            ? "bg-white text-blue-700 shadow-sm"
+            : "text-slate-400 hover:text-slate-700"
         }`}
       >
         中文
