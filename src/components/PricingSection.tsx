@@ -5,10 +5,13 @@ import { useState } from "react";
 import { GetStartedButton } from "@/app/get-started-button";
 import { CheckoutButton } from "@/components/checkout-button";
 import {
+  formatPerMinuteUsd,
   formatUsd,
   PACK_USD,
+  packPerMinuteUsd,
   PRICING_USD,
   PRO_QUARTERLY_COMPARE_AT_USD,
+  type CheckoutPackId,
   type CheckoutPlan,
 } from "@/config/pricing";
 import { useLanguage } from "@/i18n/language-provider";
@@ -21,6 +24,7 @@ type PricingSectionProps = {
   showTitle?: boolean;
   embedded?: boolean;
   isPro?: boolean;
+  isLoggedIn?: boolean;
   planTier?: MembershipPlanTier;
   customerPortalUrl?: string | null;
 };
@@ -45,10 +49,11 @@ export function PricingSection({
   showTitle = true,
   embedded = false,
   isPro = false,
+  isLoggedIn = false,
   planTier = null,
   customerPortalUrl = null,
 }: PricingSectionProps) {
-  const { t } = useLanguage();
+  const { locale, t } = useLanguage();
   const p = t.pricing;
   const c = t.common;
   const [tab, setTab] = useState<"membership" | "packs">(defaultTab);
@@ -61,14 +66,20 @@ export function PricingSection({
 
   const tabClass = (active: boolean) =>
     active
-      ? "bg-blue-600 text-white shadow-lg shadow-blue-200"
-      : "text-slate-500 hover:bg-white hover:text-slate-900";
+      ? "bg-blue-600 text-white"
+      : "bg-slate-100 text-slate-500 hover:text-slate-900";
 
   const packCards = [
-    { id: "pack_1h" as const, highlight: false, bestValue: false, copy: p.packs.pack1h },
-    { id: "pack_3h" as const, highlight: true, bestValue: false, copy: p.packs.pack3h },
-    { id: "pack_10h" as const, highlight: false, bestValue: true, copy: p.packs.pack10h },
+    { id: "pack_1h" as const, featured: false, copy: p.packs.pack1h },
+    { id: "pack_3h" as const, featured: true, copy: p.packs.pack3h },
+    { id: "pack_10h" as const, featured: false, copy: p.packs.pack10h },
   ];
+  const packLocked = isLoggedIn && !isPro;
+
+  function unitPrice(id: CheckoutPackId) {
+    const amount = formatPerMinuteUsd(packPerMinuteUsd(id));
+    return locale === "zh" ? `${amount}/分` : `${amount}/min`;
+  }
 
   const checkIcon = (tone: "soft" | "blue" | "violet" = "blue") => (
     <span
@@ -116,7 +127,7 @@ export function PricingSection({
           role="tablist"
           aria-label={p.tabAria}
         >
-          <div className="inline-flex rounded-xl border border-blue-100 bg-blue-50/70 p-1 shadow-inner">
+          <div className="inline-flex gap-1 rounded-xl bg-slate-100 p-1">
             <button
               type="button"
               role="tab"
@@ -253,41 +264,32 @@ export function PricingSection({
             </article>
           </div>
         ) : (
-          <div className="mt-7 grid gap-4 md:grid-cols-3">
-            {packCards.map(({ id, highlight, bestValue, copy }) => (
+          <div className="mt-7 grid items-stretch gap-4 md:grid-cols-3">
+            {packCards.map(({ id, featured, copy }) => (
               <article
                 key={id}
-                className={`relative flex min-h-[350px] flex-col rounded-[22px] bg-white p-6 transition hover:-translate-y-1 ${
-                  highlight
-                    ? "border-2 border-violet-500 shadow-[0_18px_42px_rgba(124,58,237,0.16)]"
-                    : bestValue
-                      ? "border-2 border-orange-400 shadow-[0_18px_42px_rgba(249,115,22,0.13)]"
-                      : "border border-slate-200 shadow-[0_14px_32px_rgba(15,23,42,0.07)]"
+                className={`relative flex h-full min-h-[390px] flex-col rounded-[22px] bg-white p-6 ${
+                  featured
+                    ? "border-2 border-blue-600 shadow-[0_18px_42px_rgba(37,99,235,0.16)]"
+                    : "border border-slate-200 shadow-sm"
                 }`}
               >
-                {highlight && "badge" in copy && copy.badge ? (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-violet-600 px-3 py-1 text-[11px] font-bold text-white shadow-lg">
+                {featured && "badge" in copy && copy.badge ? (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-blue-600 to-violet-600 px-3 py-1 text-[11px] font-bold text-white shadow-lg">
                     {copy.badge}
-                  </span>
-                ) : null}
-                {bestValue && "bestValueBadge" in copy && copy.bestValueBadge ? (
-                  <span className="absolute -top-3 right-4 max-w-[11rem] rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-3 py-1 text-center text-[11px] font-bold leading-tight text-white shadow-lg">
-                    {copy.bestValueBadge}
                   </span>
                 ) : null}
                 <p className="text-lg font-black text-slate-950">{copy.name}</p>
                 <p className="mt-2 text-4xl font-black tracking-tight text-slate-950">{formatUsd(PACK_USD[id])}</p>
-                <p className="mt-4 rounded-xl bg-emerald-50 px-3 py-2.5 text-xs font-bold leading-5 text-emerald-700">
+                <p className="mt-4 rounded-xl bg-slate-50 px-3 py-2.5 text-xs font-bold leading-5 text-slate-700">
                   {copy.timeLine}
                 </p>
-                {"valueCallout" in copy && copy.valueCallout ? (
-                  <p className="mt-2 text-xs font-bold text-orange-600">{copy.valueCallout}</p>
-                ) : null}
-                <p className="mt-3 text-xs leading-5 text-slate-400">{p.packs.neverExpire}</p>
+                <p className="mt-2 text-sm font-bold text-slate-900">{unitPrice(id)}</p>
+                <p className="mt-3 text-xs leading-5 text-slate-500">{p.packs.neverExpire}</p>
                 <ul className="mt-5 flex-1 space-y-2.5 text-[13px] leading-5 text-slate-600">
                   {copy.bullets.map((line) => (
                     <li key={line} className="flex gap-2.5">
-                      {checkIcon(highlight ? "violet" : "blue")}
+                      {checkIcon("blue")}
                       <span>{line}</span>
                     </li>
                   ))}
@@ -295,12 +297,11 @@ export function PricingSection({
                 <CheckoutButton
                   payload={{ pack_id: id }}
                   label={copy.cta}
+                  blockedMessage={packLocked ? p.packsProOnly : null}
                   className={`mt-5 flex h-10 w-full items-center justify-center rounded-xl text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-60 ${
-                    highlight
-                      ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-lg shadow-violet-200 hover:-translate-y-0.5"
-                      : bestValue
-                        ? "bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-200 hover:-translate-y-0.5"
-                        : "border-2 border-blue-600 text-blue-700 hover:bg-blue-50"
+                    featured
+                      ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-lg shadow-blue-200 hover:-translate-y-0.5"
+                      : "border border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
                   }`}
                 />
               </article>

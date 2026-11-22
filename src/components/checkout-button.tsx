@@ -10,6 +10,7 @@ type CheckoutButtonProps = {
   label: string;
   className?: string;
   disabled?: boolean;
+  blockedMessage?: string | null;
 };
 
 export function CheckoutButton({
@@ -17,6 +18,7 @@ export function CheckoutButton({
   label,
   className,
   disabled = false,
+  blockedMessage = null,
 }: CheckoutButtonProps) {
   const router = useRouter();
   const { t } = useLanguage();
@@ -35,6 +37,10 @@ export function CheckoutButton({
 
   async function handleCheckout() {
     setError(null);
+    if (blockedMessage) {
+      setError(blockedMessage);
+      return;
+    }
     setLoading(true);
 
     try {
@@ -48,6 +54,12 @@ export function CheckoutButton({
       if (res.status === 401) {
         setLoading(false);
         router.push("/login");
+        return;
+      }
+
+      if (data.error === "packs_pro_only") {
+        setLoading(false);
+        setError(t.pricing.packsProOnly);
         return;
       }
 
@@ -68,11 +80,6 @@ export function CheckoutButton({
 
   return (
     <div className="w-full">
-      {error ? (
-        <p className="mb-3 text-sm text-red-300" role="alert">
-          {error}
-        </p>
-      ) : null}
       <button
         type="button"
         onClick={handleCheckout}
@@ -81,6 +88,11 @@ export function CheckoutButton({
       >
         {loading ? t.dashboard.upgradeRedirecting : label}
       </button>
+      {error ? (
+        <p className="mt-2 text-xs leading-5 text-red-600" role="alert">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

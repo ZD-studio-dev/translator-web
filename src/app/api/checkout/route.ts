@@ -3,6 +3,8 @@ import {
   resolveCheckoutVariantId,
   type CheckoutPayload,
 } from "@/config/pricing";
+import { isUserPro, type ProfileCreditsRow } from "@/utils/api/client-session";
+import { parseCreditsBalance } from "@/utils/credits";
 import { resolveSiteOrigin } from "@/utils/site-origin";
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
@@ -46,6 +48,25 @@ export async function POST(request: Request) {
     checkoutPayload = parseCheckoutBody(json) ?? checkoutPayload;
   } catch {
     checkoutPayload = { plan: "pro_monthly" };
+  }
+
+  if ("pack_id" in checkoutPayload) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select(
+        "email, plan_tier, credits_balance, is_pro, plan, subscription_expires_at, subscription_status",
+      )
+      .eq("id", user.id)
+      .maybeSingle();
+    const row = profile
+      ? ({
+          ...profile,
+          credits_balance: parseCreditsBalance(profile.credits_balance),
+        } as ProfileCreditsRow)
+      : null;
+    if (!row || !isUserPro(row)) {
+      return NextResponse.json({ error: "packs_pro_only" }, { status: 403 });
+    }
   }
 
   const storeId = process.env.LEMONSQUEEZY_STORE_ID;

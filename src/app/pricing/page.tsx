@@ -6,6 +6,7 @@ import { connection } from "next/server";
 import { AudioLines } from "lucide-react";
 import { PricingSection } from "@/components/PricingSection";
 import { LanguageToggle } from "@/components/language-toggle";
+import { loadBillingProfile, resolveMembershipPlan } from "@/utils/membership-plan";
 import { createClient } from "@/utils/supabase/server";
 
 export const metadata: Metadata = {
@@ -26,6 +27,10 @@ export default async function PricingPage() {
     data: { user },
   } = await supabase.auth.getUser();
   const userEmail = user?.email ?? null;
+  const profile = user ? await loadBillingProfile(supabase, user.id) : null;
+  const membership = user
+    ? await resolveMembershipPlan(supabase, user.id, profile)
+    : null;
 
   return (
     <div className="min-h-screen bg-white text-slate-950">
@@ -62,7 +67,13 @@ export default async function PricingPage() {
         </div>
       </header>
       <main>
-        <PricingSection defaultTab="membership" />
+        <PricingSection
+          defaultTab="membership"
+          isPro={membership?.isPro ?? false}
+          isLoggedIn={Boolean(user)}
+          planTier={membership?.planTier ?? null}
+          customerPortalUrl={profile?.customer_portal_url ?? null}
+        />
       </main>
     </div>
   );

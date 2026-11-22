@@ -52,8 +52,8 @@ export const dictionaries = {
           a: "Yes. You can manage or cancel your subscription anytime with one click from your Dashboard via our billing portal—no hidden fees.",
         },
         {
-          q: "Does it work over fullscreen apps, games, and video calls?",
-          a: "Absolutely. ZD Meeting Translator runs as a lightweight native overlay that works seamlessly across any window, PDF, browser, or meeting app.",
+          q: "Does it work in meetings and online classes?",
+          a: "Yes. It works with the meeting apps you already use, including online classes, and shows bilingual captions in real time.",
         },
       ],
       footer: "© 2026 ZD Meeting Translator. All rights reserved.",
@@ -70,7 +70,9 @@ export const dictionaries = {
       tabMembership: "Pro Membership",
       tabPacks: "Extra Voice Time Packs",
       footnote:
-        "Secure checkout via Lemon Squeezy. Time packs never expire and stack with any plan.",
+        "Secure checkout via Lemon Squeezy. Time packs are for Pro members only and never expire.",
+      packsProOnly:
+        "Time packs are for Pro members only. Subscribe to Pro first.",
       embeddedTitle: "Buy voice time or upgrade",
       membership: {
         free: {
@@ -113,14 +115,14 @@ export const dictionaries = {
         },
       },
       packs: {
-        neverExpire: "Voice time never expires · stacks with membership",
+        neverExpire: "Pro members only · Never expires",
         pack1h: {
           name: "1 Hour Pack",
           price: "$4.90",
           timeLine: "+60 minutes S2S voice (3,600 sec)",
           bullets: [
             "Top-up for ad-hoc meetings",
-            "Never expires — stacks with any membership",
+            "Adds voice time to your Pro balance",
           ],
           cta: "Buy 1 Hour",
         },
@@ -129,11 +131,9 @@ export const dictionaries = {
           badge: "Most Popular",
           price: "$12.90",
           timeLine: "+180 minutes S2S voice (10,800 sec)",
-          valueCallout: "🔥 ~$0.07/min (better value than 1 Hour Pack)",
           bullets: [
             "Business interpretation favorite",
             "Lower cost per minute",
-            "Long-valid balance — use until depleted",
           ],
           cta: "Buy 3 Hours",
         },
@@ -141,10 +141,9 @@ export const dictionaries = {
           name: "10 Hour Pack",
           price: "$29.90",
           timeLine: "+600 minutes S2S voice (36,000 sec)",
-          bestValueBadge: "💎 Power users · Save 39%",
           bullets: [
-            "All-day events & marathon meetings",
-            "Lowest per-minute rate — built for heavy users",
+            "All-day events and marathon meetings",
+            "Lowest cost per minute",
           ],
           cta: "Buy 10 Hours",
         },
@@ -240,6 +239,9 @@ export const dictionaries = {
       upgradePro: "Upgrade to Pro — $14.90/mo",
       upgradeRedirecting: "Redirecting…",
       checkoutFailed: "Failed to create checkout session",
+      footerHome: "Home",
+      footerInstall: "Setup guide",
+      footerFaq: "FAQ",
     },
     legal: {
       termsOfService: "Terms of Service",
@@ -310,8 +312,8 @@ export const dictionaries = {
           a: "可以。在控制台通过账单门户一键管理或取消订阅，无隐藏费用。",
         },
         {
-          q: "全屏应用、游戏与视频会议能用吗？",
-          a: "可以。ZD Meeting Translator 以轻量原生悬浮层运行，适用于任意窗口、PDF、浏览器或会议应用。",
+          q: "会议和网课里能用吗？",
+          a: "可以。它适用于你正在使用的会议软件和网课，并实时显示双语字幕。",
         },
       ],
       footer: "© 2026 ZD Meeting Translator. 保留所有权利。",
@@ -328,12 +330,13 @@ export const dictionaries = {
       tabMembership: "Pro 会员",
       tabPacks: "额外加时包",
       footnote:
-        "通过 Lemon Squeezy 安全结账。加时包永不过期，可与任意方案叠加。",
+        "通过 Lemon Squeezy 安全结账。加时包仅限 Pro 会员叠加使用，且永不过期。",
+      packsProOnly: "加时包仅限 Pro 会员购买，请先订阅 Pro 会员。",
       embeddedTitle: "购买语音时长或升级会员",
       membership: {
         free: {
           badge: "免费体验",
-          name: "Free Trial",
+          name: "免费体验",
           timeLine: "注册即送 600 秒（10 分钟）免费体验时长",
           benefits: [
             "体验 S2T 字幕与 S2S 语音 — 按秒计费",
@@ -371,12 +374,12 @@ export const dictionaries = {
         },
       },
       packs: {
-        neverExpire: "语音时长永不过期 · 可与会员叠加",
+        neverExpire: "仅限 Pro 会员叠加使用 · 永不过期",
         pack1h: {
           name: "1 小时加时包",
           price: "$4.90",
           timeLine: "+60 分钟 S2S 语音（3,600 秒）",
-          bullets: ["临时会议加餐", "永不过期，可与任意会员叠加"],
+          bullets: ["临时会议加时", "时长计入 Pro 余额"],
           cta: "购买 1 小时",
         },
         pack3h: {
@@ -384,20 +387,14 @@ export const dictionaries = {
           badge: "推荐",
           price: "$12.90",
           timeLine: "+180 分钟 S2S 语音（10,800 秒）",
-          valueCallout: "🔥 约合 $0.07/分钟（比 1 小时包更划算）",
-          bullets: [
-            "商务同传首选",
-            "单分钟性价比更高",
-            "长期有效，用完即止",
-          ],
+          bullets: ["商务同传首选", "单分钟价格更低"],
           cta: "购买 3 小时",
         },
         pack10h: {
           name: "10 小时加时包",
           price: "$29.90",
           timeLine: "+600 分钟 S2S 语音（36,000 秒）",
-          bestValueBadge: "💎 适合高频会议·立省 39%",
-          bullets: ["全天活动 / 马拉松会议", "单价最低，资深用户必备"],
+          bullets: ["全天活动与长时间会议", "单分钟价格最低"],
           cta: "购买 10 小时",
         },
       },
@@ -491,6 +488,9 @@ export const dictionaries = {
       upgradePro: "升级 Pro — $14.90/月",
       upgradeRedirecting: "跳转中…",
       checkoutFailed: "创建支付会话失败",
+      footerHome: "返回首页",
+      footerInstall: "安装指南",
+      footerFaq: "常见问题",
     },
     legal: {
       termsOfService: "服务条款",

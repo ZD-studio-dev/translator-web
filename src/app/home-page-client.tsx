@@ -7,7 +7,7 @@ import {
   ChevronDown,
   LogIn,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { GetStartedButton } from "@/app/get-started-button";
 import { LanguageToggle } from "@/components/language-toggle";
 import { PricingSection, type MembershipPlanTier } from "@/components/PricingSection";
@@ -128,13 +128,13 @@ function CapabilityCards({ zh }: { zh: boolean }) {
             <Image src="/ui-icons/speaker-white.svg" alt="" width={24} height={24} className="h-6 w-6" />
           </span>
           <h3 className="text-lg font-black text-slate-950">
-            {zh ? "你说中文，对方只听到目标语言" : "Speak Chinese, they only hear the target language"}
+            {zh ? "你说中文，对方只听到目标语言" : "Speak your language, they hear theirs"}
           </h3>
         </div>
         <div className="mt-4 rounded-2xl bg-blue-50/80 px-4 pb-2 pt-3">
           <div className="flex items-center justify-center gap-3">
             <span className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-800 shadow-sm">
-              <Image src="/ui-icons/mic-blue.svg" alt="" width={20} height={20} className="h-5 w-5" />中文
+              <Image src="/ui-icons/mic-blue.svg" alt="" width={20} height={20} className="h-5 w-5" />{zh ? "中文" : "Your language"}
             </span>
             <span className="text-xl text-blue-500">→</span>
             <span className="flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-500 to-violet-600 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-blue-200">
@@ -142,7 +142,7 @@ function CapabilityCards({ zh }: { zh: boolean }) {
             </span>
             <span className="text-xl text-violet-500">→</span>
             <span className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-800 shadow-sm">
-              <Image src="/ui-icons/speaker-blue.svg" alt="" width={20} height={20} className="h-5 w-5" />English
+              <Image src="/ui-icons/speaker-blue.svg" alt="" width={20} height={20} className="h-5 w-5" />{zh ? "English" : "Target language"}
             </span>
           </div>
           <Image src="/ui-icons/waveform-gradient.svg" alt="" width={420} height={54} className="mx-auto mt-1 h-9 w-[88%]" />
@@ -181,32 +181,85 @@ function meetingAppsFor(zh: boolean) {
   ];
 }
 
+const BLACKHOLE_URL = "https://existential.audio/blackhole/";
+const VBCABLE_URL = "https://vb-audio.com/Cable/";
+
+function GuideLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="font-bold text-blue-600 underline decoration-blue-200 underline-offset-2 hover:text-blue-700"
+    >
+      {children}
+    </a>
+  );
+}
+
 function InstallGuide({ zh }: { zh: boolean }) {
   const [activeId, setActiveId] = useState<"mac" | "windows">("mac");
-  const guides = [
+  const guides: {
+    id: "mac" | "windows";
+    name: string;
+    input: string;
+    output: string;
+    title: ReactNode;
+    inputNote: string;
+    outputNote: string;
+    steps: ReactNode[];
+  }[] = [
     {
-      id: "mac" as const,
+      id: "mac",
       name: "macOS",
       input: "BlackHole 16ch",
       output: "BlackHole 2ch",
-      title: zh ? "macOS 音频路由（使用 BlackHole）" : "macOS audio routing (BlackHole)",
+      title: zh ? (
+        <>macOS 音频路由（使用 <GuideLink href={BLACKHOLE_URL}>BlackHole</GuideLink>）</>
+      ) : (
+        <>macOS audio routing (<GuideLink href={BLACKHOLE_URL}>BlackHole</GuideLink>)</>
+      ),
       inputNote: zh ? "会议音频采集" : "Meeting audio capture",
       outputNote: zh ? "翻译麦克风输出" : "Translated mic output",
       steps: zh
-        ? ["安装 BlackHole（包含 BlackHole 16ch 和 BlackHole 2ch）", "在系统「声音」中，将会议软件的输出设备设为 BlackHole 16ch", "在会议软件中，将麦克风设为 BlackHole 2ch", "打开 ZD Meeting Translator，开始跨语言会议"]
-        : ["Install BlackHole 16ch and BlackHole 2ch", "Set the meeting speaker to BlackHole 16ch", "Set the meeting microphone to BlackHole 2ch", "Open ZD Meeting Translator and start your meeting"],
+        ? [
+            <>安装 <GuideLink href={BLACKHOLE_URL}>BlackHole</GuideLink>（包含 BlackHole 16ch 和 BlackHole 2ch）</>,
+            "在系统「声音」中，将会议软件的输出设备设为 BlackHole 16ch",
+            "在会议软件中，将麦克风设为 BlackHole 2ch",
+            "打开 ZD Meeting Translator，开始跨语言会议",
+          ]
+        : [
+            <>Install <GuideLink href={BLACKHOLE_URL}>BlackHole</GuideLink> 16ch and BlackHole 2ch</>,
+            "Set the meeting speaker to BlackHole 16ch",
+            "Set the meeting microphone to BlackHole 2ch",
+            "Open ZD Meeting Translator and start your meeting",
+          ],
     },
     {
-      id: "windows" as const,
+      id: "windows",
       name: "Windows",
       input: "CABLE A",
       output: "CABLE B",
-      title: zh ? "Windows 音频路由（使用虚拟声卡）" : "Windows audio routing (virtual cable)",
+      title: zh ? (
+        <>Windows 音频路由（使用 <GuideLink href={VBCABLE_URL}>VB-Cable</GuideLink>）</>
+      ) : (
+        <>Windows audio routing (<GuideLink href={VBCABLE_URL}>VB-Cable</GuideLink>)</>
+      ),
       inputNote: zh ? "会议音频采集" : "Meeting audio capture",
       outputNote: zh ? "翻译麦克风输出" : "Translated mic output",
       steps: zh
-        ? ["安装虚拟声卡（包含 CABLE A 和 CABLE B）", "在系统「声音」中，将会议软件的输出设备设为 CABLE A", "在会议软件中，将麦克风设为 CABLE B", "打开 ZD Meeting Translator，开始跨语言会议"]
-        : ["Install virtual audio devices CABLE A and CABLE B", "Set the meeting speaker to CABLE A Input", "Set the meeting microphone to CABLE B Output", "Open ZD Meeting Translator and start your meeting"],
+        ? [
+            <>安装 <GuideLink href={VBCABLE_URL}>VB-Cable</GuideLink>（包含 CABLE A 和 CABLE B）</>,
+            "在系统「声音」中，将会议软件的输出设备设为 CABLE A",
+            "在会议软件中，将麦克风设为 CABLE B",
+            "打开 ZD Meeting Translator，开始跨语言会议",
+          ]
+        : [
+            <>Install <GuideLink href={VBCABLE_URL}>VB-Cable</GuideLink> (CABLE A and CABLE B)</>,
+            "Set the meeting speaker to CABLE A Input",
+            "Set the meeting microphone to CABLE B Output",
+            "Open ZD Meeting Translator and start your meeting",
+          ],
     },
   ];
 
@@ -260,7 +313,7 @@ function InstallGuide({ zh }: { zh: boolean }) {
                   </div>
                   <div className="flex h-[58px] items-center gap-2 rounded-xl bg-white px-3 shadow-sm">
                     <Image src="/ui-icons/mic-blue.svg" alt="" width={24} height={24} className="h-6 w-6 shrink-0" />
-                    <div><p className="text-xs font-black text-slate-800">{zh ? "翻译后的声音" : "Translated voice"}</p><p className="mt-0.5 text-[10px] text-slate-500">{zh ? "（你的中文翻译）" : "Your translation"}</p></div>
+                    <div><p className="text-xs font-black text-slate-800">{zh ? "翻译后的语音输出" : "Translated voice output"}</p><p className="mt-0.5 text-[10px] text-slate-500">{zh ? "（目标语言）" : "(Target language)"}</p></div>
                   </div>
                 </div>
                 <div className="space-y-[42px] text-center text-xl text-blue-500"><div>→</div><div>→</div></div>
@@ -283,7 +336,7 @@ function InstallGuide({ zh }: { zh: boolean }) {
               <p className="text-sm font-black text-slate-950">{zh ? `安装步骤（${guide.name}）` : `Setup steps (${guide.name})`}</p>
               <ol className="mt-3 grid gap-2">
                 {guide.steps.map((step, index) => (
-                  <li key={step} className="flex gap-2 text-[11px] leading-4 text-slate-600">
+                  <li key={index} className="flex gap-2 text-[11px] leading-4 text-slate-600">
                     <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">{index + 1}</span>
                     {step}
                   </li>
@@ -317,7 +370,7 @@ export function HomePageClient({
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-white text-slate-950">
-      <header className="sticky top-0 z-50 border-b border-blue-100/80 bg-white/90 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/90 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-5 px-5 sm:px-6">
           <Link href="https://www.zdtranslate.com/" className="flex items-center gap-3 font-bold tracking-tight text-slate-950">
             <BrandMark compact />
@@ -424,6 +477,7 @@ export function HomePageClient({
 
         <PricingSection
           isPro={isPro}
+          isLoggedIn={isLoggedIn}
           planTier={planTier}
           customerPortalUrl={customerPortalUrl}
         />

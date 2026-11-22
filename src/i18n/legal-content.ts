@@ -35,13 +35,13 @@ export const legalContent: Record<
         {
           title: "2. Description of the Service",
           paragraphs: [
-            "ZD Meeting Translator provides AI-powered screen, text, OCR, and audio translation tools for desktop and related web experiences. Features may vary by plan (Free or Pro) and platform. We may modify, add, or remove features to improve performance, security, or compliance.",
+            "ZD Meeting Translator provides real-time meeting voice interpretation and bilingual captions. Features may vary by plan (Free or Pro) and platform. We may modify, add, or remove features to improve performance, security, or compliance.",
           ],
         },
         {
           title: "3. Subscriptions, Extra Voice Time, and Billing",
           paragraphs: [
-            "Pro membership is a recurring subscription billed through our authorized payment provider (Lemon Squeezy). Pro Monthly includes 7,200 seconds (120 minutes) of S2S voice time each month. Pro Quarterly includes 27,000 seconds (450 minutes) of S2S voice time each quarter. Prices, billing cycles, and taxes are shown at checkout. By subscribing, you authorize us and our payment partner to charge your payment method until you cancel.",
+            "Pro membership is a recurring subscription billed through our authorized payment provider (Lemon Squeezy). Pro Monthly includes 7,200 seconds (120 minutes) of S2S voice time each month. Pro Quarterly includes 27,000 seconds (450 minutes) of S2S voice time each quarter. Unlimited S2T subtitles for Pro members follow a Fair Use Policy for ordinary personal meetings. Prices, billing cycles, and taxes are shown at checkout. By subscribing, you authorize us and our payment partner to charge your payment method until you cancel.",
             "We also offer extra voice time packs for one-time purchase. Pack time is added to your S2S voice time balance, is not tied to a subscription, and does not expire. Live voice interpretation (S2S) is billed at one second of balance per second of session time, as shown in your Dashboard.",
             "You may manage or cancel Pro renewal through the billing portal linked from your Dashboard. Cancellation stops future subscription charges; Pro membership and any remaining voice time typically continue until the end of the current paid period unless otherwise stated at checkout.",
           ],
@@ -180,13 +180,13 @@ export const legalContent: Record<
         {
           title: "2. 服务说明",
           paragraphs: [
-            "ZD Meeting Translator 提供基于 AI 的屏幕、文本、OCR 与音频翻译能力，涵盖桌面端及相关网页体验。功能因方案（免费版或 Pro 版）及平台而异。我们可为提升性能、安全或合规而调整、增加或移除功能。",
+            "ZD Meeting Translator 提供实时会议语音同传与双语字幕。功能因方案（免费版或 Pro 版）及平台而异。我们可为提升性能、安全或合规而调整、增加或移除功能。",
           ],
         },
         {
           title: "3. 订阅、额外加时包与计费",
           paragraphs: [
-            "Pro 会员为周期性订阅，通过授权支付服务商 Lemon Squeezy 扣费。Pro 月度会员每周期含 7,200 秒（120 分钟）S2S 语音时长；Pro 季度会员每周期含 27,000 秒（450 分钟）S2S 语音时长。价格、计费周期与税费以结账页展示为准。订阅即表示您授权我们及支付伙伴在您取消前向您的支付方式扣款。",
+            "Pro 会员为周期性订阅，通过授权支付服务商 Lemon Squeezy 扣费。Pro 月度会员每周期含 7,200 秒（120 分钟）S2S 语音时长；Pro 季度会员每周期含 27,000 秒（450 分钟）S2S 语音时长。Pro 会员的无限 S2T 字幕遵循正常个人会议合理使用原则（Fair Use Policy）。价格、计费周期与税费以结账页展示为准。订阅即表示您授权我们及支付伙伴在您取消前向您的支付方式扣款。",
             "我们还提供单次购买的额外加时包。加时包计入 S2S 语音时长余额，不绑定订阅且永不过期。实时语音同传（S2S）按会话时长以每秒 1 秒扣减，用量可在控制台查看。",
             "您可通过控制台中的账单门户管理或取消 Pro 续费。取消后不再产生未来订阅扣款；Pro 权益及剩余语音时长通常保留至当前已付费周期结束，除非结账页另有说明。",
           ],
