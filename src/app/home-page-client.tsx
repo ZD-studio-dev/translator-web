@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   AudioLines,
-  ChevronDown,
   LogIn,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -380,7 +379,7 @@ export function HomePageClient({
             <a href="#core" className="transition hover:text-blue-600">{zh ? "核心能力" : "Core"}</a>
             <a href="#install" className="transition hover:text-blue-600">{zh ? "安装指南" : "Setup"}</a>
             <a href="#pricing-section" className="transition hover:text-blue-600">{zh ? "订阅付费" : "Pricing"}</a>
-            <a href="#faq" className="transition hover:text-blue-600">{zh ? "常见问题" : "FAQ"}</a>
+            <Link href="/faq" className="transition hover:text-blue-600">{zh ? "帮助中心" : "Help Center"}</Link>
           </nav>
           <div className="flex items-center gap-2 sm:gap-3">
             <LanguageToggle />
@@ -482,25 +481,6 @@ export function HomePageClient({
           customerPortalUrl={customerPortalUrl}
         />
 
-        <section id="faq" className="scroll-mt-24 bg-slate-50/80 px-5 py-14 sm:px-8 sm:py-18">
-          <div className="mx-auto max-w-4xl">
-            <div className="text-center">
-              <p className="text-sm font-bold tracking-[0.18em] text-blue-600">FAQ</p>
-              <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{h.faqTitle}</h2>
-            </div>
-            <div className="mt-7 space-y-3">
-              {h.faqs.map((item) => (
-                <details key={item.q} className="group rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm open:shadow-md">
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-5 text-base font-bold text-slate-900 marker:content-none [&::-webkit-details-marker]:hidden">
-                    {item.q}
-                    <ChevronDown className="h-5 w-5 shrink-0 text-blue-600 transition group-open:rotate-180" />
-                  </summary>
-                  <p className="mt-4 max-w-3xl border-t border-slate-100 pt-4 text-sm leading-7 text-slate-600">{item.a}</p>
-                </details>
-              ))}
-            </div>
-          </div>
-        </section>
       </main>
 
       <footer className="border-t border-slate-200 bg-white px-6 py-10 text-center text-xs text-slate-500">

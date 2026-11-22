@@ -342,7 +342,7 @@ export function DashboardClient({
           <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
             <Link href="/" className="hover:text-slate-900">{d.footerHome}</Link>
             <Link href="/#install" className="hover:text-slate-900">{d.footerInstall}</Link>
-            <Link href="/#faq" className="hover:text-slate-900">{d.footerFaq}</Link>
+            <Link href="/faq" className="hover:text-slate-900">{d.footerFaq}</Link>
             <Link href="/terms" className="hover:text-slate-900">{t.legal.termsOfService}</Link>
             <Link href="/privacy" className="hover:text-slate-900">{t.legal.privacyPolicy}</Link>
           </nav>
