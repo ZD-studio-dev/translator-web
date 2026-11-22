@@ -459,7 +459,7 @@ export function HomePageClient({
                   <span className="whitespace-nowrap">{zh ? "下载 Windows 版" : "Download for Windows"}</span>
                 </GetStartedButton>
               </div>
-              <p className="mt-3 text-center text-xs text-slate-500 lg:text-left">
+              <p className="mt-3 max-w-xl text-center text-xs leading-5 text-slate-500 lg:text-left">
                 {c.downloadRequirements}
               </p>
             </div>

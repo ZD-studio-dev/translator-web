@@ -12,7 +12,8 @@ export const dictionaries = {
       perMonth: "/mo",
       perQuarter: "/quarter",
       downloadMacComingSoon: "macOS (Coming Soon)",
-      downloadRequirements: "v1.0.0 · Windows 10/11 (64-bit)",
+      downloadRequirements:
+        'v1.0.0 · Windows 10/11 (64-bit). If prompted by your browser or Windows SmartScreen, choose "Keep" or "More info → Run anyway".',
     },
     home: {
       heroTitle: "Real-Time AI Translation, Right on Your Screen.",
@@ -274,7 +275,8 @@ export const dictionaries = {
       perMonth: "/月",
       perQuarter: "/季",
       downloadMacComingSoon: "macOS（即将推出）",
-      downloadRequirements: "v1.0.0 · Windows 10/11 (64-bit)",
+      downloadRequirements:
+        "v1.0.0 · Windows 10/11 (64-bit)。首次下载或运行如遇浏览器/Windows 提示，选择“保留”或“更多信息 → 仍要运行”即可。",
     },
     home: {
       heroTitle: "实时 AI 翻译，就在你的屏幕上。",

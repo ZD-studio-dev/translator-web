@@ -270,7 +270,9 @@ export function DashboardClient({
               </button>
             )}
           </div>
-          <p className="mt-3 text-xs text-slate-500">{t.common.downloadRequirements}</p>
+          <p className="mt-3 max-w-xl text-xs leading-5 text-slate-500">
+            {t.common.downloadRequirements}
+          </p>
         </section>
 
         <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
