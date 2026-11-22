@@ -5,9 +5,8 @@ import {
   CLIENT_PROFILE_SELECT,
   EphemeralCredentialsError,
   HEARTBEAT_INTERVAL_SEC,
-  isUserPro,
   issueEphemeralCredentials,
-  MIN_CREDITS_TO_START,
+  logDbError,
   parseCredits,
   parseSessionModeFromBody,
   type ProfileCreditsRow,
@@ -49,19 +48,27 @@ export async function POST(request: Request) {
       .eq("id", auth.userId)
       .single();
 
-    if (profileError || !profile) {
+    if (profileError) {
+      logDbError("session start profile read failed", profileError, {
+        userId: auth.userId,
+      });
+      return NextResponse.json(
+        { error: "Failed to read profile" },
+        { status: 500 },
+      );
+    }
+
+    if (!profile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
 
     const profileRow = profile as ProfileCreditsRow;
     const creditsBalance = parseCredits(profileRow.credits_balance);
-    const proActive = isUserPro(profileRow, admin);
     const userStatus = buildClientUserStatusFields(profileRow, {
       creditsBalance,
     });
-    const skipBalanceCheck = proActive && mode === "s2t";
 
-    if (!skipBalanceCheck && creditsBalance < MIN_CREDITS_TO_START) {
+    if (creditsBalance <= 0) {
       return NextResponse.json(
         {
           error: "Insufficient credits",
@@ -88,7 +95,11 @@ export async function POST(request: Request) {
       .single();
 
     if (sessionError || !session) {
-      console.error("session start insert error:", sessionError);
+      logDbError(
+        "session start insert error",
+        sessionError ?? new Error("translation_sessions insert returned no row"),
+        { userId: auth.userId, mode },
+      );
       return NextResponse.json(
         { error: "Failed to start session" },
         { status: 500 },
