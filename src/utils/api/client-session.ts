@@ -6,7 +6,7 @@ export const LOW_CREDITS_STOP_THRESHOLD = 10;
 export const GRACE_PERIOD_SEC = 5;
 export const HEARTBEAT_INTERVAL_SEC = 30;
 
-export type SessionMode = "s2t" | "s2s";
+export type SessionMode = "s2t" | "s2s" | "unified";
 
 export type TranslationSessionRow = {
   id: string;
@@ -52,7 +52,11 @@ export function parseSessionMode(value: unknown): SessionMode {
   if (typeof value !== "string") {
     return "s2s";
   }
-  return value.trim().toLowerCase() === "s2t" ? "s2t" : "s2s";
+  const mode = value.trim().toLowerCase();
+  if (mode === "s2t" || mode === "s2s" || mode === "unified") {
+    return mode;
+  }
+  return "s2s";
 }
 
 export function parseSessionModeFromBody(body: {
@@ -112,7 +116,7 @@ export function isUserPro(
   return subscriptionNotExpired(profile.subscription_expires_at);
 }
 
-/** Active Pro membership (unlimited S2T + S2S billing rules). */
+/** Active Pro membership. S2T and S2S both draw from `credits_balance`. */
 export function isProActive(profile: ProfileCreditsRow): boolean {
   return isUserPro(profile);
 }
@@ -131,7 +135,7 @@ export function buildClientUserStatusFields(
 
   return {
     is_pro: pro,
-    unlimited_s2t: pro,
+    unlimited_s2t: false,
     plan_tier: resolvePlanTier(profile),
     subscription_status: profile.subscription_status ?? null,
     remaining_seconds: remainingSeconds,
@@ -140,26 +144,21 @@ export function buildClientUserStatusFields(
   };
 }
 
+/** S2T, S2S, and unified sessions all bill 1 credit per second from the same balance. */
 export function shouldChargeSessionSeconds(
-  proActive: boolean,
-  mode: SessionMode,
+  _proActive: boolean,
+  _mode: SessionMode,
 ): boolean {
-  if (proActive && mode === "s2t") {
-    return false;
-  }
   return true;
 }
 
 export function computeBillableCharge(
-  proActive: boolean,
-  mode: SessionMode,
   elapsedSeconds: number,
   remainingSeconds: number,
 ): number {
-  if (!shouldChargeSessionSeconds(proActive, mode)) {
-    return 0;
-  }
-  return Math.min(remainingSeconds, elapsedSeconds);
+  const elapsed = Math.max(0, Math.floor(elapsedSeconds));
+  const remaining = Math.max(0, Math.floor(remainingSeconds));
+  return Math.min(remaining, elapsed);
 }
 
 export function normalizeSubscriptionPeriod(
@@ -196,10 +195,178 @@ export async function fetchActiveSession(
   return data as TranslationSessionRow | null;
 }
 
-export function elapsedSecondsSince(isoTimestamp: string, now = new Date()) {
+export function elapsedSecondsSince(
+  isoTimestamp: string | null | undefined,
+  now = new Date(),
+) {
+  if (!isoTimestamp) return 0;
   const last = new Date(isoTimestamp).getTime();
+  if (!Number.isFinite(last)) return 0;
   const diffMs = now.getTime() - last;
-  return Math.max(0, Math.floor(diffMs / 1000));
+  if (!Number.isFinite(diffMs) || diffMs <= 0) return 0;
+  return Math.floor(diffMs / 1000);
+}
+
+export function logDbError(
+  scope: string,
+  error: unknown,
+  context?: Record<string, unknown>,
+) {
+  const err = error as {
+    message?: string;
+    code?: string;
+    details?: string;
+    hint?: string;
+  };
+  console.error(scope, {
+    ...context,
+    message:
+      err?.message ?? (error instanceof Error ? error.message : String(error)),
+    code: err?.code,
+    details: err?.details,
+    hint: err?.hint,
+  });
+}
+
+export function readSessionId(body: {
+  session_id?: unknown;
+  sessionId?: unknown;
+}): string {
+  const raw = body.session_id ?? body.sessionId;
+  return typeof raw === "string" ? raw.trim() : "";
+}
+
+export function readReportedSeconds(body: {
+  seconds?: unknown;
+  elapsed_seconds?: unknown;
+  billable_seconds?: unknown;
+  duration_seconds?: unknown;
+}): number | null {
+  const raw =
+    body.seconds ??
+    body.elapsed_seconds ??
+    body.billable_seconds ??
+    body.duration_seconds;
+  if (raw === undefined || raw === null || raw === "") return null;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n < 0) return null;
+  return Math.floor(n);
+}
+
+/** Positive client `seconds` is the delta for this call. Otherwise use the elapsed gap. */
+export function resolveBillableSeconds(
+  reportedSeconds: number | null,
+  elapsedSeconds: number,
+): number {
+  if (reportedSeconds !== null && reportedSeconds > 0) {
+    return reportedSeconds;
+  }
+  if (!Number.isFinite(elapsedSeconds) || elapsedSeconds <= 0) return 0;
+  return Math.floor(elapsedSeconds);
+}
+
+export function usageDescription(
+  mode: SessionMode,
+  phase: "heartbeat" | "stop",
+): string {
+  const kind =
+    mode === "s2t"
+      ? "S2T subtitle"
+      : mode === "unified"
+        ? "Unified"
+        : "S2S voice";
+  const when = phase === "heartbeat" ? "heartbeat" : "stop settlement";
+  return `${kind} session (${when})`;
+}
+
+async function revertCreditsBalance(
+  admin: SupabaseClient,
+  userId: string,
+  previousBalance: number,
+) {
+  const { data, error } = await admin
+    .from("profiles")
+    .update({ credits_balance: previousBalance })
+    .eq("id", userId)
+    .select("credits_balance");
+
+  if (error || !data || data.length !== 1) {
+    logDbError(
+      "failed to revert profiles.credits_balance after a billing write error",
+      error ??
+        new Error(
+          `credits_balance revert matched ${data?.length ?? 0} rows for user ${userId}`,
+        ),
+      { userId, previousBalance },
+    );
+  }
+}
+
+export async function persistCreditsBalance(
+  admin: SupabaseClient,
+  userId: string,
+  expectedBalance: number,
+): Promise<number> {
+  const { data, error } = await admin
+    .from("profiles")
+    .update({ credits_balance: expectedBalance })
+    .eq("id", userId)
+    .select("credits_balance");
+
+  if (error || !data || data.length !== 1) {
+    const failure =
+      error ??
+      new Error(
+        `profiles.credits_balance update matched ${data?.length ?? 0} rows for user ${userId}. The service role client is required so RLS cannot drop the write.`,
+      );
+    logDbError("profiles.credits_balance update failed", failure, {
+      userId,
+      expectedBalance,
+    });
+    throw failure;
+  }
+
+  const persisted = parseCredits(data[0].credits_balance);
+  if (Math.abs(persisted - expectedBalance) > 0.001) {
+    const failure = new Error(
+      `profiles.credits_balance did not persist (expected ${expectedBalance}, got ${persisted})`,
+    );
+    logDbError("profiles.credits_balance update did not persist", failure, {
+      userId,
+      expectedBalance,
+      persisted,
+    });
+    throw failure;
+  }
+
+  return persisted;
+}
+
+export async function commitSessionUpdate(
+  admin: SupabaseClient,
+  sessionId: string,
+  userId: string,
+  values: Record<string, unknown>,
+) {
+  const { data, error } = await admin
+    .from("translation_sessions")
+    .update(values)
+    .eq("id", sessionId)
+    .eq("user_id", userId)
+    .select("id");
+
+  if (error || !data || data.length !== 1) {
+    const failure =
+      error ??
+      new Error(
+        `translation_sessions update matched ${data?.length ?? 0} rows for session ${sessionId}`,
+      );
+    logDbError("translation_sessions update failed", failure, {
+      sessionId,
+      userId,
+    });
+    throw failure;
+  }
 }
 
 export async function insertCreditTransaction(
@@ -212,19 +379,106 @@ export async function insertCreditTransaction(
     type: string;
     description: string;
   },
-) {
-  if (params.amount === 0) return;
-  const { error } = await admin.from("credit_transactions").insert({
-    user_id: params.userId,
-    session_id: params.sessionId,
-    amount: params.amount,
-    balance_after: params.balanceAfter,
-    type: params.type,
-    description: params.description,
-  });
-  if (error) {
-    throw error;
+): Promise<string | null> {
+  if (params.amount === 0) return null;
+  const { data, error } = await admin
+    .from("credit_transactions")
+    .insert({
+      user_id: params.userId,
+      session_id: params.sessionId,
+      amount: params.amount,
+      balance_after: params.balanceAfter,
+      type: params.type,
+      description: params.description,
+    })
+    .select("id")
+    .single();
+
+  if (error || !data?.id) {
+    const failure =
+      error ?? new Error("credit_transactions insert returned no row");
+    logDbError("credit_transactions insert failed", failure, {
+      userId: params.userId,
+      sessionId: params.sessionId,
+      amount: params.amount,
+      balanceAfter: params.balanceAfter,
+    });
+    throw failure;
   }
+
+  return data.id as string;
+}
+
+export async function chargeSessionUsage(
+  admin: SupabaseClient,
+  params: {
+    userId: string;
+    sessionId: string;
+    mode: SessionMode;
+    phase: "heartbeat" | "stop";
+    chargeSeconds: number;
+    currentBalance: number;
+    priorTotalSeconds: number;
+    priorCreditsCharged: number;
+    sessionPatch: Record<string, unknown>;
+  },
+): Promise<{ charged: number; balance: number }> {
+  const charged = computeBillableCharge(
+    params.chargeSeconds,
+    params.currentBalance,
+  );
+  const patch = {
+    ...params.sessionPatch,
+    total_seconds: params.priorTotalSeconds + charged,
+    total_credits_charged: params.priorCreditsCharged + charged,
+  };
+
+  if (charged <= 0) {
+    await commitSessionUpdate(admin, params.sessionId, params.userId, patch);
+    return { charged: 0, balance: params.currentBalance };
+  }
+
+  const balance = await persistCreditsBalance(
+    admin,
+    params.userId,
+    params.currentBalance - charged,
+  );
+
+  let transactionId: string | null = null;
+  try {
+    transactionId = await insertCreditTransaction(admin, {
+      userId: params.userId,
+      sessionId: params.sessionId,
+      amount: -charged,
+      balanceAfter: balance,
+      type: "session_usage",
+      description: usageDescription(params.mode, params.phase),
+    });
+  } catch (err) {
+    await revertCreditsBalance(admin, params.userId, params.currentBalance);
+    throw err;
+  }
+
+  try {
+    await commitSessionUpdate(admin, params.sessionId, params.userId, patch);
+  } catch (err) {
+    if (transactionId) {
+      const { error: deleteError } = await admin
+        .from("credit_transactions")
+        .delete()
+        .eq("id", transactionId);
+      if (deleteError) {
+        logDbError("failed to roll back credit_transactions row", deleteError, {
+          transactionId,
+          sessionId: params.sessionId,
+        });
+      }
+    }
+    await revertCreditsBalance(admin, params.userId, params.currentBalance);
+    throw err;
+  }
+
+  return { charged, balance };
 }
 
 export type RealtimeProvider = "openai" | "qwen" | "doubao";

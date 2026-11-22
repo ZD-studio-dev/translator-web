@@ -2,14 +2,17 @@ import { NextResponse } from "next/server";
 import { getClientUserId } from "@/utils/api/client-auth";
 import {
   buildClientUserStatusFields,
+  chargeSessionUsage,
   CLIENT_PROFILE_SELECT,
-  computeBillableCharge,
+  commitSessionUpdate,
   elapsedSecondsSince,
   getSessionModeFromRow,
   GRACE_PERIOD_SEC,
-  insertCreditTransaction,
-  isUserPro,
+  logDbError,
   parseCredits,
+  readReportedSeconds,
+  readSessionId,
+  resolveBillableSeconds,
   type ProfileCreditsRow,
   type TranslationSessionRow,
 } from "@/utils/api/client-session";
@@ -17,6 +20,11 @@ import { createAdminClient } from "@/utils/supabase/admin";
 
 type StopBody = {
   session_id?: string;
+  sessionId?: string;
+  seconds?: number;
+  elapsed_seconds?: number;
+  billable_seconds?: number;
+  duration_seconds?: number;
 };
 
 export async function POST(request: Request) {
@@ -32,7 +40,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const sessionId = body.session_id?.trim();
+  const sessionId = readSessionId(body);
   if (!sessionId) {
     return NextResponse.json({ error: "Missing session_id" }, { status: 400 });
   }
@@ -47,7 +55,14 @@ export async function POST(request: Request) {
       .maybeSingle();
 
     if (sessionError) {
-      throw sessionError;
+      logDbError("stop session read failed", sessionError, {
+        userId: auth.userId,
+        sessionId,
+      });
+      return NextResponse.json(
+        { error: "Failed to read session" },
+        { status: 500 },
+      );
     }
 
     if (!session) {
@@ -56,6 +71,7 @@ export async function POST(request: Request) {
 
     const sessionRow = session as TranslationSessionRow;
     const mode = getSessionModeFromRow(sessionRow);
+    const reportedSeconds = readReportedSeconds(body);
 
     const { data: profile, error: profileError } = await admin
       .from("profiles")
@@ -63,23 +79,40 @@ export async function POST(request: Request) {
       .eq("id", auth.userId)
       .single();
 
-    if (profileError || !profile) {
+    if (profileError) {
+      logDbError("stop profile read failed", profileError, {
+        userId: auth.userId,
+        sessionId,
+      });
+      return NextResponse.json(
+        { error: "Failed to read profile" },
+        { status: 500 },
+      );
+    }
+
+    if (!profile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
 
     const profileRow = profile as ProfileCreditsRow;
-    const proActive = isUserPro(profileRow, admin);
-    let creditsBalance = parseCredits(profileRow.credits_balance);
-
+    const creditsBalance = parseCredits(profileRow.credits_balance);
     const withUserStatus = (balance: number) =>
       buildClientUserStatusFields(profileRow, { creditsBalance: balance });
 
     if (sessionRow.status !== "active") {
+      if (reportedSeconds !== null && reportedSeconds > 0) {
+        console.error("stop billing skipped because session is not active", {
+          userId: auth.userId,
+          sessionId,
+          status: sessionRow.status,
+          seconds: reportedSeconds,
+        });
+      }
       return NextResponse.json({
         session_id: sessionId,
         status: sessionRow.status,
-        total_credits_charged: sessionRow.total_credits_charged,
-        total_seconds: sessionRow.total_seconds,
+        total_credits_charged: parseCredits(sessionRow.total_credits_charged),
+        total_seconds: parseCredits(sessionRow.total_seconds),
         waived: false,
         charged: 0,
         charged_seconds: 0,
@@ -90,24 +123,19 @@ export async function POST(request: Request) {
     const now = new Date();
     const nowIso = now.toISOString();
     const totalDurationSec = elapsedSecondsSince(sessionRow.started_at, now);
+    const priorCharged = parseCredits(sessionRow.total_credits_charged);
+    const hasReportedUsage = reportedSeconds !== null && reportedSeconds > 0;
 
     if (
+      !hasReportedUsage &&
       totalDurationSec < GRACE_PERIOD_SEC &&
-      sessionRow.total_credits_charged === 0
+      priorCharged === 0
     ) {
-      const { error: completeError } = await admin
-        .from("translation_sessions")
-        .update({
-          status: "completed",
-          ended_at: nowIso,
-          total_seconds: totalDurationSec,
-        })
-        .eq("id", sessionId)
-        .eq("user_id", auth.userId);
-
-      if (completeError) {
-        throw completeError;
-      }
+      await commitSessionUpdate(admin, sessionId, auth.userId, {
+        status: "completed",
+        ended_at: nowIso,
+        total_seconds: totalDurationSec,
+      });
 
       return NextResponse.json({
         session_id: sessionId,
@@ -121,76 +149,41 @@ export async function POST(request: Request) {
       });
     }
 
-    const remainingSec = Math.max(
-      0,
+    const billableSeconds = resolveBillableSeconds(
+      reportedSeconds,
       elapsedSecondsSince(sessionRow.last_billed_at, now),
     );
-    const charge = computeBillableCharge(
-      proActive,
+    const result = await chargeSessionUsage(admin, {
+      userId: auth.userId,
+      sessionId,
       mode,
-      remainingSec,
-      creditsBalance,
-    );
-    const newBalance = creditsBalance - charge;
-    const totalCharged = sessionRow.total_credits_charged + charge;
-    const totalSeconds =
-      sessionRow.total_seconds + (remainingSec > 0 ? remainingSec : 0);
-
-    if (charge > 0) {
-      const { error: profileUpdateError } = await admin
-        .from("profiles")
-        .update({ credits_balance: newBalance })
-        .eq("id", auth.userId);
-
-      if (profileUpdateError) {
-        throw profileUpdateError;
-      }
-    }
-
-    const { error: sessionUpdateError } = await admin
-      .from("translation_sessions")
-      .update({
+      phase: "stop",
+      chargeSeconds: billableSeconds,
+      currentBalance: creditsBalance,
+      priorTotalSeconds: parseCredits(sessionRow.total_seconds),
+      priorCreditsCharged: priorCharged,
+      sessionPatch: {
         status: "completed",
         ended_at: nowIso,
         last_billed_at: nowIso,
-        total_seconds: totalSeconds,
-        total_credits_charged: totalCharged,
-      })
-      .eq("id", sessionId)
-      .eq("user_id", auth.userId);
-
-    if (sessionUpdateError) {
-      throw sessionUpdateError;
-    }
-
-    if (charge > 0) {
-      await insertCreditTransaction(admin, {
-        userId: auth.userId,
-        sessionId,
-        amount: -charge,
-        balanceAfter: newBalance,
-        type: "session_usage",
-        description:
-          mode === "s2s"
-            ? "S2S voice session (stop settlement)"
-            : "Session stop settlement",
-      });
-    }
-
-    const finalBalance = charge > 0 ? newBalance : creditsBalance;
+      },
+    });
 
     return NextResponse.json({
       session_id: sessionId,
       status: "completed",
       waived: false,
-      total_credits_charged: totalCharged,
-      total_seconds: totalSeconds,
-      charged: charge,
-      charged_seconds: charge,
-      ...withUserStatus(finalBalance),
+      total_credits_charged: priorCharged + result.charged,
+      total_seconds: parseCredits(sessionRow.total_seconds) + result.charged,
+      charged: result.charged,
+      charged_seconds: result.charged,
+      ...withUserStatus(result.balance),
     });
   } catch (err) {
-    console.error("POST /api/client/session/stop error:", err);
+    logDbError("POST /api/client/session/stop error", err, {
+      userId: auth.userId,
+      sessionId,
+    });
     return NextResponse.json(
       { error: "Failed to stop session" },
       { status: 500 },

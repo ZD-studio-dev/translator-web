@@ -2,23 +2,30 @@ import { NextResponse } from "next/server";
 import { getClientUserId } from "@/utils/api/client-auth";
 import {
   buildClientUserStatusFields,
+  chargeSessionUsage,
   CLIENT_PROFILE_SELECT,
   computeBillableCharge,
   elapsedSecondsSince,
   fetchActiveSession,
   getSessionModeFromRow,
   HEARTBEAT_MAX_ELAPSED_SEC,
-  insertCreditTransaction,
-  isUserPro,
+  logDbError,
   LOW_CREDITS_STOP_THRESHOLD,
   parseCredits,
+  readReportedSeconds,
+  readSessionId,
+  resolveBillableSeconds,
   type ProfileCreditsRow,
-  type TranslationSessionRow,
 } from "@/utils/api/client-session";
 import { createAdminClient } from "@/utils/supabase/admin";
 
 type HeartbeatBody = {
   session_id?: string;
+  sessionId?: string;
+  seconds?: number;
+  elapsed_seconds?: number;
+  billable_seconds?: number;
+  duration_seconds?: number;
 };
 
 export async function POST(request: Request) {
@@ -34,7 +41,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const sessionId = body.session_id?.trim();
+  const sessionId = readSessionId(body);
   if (!sessionId) {
     return NextResponse.json({ error: "Missing session_id" }, { status: 400 });
   }
@@ -42,8 +49,15 @@ export async function POST(request: Request) {
   try {
     const admin = createAdminClient();
     const session = await fetchActiveSession(admin, auth.userId, sessionId);
+    const reportedSeconds = readReportedSeconds(body);
 
     if (!session || session.status !== "active") {
+      console.error("heartbeat billing skipped: active session not found", {
+        userId: auth.userId,
+        sessionId,
+        status: session?.status ?? null,
+        seconds: reportedSeconds,
+      });
       return NextResponse.json(
         { error: "Active session not found" },
         { status: 404 },
@@ -56,96 +70,66 @@ export async function POST(request: Request) {
       .eq("id", auth.userId)
       .single();
 
-    if (profileError || !profile) {
+    if (profileError) {
+      logDbError("heartbeat profile read failed", profileError, {
+        userId: auth.userId,
+        sessionId,
+      });
+      return NextResponse.json(
+        { error: "Failed to read profile" },
+        { status: 500 },
+      );
+    }
+
+    if (!profile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
 
     const profileRow = profile as ProfileCreditsRow;
-    const proActive = isUserPro(profileRow, admin);
     const mode = getSessionModeFromRow(session);
-
     const now = new Date();
-    const nowIso = now.toISOString();
-    let creditsBalance = parseCredits(profileRow.credits_balance);
-
-    const elapsedRaw = elapsedSecondsSince(session.last_billed_at, now);
-    const elapsedSeconds = Math.min(elapsedRaw, HEARTBEAT_MAX_ELAPSED_SEC);
-    const charge = computeBillableCharge(
-      proActive,
-      mode,
-      elapsedSeconds,
-      creditsBalance,
+    const creditsBalance = parseCredits(profileRow.credits_balance);
+    const elapsedSeconds = Math.min(
+      elapsedSecondsSince(session.last_billed_at, now),
+      HEARTBEAT_MAX_ELAPSED_SEC,
     );
-    const newBalance = creditsBalance - charge;
+    const billableSeconds = Math.min(
+      resolveBillableSeconds(reportedSeconds, elapsedSeconds),
+      HEARTBEAT_MAX_ELAPSED_SEC,
+    );
+    const charge = computeBillableCharge(billableSeconds, creditsBalance);
+    const shouldStop =
+      charge > 0 && creditsBalance - charge < LOW_CREDITS_STOP_THRESHOLD;
 
-    if (charge > 0) {
-      const { error: profileUpdateError } = await admin
-        .from("profiles")
-        .update({ credits_balance: newBalance })
-        .eq("id", auth.userId);
-
-      if (profileUpdateError) {
-        throw profileUpdateError;
-      }
-    }
-
-    const sessionRow = session as TranslationSessionRow;
-    const { error: sessionUpdateError } = await admin
-      .from("translation_sessions")
-      .update({
-        last_billed_at: nowIso,
-        total_seconds: sessionRow.total_seconds + elapsedSeconds,
-        total_credits_charged: sessionRow.total_credits_charged + charge,
-      })
-      .eq("id", sessionId)
-      .eq("user_id", auth.userId);
-
-    if (sessionUpdateError) {
-      throw sessionUpdateError;
-    }
-
-    if (charge > 0) {
-      await insertCreditTransaction(admin, {
-        userId: auth.userId,
-        sessionId,
-        amount: -charge,
-        balanceAfter: newBalance,
-        type: "session_usage",
-        description:
-          mode === "s2s" ? "S2S voice session (heartbeat)" : "Session heartbeat",
-      });
-      creditsBalance = newBalance;
-    }
-
-    if (
-      charge > 0 &&
-      creditsBalance < LOW_CREDITS_STOP_THRESHOLD
-    ) {
-      await admin
-        .from("translation_sessions")
-        .update({ status: "terminated_no_credits" })
-        .eq("id", sessionId)
-        .eq("user_id", auth.userId);
-
-      return NextResponse.json({
-        should_stop: true,
-        charged: charge,
-        charged_seconds: charge,
-        message: "Out of credits",
-        ...buildClientUserStatusFields(profileRow, {
-          creditsBalance: Math.max(0, creditsBalance),
-        }),
-      });
-    }
+    const result = await chargeSessionUsage(admin, {
+      userId: auth.userId,
+      sessionId,
+      mode,
+      phase: "heartbeat",
+      chargeSeconds: billableSeconds,
+      currentBalance: creditsBalance,
+      priorTotalSeconds: parseCredits(session.total_seconds),
+      priorCreditsCharged: parseCredits(session.total_credits_charged),
+      sessionPatch: {
+        last_billed_at: now.toISOString(),
+        ...(shouldStop ? { status: "terminated_no_credits" } : {}),
+      },
+    });
 
     return NextResponse.json({
-      should_stop: false,
-      charged: charge,
-      charged_seconds: charge,
-      ...buildClientUserStatusFields(profileRow, { creditsBalance }),
+      should_stop: shouldStop,
+      charged: result.charged,
+      charged_seconds: result.charged,
+      ...(shouldStop ? { message: "Out of credits" } : {}),
+      ...buildClientUserStatusFields(profileRow, {
+        creditsBalance: result.balance,
+      }),
     });
   } catch (err) {
-    console.error("POST /api/client/session/heartbeat error:", err);
+    logDbError("POST /api/client/session/heartbeat error", err, {
+      userId: auth.userId,
+      sessionId,
+    });
     return NextResponse.json(
       { error: "Heartbeat processing failed" },
       { status: 500 },
