@@ -108,7 +108,7 @@ export function DashboardClient({
   }
 
   return (
-    <div className="min-h-full bg-[#F8FAFC] text-slate-900">
+    <div className="min-h-screen bg-white text-slate-900">
       <Suspense fallback={null}>
         <PaymentSuccessBanner />
       </Suspense>

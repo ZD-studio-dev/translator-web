@@ -23,7 +23,7 @@ export const legalContent: Record<
       pageTitle: "Terms of Service",
       lastUpdated: "Last updated: October 25, 2026",
       intro:
-        "These Terms of Service (“Terms”) govern your access to and use of the ZD Meeting Translator website, desktop application, and related services (collectively, the “Service”) operated by ZD Meeting Translator (“we,” “us,” or “our”). By creating an account, downloading our software, or using the Service, you agree to these Terms.",
+        "These Terms of Service (“Terms”) govern your access to and use of the Real-Time Translator website, desktop application, and related services (collectively, the “Service”) operated by Real-Time Translator (“we,” “us,” or “our”). By creating an account, downloading our software, or using the Service, you agree to these Terms.",
       sections: [
         {
           title: "1. Eligibility and Accounts",
@@ -35,7 +35,7 @@ export const legalContent: Record<
         {
           title: "2. Description of the Service",
           paragraphs: [
-            "ZD Meeting Translator provides real-time meeting voice interpretation and bilingual captions. Features may vary by plan (Free or Pro) and platform. We may modify, add, or remove features to improve performance, security, or compliance.",
+            "Real-Time Translator provides real-time meeting voice interpretation and bilingual captions. Features may vary by plan (Free or Pro) and platform. We may modify, add, or remove features to improve performance, security, or compliance.",
           ],
         },
         {
@@ -83,7 +83,7 @@ export const legalContent: Record<
         {
           title: "9. Limitation of Liability",
           paragraphs: [
-            "To the maximum extent permitted by law, ZD Meeting Translator and its affiliates shall not be liable for indirect, incidental, special, consequential, or punitive damages, or loss of profits, data, or goodwill arising from your use of the Service.",
+            "To the maximum extent permitted by law, Real-Time Translator and its affiliates shall not be liable for indirect, incidental, special, consequential, or punitive damages, or loss of profits, data, or goodwill arising from your use of the Service.",
             "Our aggregate liability for claims relating to the Service shall not exceed the greater of (a) amounts you paid us in the twelve months before the claim or (b) USD $50.",
           ],
         },
@@ -100,7 +100,7 @@ export const legalContent: Record<
       pageTitle: "Privacy Policy",
       lastUpdated: "Last updated: October 25, 2026",
       intro:
-        "This Privacy Policy explains how ZD Meeting Translator (“we,” “us,” or “our”) collects, uses, shares, and protects information when you use our website, desktop application, and related services (the “Service”).",
+        "This Privacy Policy explains how Real-Time Translator (“we,” “us,” or “our”) collects, uses, shares, and protects information when you use our website, desktop application, and related services (the “Service”).",
       sections: [
         {
           title: "1. Information We Collect",
@@ -168,7 +168,7 @@ export const legalContent: Record<
       pageTitle: "服务条款",
       lastUpdated: "最后更新：2026 年 10 月 25 日",
       intro:
-        "本服务条款（「条款」）规范您对 ZD Meeting Translator 网站、桌面应用程序及相关服务（统称「服务」）的访问与使用。创建账户、下载软件或使用服务，即表示您同意本条款。",
+        "本服务条款（「条款」）规范您对 Real-Time Translator 网站、桌面应用程序及相关服务（统称「服务」）的访问与使用。创建账户、下载软件或使用服务，即表示您同意本条款。",
       sections: [
         {
           title: "1. 资格与账户",
@@ -180,7 +180,7 @@ export const legalContent: Record<
         {
           title: "2. 服务说明",
           paragraphs: [
-            "ZD Meeting Translator 提供实时会议语音同传与双语字幕。功能因方案（免费版或 Pro 版）及平台而异。我们可为提升性能、安全或合规而调整、增加或移除功能。",
+            "Real-Time Translator 提供实时会议语音同传与双语字幕。功能因方案（免费版或 Pro 版）及平台而异。我们可为提升性能、安全或合规而调整、增加或移除功能。",
           ],
         },
         {
@@ -228,7 +228,7 @@ export const legalContent: Record<
         {
           title: "9. 责任限制",
           paragraphs: [
-            "在法律允许的最大范围内，ZD Meeting Translator 及其关联公司不对间接、附带、特殊、后果性或惩罚性损害，或利润、数据、商誉损失承担责任。",
+            "在法律允许的最大范围内，Real-Time Translator 及其关联公司不对间接、附带、特殊、后果性或惩罚性损害，或利润、数据、商誉损失承担责任。",
             "就与服务相关的索赔，我们的总责任不超过以下较高者：（a）索赔前十二个月您向我们支付的金额；或（b）50 美元。",
           ],
         },
@@ -245,7 +245,7 @@ export const legalContent: Record<
       pageTitle: "隐私政策",
       lastUpdated: "最后更新：2026 年 10 月 25 日",
       intro:
-        "本隐私政策说明 ZD Meeting Translator（「我们」）在您使用网站、桌面应用程序及相关服务（「服务」）时如何收集、使用、共享及保护信息。",
+        "本隐私政策说明 Real-Time Translator（「我们」）在您使用网站、桌面应用程序及相关服务（「服务」）时如何收集、使用、共享及保护信息。",
       sections: [
         {
           title: "1. 我们收集的信息",

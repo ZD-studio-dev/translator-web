@@ -5,8 +5,8 @@ import { LegalDocumentPage } from "@/components/legal-document-page";
 import { createClient } from "@/utils/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — ZD Meeting Translator",
-  description: "Privacy Policy for ZD Meeting Translator.",
+  title: "Privacy Policy — Real-Time Translator",
+  description: "Privacy Policy for Real-Time Translator.",
 };
 
 export default async function PrivacyPage() {
