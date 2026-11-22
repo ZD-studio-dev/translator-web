@@ -2,6 +2,7 @@ export const instant = false;
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { DashboardClient } from "@/app/dashboard/dashboard-client";
+import { desktopDownloadUrls } from "@/config/downloads";
 import { loadBillingProfile, resolveMembershipPlan } from "@/utils/membership-plan";
 import { createClient } from "@/utils/supabase/server";
 import { parseCreditsBalance } from "@/utils/credits";
@@ -38,14 +39,7 @@ export default async function DashboardPage() {
   const email = profile?.email ?? user.email ?? "Unknown";
   const creditsBalance = parseCreditsBalance(profile?.credits_balance);
   const membership = await resolveMembershipPlan(supabase, user.id, profile);
-  const winDownloadUrl =
-    process.env.NEXT_PUBLIC_WINDOWS_DOWNLOAD_URL?.trim() ||
-    process.env.NEXT_PUBLIC_WIN_DOWNLOAD_URL?.trim() ||
-    null;
-  const macDownloadUrl =
-    process.env.NEXT_PUBLIC_MACOS_DOWNLOAD_URL?.trim() ||
-    process.env.NEXT_PUBLIC_MAC_DOWNLOAD_URL?.trim() ||
-    null;
+  const { winDownloadUrl, macDownloadUrl } = desktopDownloadUrls();
 
   return (
     <DashboardClient

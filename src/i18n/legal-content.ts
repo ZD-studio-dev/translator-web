@@ -39,18 +39,18 @@ export const legalContent: Record<
           ],
         },
         {
-          title: "3. Subscriptions, Credit Packs, and Billing",
+          title: "3. Subscriptions, Extra Voice Time, and Billing",
           paragraphs: [
-            "Pro Monthly is a recurring membership billed through our authorized payment provider (Lemon Squeezy). Each billing cycle includes 7,200 credits (approximately 120 minutes of live AI voice interpretation at 1 credit = 1 second). Prices, billing cycles, and taxes are shown at checkout. By subscribing, you authorize us and our payment partner to charge your payment method until you cancel.",
-            "We also offer Pay-As-You-Go Credit Packs for one-time purchase. Pack credits are added to your account balance, are not tied to a subscription, and do not expire. Usage of live interpretation consumes credits at one credit per second of session time, as shown in your Dashboard.",
-            "You may manage or cancel Pro renewal through the billing portal linked from your Dashboard. Cancellation stops future subscription charges; Pro membership and any remaining credits typically continue until the end of the current paid period unless otherwise stated at checkout.",
+            "Pro membership is a recurring subscription billed through our authorized payment provider (Lemon Squeezy). Pro Monthly includes 7,200 seconds (120 minutes) of S2S voice time each month. Pro Quarterly includes 27,000 seconds (450 minutes) of S2S voice time each quarter. Prices, billing cycles, and taxes are shown at checkout. By subscribing, you authorize us and our payment partner to charge your payment method until you cancel.",
+            "We also offer extra voice time packs for one-time purchase. Pack time is added to your S2S voice time balance, is not tied to a subscription, and does not expire. Live voice interpretation (S2S) is billed at one second of balance per second of session time, as shown in your Dashboard.",
+            "You may manage or cancel Pro renewal through the billing portal linked from your Dashboard. Cancellation stops future subscription charges; Pro membership and any remaining voice time typically continue until the end of the current paid period unless otherwise stated at checkout.",
           ],
         },
         {
           title: "4. Refund Policy",
           paragraphs: [
-            "New accounts receive 600 free credits at registration so you can test live interpretation before paying. Real-time AI voice interpretation incurs immediate compute cost when used.",
-            `For any Pro subscription or Credit Pack purchase, refunds are not available once credits from that purchase have been partially or fully consumed. If, within 14 days of purchase, none of the credits from that purchase have been used (zero consumption), you may contact us at ${supportEmail} to request a full refund. We may verify usage via your account and credit transaction history.`,
+            "New accounts receive a free trial of S2S voice time (600 seconds, about 10 minutes) so you can test live interpretation before paying. Real-time AI voice interpretation incurs immediate compute cost when used.",
+            `For any Pro subscription or extra voice time pack, refunds are not available once voice time from that purchase has been partially or fully consumed. If, within 14 days of purchase, none of that voice time has been used (zero consumption), you may contact us at ${supportEmail} to request a full refund. We may verify usage via your account and voice-time history.`,
             `You may cancel upcoming Pro renewals at any time to avoid charges for the next billing cycle. Refund requests and billing questions: ${supportEmail}.`,
           ],
         },
@@ -184,18 +184,18 @@ export const legalContent: Record<
           ],
         },
         {
-          title: "3. 订阅、积分加油包与计费",
+          title: "3. 订阅、额外加时包与计费",
           paragraphs: [
-            "Pro 月度会员为周期性订阅，通过授权支付服务商 Lemon Squeezy 扣费。每个计费周期自动发放 7,200 积分（按 1 积分 = 1 秒实时同传，约 120 分钟）。价格、计费周期与税费以结账页展示为准。订阅即表示您授权我们及支付伙伴在您取消前向您的支付方式扣款。",
-            "我们还提供单次购买的积分加油包（Pay-As-You-Go Credit Packs）。加油包积分计入账户余额，不绑定订阅且永不过期。实时同传按会话时长以每秒 1 积分扣减，用量可在控制台查看。",
-            "您可通过控制台中的账单门户管理或取消 Pro 续费。取消后不再产生未来订阅扣款；Pro 权益及剩余积分通常保留至当前已付费周期结束，除非结账页另有说明。",
+            "Pro 会员为周期性订阅，通过授权支付服务商 Lemon Squeezy 扣费。Pro 月度会员每周期含 7,200 秒（120 分钟）S2S 语音时长；Pro 季度会员每周期含 27,000 秒（450 分钟）S2S 语音时长。价格、计费周期与税费以结账页展示为准。订阅即表示您授权我们及支付伙伴在您取消前向您的支付方式扣款。",
+            "我们还提供单次购买的额外加时包。加时包计入 S2S 语音时长余额，不绑定订阅且永不过期。实时语音同传（S2S）按会话时长以每秒 1 秒扣减，用量可在控制台查看。",
+            "您可通过控制台中的账单门户管理或取消 Pro 续费。取消后不再产生未来订阅扣款；Pro 权益及剩余语音时长通常保留至当前已付费周期结束，除非结账页另有说明。",
           ],
         },
         {
           title: "4. 退款政策",
           paragraphs: [
-            "注册即赠送 600 免费积分，供您在付费前测试实时同传。实时 AI 语音同传一经使用即产生即时算力成本。",
-            `对于 Pro 订阅或积分加油包：若该笔购买所得积分已被部分或全部消耗，不支持退款。若购买后 14 天内该笔积分完全未被使用（0 消耗），可联系 ${supportEmail} 申请全额退款；我们可能通过账户及积分流水核实使用情况。`,
+            "注册即赠送免费体验时长（S2S 语音时长 600 秒，约 10 分钟），供您在付费前测试实时同传。实时 AI 语音同传一经使用即产生即时算力成本。",
+            `对于 Pro 订阅或额外加时包：若该笔购买所得语音时长已被部分或全部消耗，不支持退款。若购买后 14 天内该笔时长完全未被使用（0 消耗），可联系 ${supportEmail} 申请全额退款；我们可能通过账户及时长流水核实使用情况。`,
             `您可随时取消 Pro 后续续费，以免被收取下一计费周期费用。退款申请与账单问题请联系：${supportEmail}。`,
           ],
         },
@@ -253,7 +253,7 @@ export const legalContent: Record<
             "账户信息：注册或登录（含 Google OAuth）时的电子邮箱、认证标识、订阅状态及资料偏好。",
             "使用与设备信息：应用版本、功能使用、性能日志、崩溃诊断及运营和安全所需的技术元数据。",
             "支付信息：订阅由 Lemon Squeezy 处理；我们接收账单状态与客户标识，不在服务器存储完整银行卡号。",
-            "翻译内容：您提交的文本、音频或屏幕区域用于生成翻译结果。我们最小化留存，除非您明确 opt-in，否则不使用私人翻译内容训练公开模型。",
+            "翻译内容：您提交的文本、音频或屏幕区域用于生成翻译结果。我们最小化留存，除非您明确选择加入，否则不使用私人翻译内容训练公开模型。",
           ],
         },
         {

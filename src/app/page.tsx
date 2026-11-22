@@ -2,6 +2,7 @@ export const instant = false;
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { HomePageClient } from "@/app/home-page-client";
+import { desktopDownloadUrls } from "@/config/downloads";
 import { loadBillingProfile, resolveMembershipPlan } from "@/utils/membership-plan";
 import { createClient } from "@/utils/supabase/server";
 
@@ -32,8 +33,10 @@ export default async function Home() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const downloads = desktopDownloadUrls();
+
   if (!user) {
-    return <HomePageClient userEmail={null} />;
+    return <HomePageClient userEmail={null} {...downloads} />;
   }
 
   const profile = await loadBillingProfile(supabase, user.id);
@@ -45,6 +48,7 @@ export default async function Home() {
       isPro={membership.isPro}
       planTier={membership.planTier}
       customerPortalUrl={profile?.customer_portal_url ?? null}
+      {...downloads}
     />
   );
 }

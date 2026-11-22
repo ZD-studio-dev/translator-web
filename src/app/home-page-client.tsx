@@ -18,6 +18,8 @@ type HomePageClientProps = {
   isPro?: boolean;
   planTier?: MembershipPlanTier;
   customerPortalUrl?: string | null;
+  winDownloadUrl?: string | null;
+  macDownloadUrl?: string | null;
 };
 
 function emailLocalPart(email: string): string {
@@ -169,13 +171,15 @@ function CapabilityCards({ zh }: { zh: boolean }) {
   );
 }
 
-const meetingApps = [
-  { name: "Zoom", logo: "/brands/zoom.svg" },
-  { name: "Google Meet", logo: "/brands/google-meet.svg" },
-  { name: "飞书会议", logo: "/brands/feishu.svg" },
-  { name: "腾讯会议", logo: "/brands/tencent-meeting.svg" },
-  { name: "Microsoft Teams", logo: "/brands/microsoft-teams.svg" },
-];
+function meetingAppsFor(zh: boolean) {
+  return [
+    { name: "Zoom", logo: "/brands/zoom.svg" },
+    { name: "Google Meet", logo: "/brands/google-meet.svg" },
+    { name: zh ? "飞书会议" : "Lark", logo: "/brands/feishu.svg" },
+    { name: zh ? "腾讯会议" : "Tencent Meeting", logo: "/brands/tencent-meeting.svg" },
+    { name: "Microsoft Teams", logo: "/brands/microsoft-teams.svg" },
+  ];
+}
 
 function InstallGuide({ zh }: { zh: boolean }) {
   const [activeId, setActiveId] = useState<"mac" | "windows">("mac");
@@ -297,6 +301,8 @@ export function HomePageClient({
   isPro = false,
   planTier = null,
   customerPortalUrl = null,
+  winDownloadUrl = null,
+  macDownloadUrl = null,
 }: HomePageClientProps) {
   const { locale, t } = useLanguage();
   const zh = locale === "zh";
@@ -366,11 +372,17 @@ export function HomePageClient({
                 ))}
               </ul>
               <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
-                <GetStartedButton className="inline-flex h-12 items-center justify-center gap-2.5 whitespace-nowrap rounded-xl bg-blue-600 px-6 text-sm font-bold text-white shadow-xl shadow-blue-300/45 transition hover:-translate-y-0.5 hover:bg-blue-700">
+                <GetStartedButton
+                  downloadUrl={macDownloadUrl}
+                  className="inline-flex h-12 items-center justify-center gap-2.5 whitespace-nowrap rounded-xl bg-blue-600 px-6 text-sm font-bold text-white shadow-xl shadow-blue-300/45 transition hover:-translate-y-0.5 hover:bg-blue-700"
+                >
                   <Image src="/ui-icons/apple-white.svg" alt="" width={20} height={20} className="h-5 w-5" />
                   <span className="whitespace-nowrap">{zh ? "下载 macOS 版" : "Download for macOS"}</span>
                 </GetStartedButton>
-                <GetStartedButton className="inline-flex h-12 items-center justify-center gap-2.5 whitespace-nowrap rounded-xl border border-blue-300 bg-white/90 px-6 text-sm font-bold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-500 hover:bg-white">
+                <GetStartedButton
+                  downloadUrl={winDownloadUrl}
+                  className="inline-flex h-12 items-center justify-center gap-2.5 whitespace-nowrap rounded-xl border border-blue-300 bg-white/90 px-6 text-sm font-bold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-500 hover:bg-white"
+                >
                   <Image src="/ui-icons/windows-blue.svg" alt="" width={20} height={20} className="h-5 w-5" />
                   <span className="whitespace-nowrap">{zh ? "下载 Windows 版" : "Download for Windows"}</span>
                 </GetStartedButton>
@@ -391,7 +403,7 @@ export function HomePageClient({
             <h2 className="text-2xl font-black tracking-tight text-slate-950 sm:text-[28px]">{zh ? "支持常用会议软件" : "Works with the meeting apps you use"}</h2>
             <p className="mx-auto mt-1.5 max-w-2xl text-sm leading-6 text-slate-500">{zh ? "不改变你熟悉的会议方式，在常用软件中直接使用。" : "Keep your existing meeting workflow and start translating immediately."}</p>
             <div className="mt-5 grid grid-cols-2 gap-2.5 md:grid-cols-5">
-              {meetingApps.map((app) => (
+              {meetingAppsFor(zh).map((app) => (
                 <div key={app.name} className="flex h-[58px] items-center justify-center gap-2.5 rounded-[11px] border border-slate-200 bg-white px-3 shadow-[0_2px_6px_rgba(15,23,42,0.08)] transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md">
                   <Image src={app.logo} alt="" width={30} height={30} className="h-[30px] w-[30px] shrink-0 object-contain" />
                   <span className="whitespace-nowrap text-xs font-bold text-slate-800 sm:text-[13px]">{app.name}</span>

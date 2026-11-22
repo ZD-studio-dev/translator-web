@@ -48,10 +48,14 @@ function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [googleLoading, setGoogleLoading] = useState(false);
   const [emailLoading, setEmailLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const downloadNotice = searchParams.get("notice") === "download";
 
   useEffect(() => {
     setGoogleLoading(false);
@@ -85,6 +89,7 @@ function LoginForm() {
   async function handleEmailSignIn(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setMessage(null);
     setEmailLoading(true);
     try {
       const supabase = createClient();
@@ -106,9 +111,43 @@ function LoginForm() {
     }
   }
 
+  async function handleForgotPassword() {
+    setError(null);
+    setMessage(null);
+    const trimmed = email.trim();
+    if (!trimmed) {
+      setError(l.forgotEmailRequired);
+      return;
+    }
+    setResetLoading(true);
+    try {
+      const supabase = createClient();
+      const redirectTo = new URL("/auth/callback", window.location.origin);
+      redirectTo.searchParams.set("next", "/reset-password");
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+        trimmed,
+        { redirectTo: redirectTo.toString() },
+      );
+      if (resetError) {
+        setError(resetError.message);
+        return;
+      }
+      setMessage(l.resetEmailSent);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : l.signInFailed);
+    } finally {
+      setResetLoading(false);
+    }
+  }
+
   async function handleEmailSignUp(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setMessage(null);
+    if (password !== confirmPassword) {
+      setError(l.passwordMismatch);
+      return;
+    }
     setEmailLoading(true);
     try {
       const supabase = createClient();
@@ -155,10 +194,27 @@ function LoginForm() {
         </Link>
 
         <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 shadow-lg">
+          {downloadNotice ? (
+            <p
+              className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-center text-sm text-blue-800"
+              role="status"
+            >
+              {l.downloadAfterSignIn}
+            </p>
+          ) : null}
           <h1 className="text-center text-xl font-semibold text-slate-900">
-            {l.title}
+            {mode === "signup" ? l.signupTitle : l.title}
           </h1>
           <p className="mt-2 text-center text-sm text-slate-600">{l.subtitle}</p>
+
+          {message ? (
+            <p
+              className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-center text-sm text-emerald-800"
+              role="status"
+            >
+              {message}
+            </p>
+          ) : null}
 
           {error ? (
             <p
@@ -212,12 +268,24 @@ function LoginForm() {
               />
             </div>
             <div>
-              <label
-                htmlFor="password"
-                className="block text-xs font-medium text-slate-600"
-              >
-                {l.password}
-              </label>
+              <div className="flex items-center justify-between gap-3">
+                <label
+                  htmlFor="password"
+                  className="block text-xs font-medium text-slate-600"
+                >
+                  {l.password}
+                </label>
+                {mode === "signin" ? (
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    disabled={emailLoading || googleLoading || resetLoading}
+                    className="text-xs font-medium text-[#2563EB] hover:text-[#1D4ED8] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {resetLoading ? l.sendingReset : l.forgotPassword}
+                  </button>
+                ) : null}
+              </div>
               <input
                 id="password"
                 type="password"
@@ -233,6 +301,28 @@ function LoginForm() {
                 className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#2563EB] disabled:opacity-60"
               />
             </div>
+            {mode === "signup" ? (
+              <div>
+                <label
+                  htmlFor="confirm-password"
+                  className="block text-xs font-medium text-slate-600"
+                >
+                  {l.confirmPassword}
+                </label>
+                <input
+                  id="confirm-password"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={6}
+                  disabled={emailLoading || googleLoading}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#2563EB] disabled:opacity-60"
+                />
+              </div>
+            ) : null}
             <div className="flex gap-2">
               <button
                 type="submit"
@@ -251,6 +341,8 @@ function LoginForm() {
                 onClick={() => {
                   setMode(mode === "signin" ? "signup" : "signin");
                   setError(null);
+                  setMessage(null);
+                  setConfirmPassword("");
                 }}
                 className="flex h-11 flex-1 items-center justify-center rounded-lg border border-slate-300 bg-white text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
