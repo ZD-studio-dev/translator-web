@@ -6,17 +6,25 @@ import { FaqPageClient } from "@/app/faq/faq-page-client";
 import { createClient } from "@/utils/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Frequently Asked Questions — Real-Time Translator",
+  title: "Help Center & FAQ — Real-Time Translator",
   description:
-    "Answers about Real-Time Translator accounts, subscriptions, and meeting setup.",
+    "Setup guides and answers for Real-Time Translator on macOS, Windows, accounts, billing, and audio troubleshooting.",
 };
 
 export default async function FaqPage() {
   await connection();
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let userEmail: string | null = null;
 
-  return <FaqPageClient userEmail={user?.email ?? null} />;
+  if (
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    userEmail = user?.email ?? null;
+  }
+
+  return <FaqPageClient userEmail={userEmail} />;
 }

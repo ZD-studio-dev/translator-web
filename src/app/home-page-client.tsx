@@ -379,7 +379,7 @@ export function HomePageClient({
             <a href="#core" className="transition hover:text-blue-600">{zh ? "核心能力" : "Core"}</a>
             <a href="#install" className="transition hover:text-blue-600">{zh ? "安装指南" : "Setup"}</a>
             <a href="#pricing-section" className="transition hover:text-blue-600">{zh ? "订阅付费" : "Pricing"}</a>
-            <Link href="/faq" className="transition hover:text-blue-600">{zh ? "常见问题" : "FAQ"}</Link>
+            <Link href="/faq" className="transition hover:text-blue-600">{zh ? "帮助中心" : "Help Center"}</Link>
           </nav>
           <div className="flex items-center gap-2 sm:gap-3">
             <LanguageToggle />
