@@ -579,50 +579,135 @@ async function issueOpenAiCredentials(
   };
 }
 
+const DASHSCOPE_KEY_COOLDOWN_MS = 30 * 60 * 1000;
+const dashscopeKeyCooldownUntil = new Map<string, number>();
+
+const DASHSCOPE_FAILOVER_STATUS = new Set([400, 401, 402, 403, 429]);
+const DASHSCOPE_FAILOVER_TEXT =
+  /Arrearage|Quota|FreeTierOnly|Insufficient|Throttling/i;
+
+type DashScopeTokenPayload = {
+  token?: string;
+  code?: string;
+  message?: string;
+};
+
+/** `DASHSCOPE_API_KEYS` first, then a single `DASHSCOPE_API_KEY` if it is not already listed. */
+function readDashscopeApiKeys(): string[] {
+  const seen = new Set<string>();
+  const keys: string[] = [];
+  const push = (value: string) => {
+    const key = value.trim();
+    if (!key || seen.has(key) || !isUsableApiKey(key)) return;
+    seen.add(key);
+    keys.push(key);
+  };
+
+  for (const part of (process.env.DASHSCOPE_API_KEYS ?? "").split(",")) {
+    push(part);
+  }
+  push(process.env.DASHSCOPE_API_KEY ?? "");
+  return keys;
+}
+
+function dashscopeKeyCoolingDown(key: string): boolean {
+  const until = dashscopeKeyCooldownUntil.get(key);
+  if (!until) return false;
+  if (Date.now() >= until) {
+    dashscopeKeyCooldownUntil.delete(key);
+    return false;
+  }
+  return true;
+}
+
+function coolDownDashscopeKey(key: string) {
+  dashscopeKeyCooldownUntil.set(key, Date.now() + DASHSCOPE_KEY_COOLDOWN_MS);
+}
+
+function isDashscopeFailoverFailure(status: number, detail: string): boolean {
+  return DASHSCOPE_FAILOVER_STATUS.has(status) || DASHSCOPE_FAILOVER_TEXT.test(detail);
+}
+
+function readDashscopePayload(raw: string): DashScopeTokenPayload {
+  if (!raw) return {};
+  try {
+    return JSON.parse(raw) as DashScopeTokenPayload;
+  } catch {
+    return { message: raw.slice(0, 180) };
+  }
+}
+
 async function issueQwenCredentials(
   _sessionId: string,
 ): Promise<EphemeralCredentials> {
-  const apiKey = process.env.DASHSCOPE_API_KEY?.trim();
-  if (!isUsableApiKey(apiKey)) {
-    throw new EphemeralCredentialsError("DASHSCOPE_API_KEY is not configured");
+  const keys = readDashscopeApiKeys();
+  if (keys.length === 0) {
+    throw new EphemeralCredentialsError(
+      "DASHSCOPE_API_KEY is not configured",
+    );
   }
 
-  try {
-    const res = await fetch(DASHSCOPE_TOKENS_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-      },
-    });
+  const failures: string[] = [];
+  let attempted = 0;
 
-    if (res.ok) {
-      const data = (await res.json()) as {
-        token?: string;
-        code?: string;
-        message?: string;
-      };
+  for (let index = 0; index < keys.length; index += 1) {
+    const apiKey = keys[index];
+    const keyNumber = index + 1;
+    if (dashscopeKeyCoolingDown(apiKey)) {
+      console.warn(`[dashscope] skipping key #${keyNumber} during cooldown`);
+      failures.push(`key #${keyNumber} cooling down`);
+      continue;
+    }
 
-      if (data.token) {
+    attempted += 1;
+    try {
+      const res = await fetch(DASHSCOPE_TOKENS_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+        },
+      });
+      const payload = readDashscopePayload(await res.text());
+      const detail = `${payload.code ?? ""} ${payload.message ?? ""}`.trim();
+
+      if (res.ok && payload.token) {
+        console.info(`[dashscope] using key #${keyNumber}`);
         return {
           ws_url: QWEN_WS_URL,
-          ephemeral_token: data.token,
+          ephemeral_token: payload.token,
         };
       }
-      console.error(
-        "DashScope token missing in response:",
-        data.code ?? data.message,
+
+      const failover = isDashscopeFailoverFailure(res.status, detail);
+      if (failover) {
+        coolDownDashscopeKey(apiKey);
+        console.warn(
+          `[dashscope] key #${keyNumber} unavailable, trying next`,
+          { status: res.status, code: payload.code, message: payload.message },
+        );
+      } else {
+        console.error(`[dashscope] key #${keyNumber} token request failed`, {
+          status: res.status,
+          code: payload.code,
+          message: payload.message,
+        });
+      }
+      failures.push(
+        `key #${keyNumber} HTTP ${res.status}${payload.code ? ` ${payload.code}` : ""}`,
       );
-    } else {
-      console.error("DashScope token error:", await res.text());
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "request failed";
+      console.error(`[dashscope] key #${keyNumber} request error:`, message);
+      failures.push(`key #${keyNumber} ${message}`);
     }
-  } catch (err) {
-    console.error("DashScope token error:", err);
   }
 
-  return {
-    ws_url: QWEN_WS_URL,
-    ephemeral_token: apiKey,
-  };
+  const summary = failures.join("; ") || "no key attempted";
+  throw new EphemeralCredentialsError(
+    attempted === 0
+      ? `All DashScope API keys are cooling down (${summary})`
+      : `All DashScope API keys failed to issue a token (${summary})`,
+  );
 }
 
 function issueDoubaoCredentials(sessionId: string): EphemeralCredentials {
