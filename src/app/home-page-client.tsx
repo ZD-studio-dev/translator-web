@@ -126,22 +126,25 @@ function CapabilityCards({ zh }: { zh: boolean }) {
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg shadow-blue-200">
             <Image src="/ui-icons/speaker-white.svg" alt="" width={24} height={24} className="h-6 w-6" />
           </span>
-          <h3 className="text-lg font-black text-slate-950">
+          <h3 className="text-base font-black leading-6 text-slate-950 sm:text-lg">
             {zh ? "你说中文，对方只听到目标语言" : "Speak your language, they hear theirs"}
           </h3>
         </div>
         <div className="mt-4 rounded-2xl bg-blue-50/80 px-4 pb-2 pt-3">
-          <div className="flex items-center justify-center gap-3">
-            <span className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-800 shadow-sm">
-              <Image src="/ui-icons/mic-blue.svg" alt="" width={20} height={20} className="h-5 w-5" />{zh ? "中文" : "Your language"}
+          <div className="grid grid-cols-[minmax(0,1fr)_14px_minmax(0,1.12fr)_14px_minmax(0,1fr)] items-center gap-1 sm:grid-cols-[auto_auto_auto_auto_auto] sm:justify-center sm:gap-3">
+            <span className="flex min-w-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-white px-2 py-2 text-xs font-bold text-slate-800 shadow-sm sm:gap-2 sm:px-4 sm:text-sm">
+              <Image src="/ui-icons/mic-blue.svg" alt="" width={20} height={20} className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
+              <span>{zh ? "中文" : <><span className="sm:hidden">You</span><span className="hidden sm:inline">Your language</span></>}</span>
             </span>
-            <span className="text-xl text-blue-500">→</span>
-            <span className="flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-500 to-violet-600 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-blue-200">
-              <AudioLines className="h-4 w-4" />{zh ? "实时翻译" : "Live translation"}
+            <span className="text-center text-base text-blue-500 sm:text-xl">→</span>
+            <span className="flex min-w-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-gradient-to-r from-blue-500 to-violet-600 px-2 py-2 text-xs font-bold text-white shadow-lg shadow-blue-200 sm:gap-2 sm:px-4 sm:text-sm">
+              <AudioLines className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
+              <span>{zh ? "实时翻译" : <><span className="sm:hidden">Live</span><span className="hidden sm:inline">Live translation</span></>}</span>
             </span>
-            <span className="text-xl text-violet-500">→</span>
-            <span className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-800 shadow-sm">
-              <Image src="/ui-icons/speaker-blue.svg" alt="" width={20} height={20} className="h-5 w-5" />{zh ? "English" : "Target language"}
+            <span className="text-center text-base text-violet-500 sm:text-xl">→</span>
+            <span className="flex min-w-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-white px-2 py-2 text-xs font-bold text-slate-800 shadow-sm sm:gap-2 sm:px-4 sm:text-sm">
+              <Image src="/ui-icons/speaker-blue.svg" alt="" width={20} height={20} className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
+              <span>{zh ? "English" : <><span className="sm:hidden">Target</span><span className="hidden sm:inline">Target language</span></>}</span>
             </span>
           </div>
           <Image src="/ui-icons/waveform-gradient.svg" alt="" width={420} height={54} className="mx-auto mt-1 h-9 w-[88%]" />
@@ -153,16 +156,16 @@ function CapabilityCards({ zh }: { zh: boolean }) {
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 shadow-lg shadow-violet-200">
             <Image src="/ui-icons/captions-white.svg" alt="" width={24} height={24} className="h-6 w-6" />
           </span>
-          <h3 className="text-lg font-black text-slate-950">{zh ? "对方边说，双语字幕边出现" : "They speak, bilingual captions appear"}</h3>
+          <h3 className="text-base font-black leading-6 text-slate-950 sm:text-lg">{zh ? "对方边说，双语字幕边出现" : "They speak, bilingual captions appear"}</h3>
         </div>
         <div className="mt-4 space-y-2 rounded-2xl bg-blue-50/65 p-3">
-          <div className="flex items-center gap-3 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm">
-            <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-black text-blue-600">EN</span>
-            <span>The design is ready, and we can move to the testing phase next.</span>
+          <div className="grid grid-cols-[42px_minmax(0,1fr)] items-start gap-3 rounded-xl bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 shadow-sm sm:px-4">
+            <span className="mt-0.5 flex h-7 items-center justify-center rounded-full bg-blue-50 px-2 text-xs font-black text-blue-600">EN</span>
+            <span className="min-w-0 leading-6">The design is ready, and we can move to the testing phase next.</span>
           </div>
-          <div className="flex items-center gap-3 rounded-xl bg-blue-100/60 px-4 py-2.5 text-sm font-semibold text-slate-800">
-            <span className="rounded-full bg-white px-2.5 py-1 text-xs font-black text-slate-800">中</span>
-            <span>设计已经完成，我们可以进入测试阶段了。</span>
+          <div className="grid grid-cols-[42px_minmax(0,1fr)] items-start gap-3 rounded-xl bg-blue-100/60 px-3 py-2.5 text-sm font-semibold text-slate-800 sm:px-4">
+            <span className="mt-0.5 flex h-7 items-center justify-center rounded-full bg-white px-2 text-xs font-black text-slate-800">中</span>
+            <span className="min-w-0 leading-6">设计已经完成，我们可以进入测试阶段了。</span>
           </div>
         </div>
       </article>
@@ -304,40 +307,45 @@ function InstallGuide({ zh }: { zh: boolean }) {
           <article className="grid gap-5 rounded-2xl border border-blue-200 bg-blue-50/55 p-4 shadow-sm lg:grid-cols-[1.36fr_.64fr] lg:px-6">
             <div className="min-w-0">
               <p className="text-sm font-black text-slate-950">{guide.title}</p>
-              <div className="mt-3 grid grid-cols-[1fr_24px_1fr_62px_76px] items-center gap-2">
+              <div className="mt-3 grid grid-cols-[minmax(0,1fr)_20px_minmax(0,1fr)] items-center gap-2 sm:grid-cols-[1fr_24px_1fr_62px_76px]">
                 <div className="space-y-2">
-                  <div className="flex h-[58px] items-center gap-2 rounded-xl bg-white px-3 shadow-sm">
+                  <div className="flex h-[64px] min-w-0 items-center gap-2 rounded-xl bg-white px-2.5 shadow-sm sm:h-[58px] sm:px-3">
                     <Image src="/ui-icons/laptop-blue.svg" alt="" width={24} height={24} className="h-6 w-6 shrink-0" />
-                    <div><p className="text-xs font-black text-slate-800">{zh ? "会议声音" : "Meeting audio"}</p><p className="mt-0.5 text-[10px] text-slate-500">{zh ? "（对方说话）" : "The other speaker"}</p></div>
+                    <div className="min-w-0"><p className="text-xs font-black leading-4 text-slate-800">{zh ? "会议声音" : "Meeting audio"}</p><p className="mt-0.5 text-[10px] leading-4 text-slate-500">{zh ? "（对方说话）" : "The other speaker"}</p></div>
                   </div>
-                  <div className="flex h-[58px] items-center gap-2 rounded-xl bg-white px-3 shadow-sm">
+                  <div className="flex h-[64px] min-w-0 items-center gap-2 rounded-xl bg-white px-2.5 shadow-sm sm:h-[58px] sm:px-3">
                     <Image src="/ui-icons/mic-blue.svg" alt="" width={24} height={24} className="h-6 w-6 shrink-0" />
-                    <div><p className="text-xs font-black text-slate-800">{zh ? "翻译后的语音输出" : "Translated voice output"}</p><p className="mt-0.5 text-[10px] text-slate-500">{zh ? "（目标语言）" : "(Target language)"}</p></div>
+                    <div className="min-w-0"><p className="text-xs font-black leading-4 text-slate-800">{zh ? "翻译后的语音输出" : "Translated voice output"}</p><p className="mt-0.5 text-[10px] leading-4 text-slate-500">{zh ? "（目标语言）" : "(Target language)"}</p></div>
                   </div>
                 </div>
-                <div className="space-y-[42px] text-center text-xl text-blue-500"><div>→</div><div>→</div></div>
+                <div className="space-y-[46px] text-center text-lg text-blue-500 sm:space-y-[42px] sm:text-xl"><div>→</div><div>→</div></div>
                 <div className="space-y-2">
-                  <div className="flex h-[58px] flex-col items-center justify-center rounded-full bg-blue-100/80 px-3 text-center">
-                    <p className="text-xs font-black text-slate-800">{guide.input}</p><p className="mt-0.5 text-[9px] text-slate-500">（{guide.inputNote}）</p>
+                  <div className="flex h-[64px] min-w-0 flex-col items-center justify-center rounded-2xl bg-blue-100/80 px-2 text-center sm:h-[58px] sm:rounded-full sm:px-3">
+                    <p className="text-xs font-black leading-4 text-slate-800">{guide.input}</p><p className="mt-0.5 text-[9px] leading-3 text-slate-500">（{guide.inputNote}）</p>
                   </div>
-                  <div className="flex h-[58px] flex-col items-center justify-center rounded-full bg-violet-100/70 px-3 text-center">
-                    <p className="text-xs font-black text-slate-800">{guide.output}</p><p className="mt-0.5 text-[9px] text-slate-500">（{guide.outputNote}）</p>
+                  <div className="flex h-[64px] min-w-0 flex-col items-center justify-center rounded-2xl bg-violet-100/70 px-2 text-center sm:h-[58px] sm:rounded-full sm:px-3">
+                    <p className="text-xs font-black leading-4 text-slate-800">{guide.output}</p><p className="mt-0.5 text-[9px] leading-3 text-slate-500">（{guide.outputNote}）</p>
                   </div>
                 </div>
-                <Image src="/ui-icons/audio-route-merge.svg" alt="" width={62} height={86} />
-                <div className="flex flex-col items-center justify-center text-center">
+                <Image src="/ui-icons/audio-route-merge.svg" alt="" width={62} height={86} className="hidden sm:block" />
+                <div className="hidden flex-col items-center justify-center text-center sm:flex">
                   <BrandMark compact />
-                  <p className="mt-1 text-[10px] font-black leading-3 text-slate-900">ZD Meeting<br />Translator</p>
+                  <p className="mt-1 text-[10px] font-black leading-3 text-slate-900">Real-Time<br />Translator</p>
                 </div>
               </div>
+              <div className="mt-3 flex items-center justify-center gap-2 text-xs font-bold text-slate-700 sm:hidden">
+                <span className="text-lg text-blue-500">→</span>
+                <BrandMark compact />
+                <span>Real-Time Translator</span>
+              </div>
             </div>
-            <div className="border-blue-200 lg:border-l lg:pl-5">
+            <div className="border-t border-blue-200 pt-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
               <p className="text-sm font-black text-slate-950">{zh ? `安装步骤（${guide.name}）` : `Setup steps (${guide.name})`}</p>
               <ol className="mt-3 grid gap-2">
                 {guide.steps.map((step, index) => (
-                  <li key={index} className="flex gap-2 text-[11px] leading-4 text-slate-600">
+                  <li key={index} className="flex gap-2 text-sm leading-6 text-slate-600 lg:text-[11px] lg:leading-4">
                     <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">{index + 1}</span>
-                    {step}
+                    <span className="min-w-0">{step}</span>
                   </li>
                 ))}
               </ol>
@@ -468,7 +476,7 @@ export function HomePageClient({
         <section id="install" className="scroll-mt-24 px-5 pb-3 pt-8 sm:px-6 sm:pb-4 sm:pt-10">
           <div className="mx-auto max-w-5xl">
             <div className="text-center">
-              <h2 className="text-3xl font-black tracking-tight text-slate-950">macOS / Windows {zh ? "安装指南" : "Setup Guide"}</h2>
+              <h2 className="text-xl font-black tracking-tight text-slate-950 sm:text-3xl">macOS / Windows {zh ? "安装指南" : "Setup Guide"}</h2>
             </div>
             <InstallGuide zh={zh} />
           </div>
