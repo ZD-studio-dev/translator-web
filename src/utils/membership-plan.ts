@@ -89,7 +89,8 @@ async function inferLegacyPlanTier(
     .limit(1)
     .maybeSingle();
 
-  if (Number(grant?.amount) === PRO_QUARTERLY_VOICE_SECONDS) {
+  const quarterlyGrants = new Set([PRO_QUARTERLY_VOICE_SECONDS, 27000]);
+  if (quarterlyGrants.has(Number(grant?.amount))) {
     return "pro_quarterly";
   }
   return "pro_monthly";

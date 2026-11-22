@@ -10,6 +10,7 @@ import {
   PACK_USD,
   packPerMinuteUsd,
   PRICING_USD,
+  PRO_MONTHLY_COMPARE_AT_USD,
   PRO_QUARTERLY_COMPARE_AT_USD,
   type CheckoutPackId,
   type CheckoutPlan,
@@ -191,6 +192,11 @@ export function PricingSection({
                 <Clock3 className="h-5 w-5 text-blue-600" />
               </div>
               <p className="mt-4 text-lg font-black text-slate-950">{p.membership.proMonthly.name}</p>
+              <p className="mt-1 text-sm text-slate-400">
+                <span className="line-through decoration-slate-400 decoration-2">
+                  {formatUsd(PRO_MONTHLY_COMPARE_AT_USD)}
+                </span>
+              </p>
               <p className="mt-1 text-4xl font-black tracking-tight text-slate-950">
                 {formatUsd(PRICING_USD.proMonthly)}
                 <span className="ml-1 text-sm font-semibold text-slate-400">{c.perMonth}</span>
@@ -198,7 +204,6 @@ export function PricingSection({
               <p className="mt-4 rounded-xl bg-emerald-50 px-3 py-2.5 text-xs font-bold leading-5 text-emerald-700">
                 {p.membership.proMonthly.highlight}
               </p>
-              <p className="mt-2 text-xs leading-5 text-slate-500">{p.membership.proMonthly.s2sLine}</p>
               <ul className="mt-4 flex-1 space-y-2.5 text-[13px] leading-5 text-slate-600">
                 {p.membership.proMonthly.benefits.map((line) => (
                   <li key={line} className="flex gap-2.5">
@@ -242,7 +247,6 @@ export function PricingSection({
               <p className="mt-3 rounded-xl bg-violet-50 px-3 py-2.5 text-xs font-bold leading-5 text-violet-700">
                 {p.membership.proQuarterly.highlight}
               </p>
-              <p className="mt-2 text-xs leading-5 text-slate-500">{p.membership.proQuarterly.s2sLine}</p>
               <ul className="mt-4 flex-1 space-y-2.5 text-[13px] leading-5 text-slate-600">
                 {p.membership.proQuarterly.benefits.map((line) => (
                   <li key={line} className="flex gap-2.5">

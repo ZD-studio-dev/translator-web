@@ -12,7 +12,7 @@ import { createClient } from "@/utils/supabase/server";
 export const metadata: Metadata = {
   title: "Pricing — Real-Time Translator",
   description:
-    "Membership plans and pay-as-you-go voice-time packs for real-time AI voice translation.",
+    "Membership and extra translation time for real-time subtitles and voice interpretation.",
 };
 
 function emailLocalPart(email: string): string {

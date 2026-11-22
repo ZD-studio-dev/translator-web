@@ -349,7 +349,7 @@ async function handleSubscriptionPaymentSuccess(
   );
 
   const label = isQuarterly ? "Pro Quarterly" : "Pro Monthly";
-  const description = `${label} voice time grant - Invoice #${invoiceId}`;
+  const description = `${label} meeting time grant - Invoice #${invoiceId}`;
 
   await saveCustomerPortalUrl(userId, readCustomerPortalUrl(attributes));
 

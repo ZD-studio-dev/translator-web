@@ -39,18 +39,18 @@ export const legalContent: Record<
           ],
         },
         {
-          title: "3. Subscriptions, Extra Voice Time, and Billing",
+          title: "3. Subscriptions, Extra Time, and Billing",
           paragraphs: [
-            "Pro membership is a recurring subscription billed through our authorized payment provider (Lemon Squeezy). Pro Monthly includes 7,200 seconds (120 minutes) of S2S voice time each month. Pro Quarterly includes 27,000 seconds (450 minutes) of S2S voice time each quarter. Unlimited S2T subtitles for Pro members follow a Fair Use Policy for ordinary personal meetings. Prices, billing cycles, and taxes are shown at checkout. By subscribing, you authorize us and our payment partner to charge your payment method until you cancel.",
-            "We also offer extra voice time packs for one-time purchase. Pack time is added to your S2S voice time balance, is not tied to a subscription, and does not expire. Live voice interpretation (S2S) is billed at one second of balance per second of session time, as shown in your Dashboard.",
-            "You may manage or cancel Pro renewal through the billing portal linked from your Dashboard. Cancellation stops future subscription charges; Pro membership and any remaining voice time typically continue until the end of the current paid period unless otherwise stated at checkout.",
+            "Pro membership is a recurring subscription billed through our authorized payment provider (Lemon Squeezy). Pro Monthly includes 21,600 seconds (360 minutes) of meeting translation time each month. Pro Quarterly includes 64,800 seconds (1,080 minutes) of meeting translation time each quarter. Real-time subtitles (S2T) and voice interpretation (S2S) share this balance and are billed per second. Prices, billing cycles, and taxes are shown at checkout. By subscribing, you authorize us and our payment partner to charge your payment method until you cancel.",
+            "We also offer extra time packs for one-time purchase. Pack time is added to the same shared balance, is not tied to a subscription, and does not expire. Subtitles and voice are each billed at one second of balance per second of session time, as shown in your Dashboard.",
+            "You may manage or cancel Pro renewal through the billing portal linked from your Dashboard. Cancellation stops future subscription charges; Pro membership and any remaining translation time typically continue until the end of the current paid period unless otherwise stated at checkout.",
           ],
         },
         {
           title: "4. Refund Policy",
           paragraphs: [
-            "New accounts receive a free trial of S2S voice time (600 seconds, about 10 minutes) so you can test live interpretation before paying. Real-time AI voice interpretation incurs immediate compute cost when used.",
-            `For any Pro subscription or extra voice time pack, refunds are not available once voice time from that purchase has been partially or fully consumed. If, within 14 days of purchase, none of that voice time has been used (zero consumption), you may contact us at ${supportEmail} to request a full refund. We may verify usage via your account and voice-time history.`,
+            "New accounts receive a free trial of meeting translation time (600 seconds, about 10 minutes) so you can test subtitles and voice interpretation before paying. Real-time AI translation incurs immediate compute cost when used.",
+            `For any Pro subscription or extra time pack, refunds are not available once translation time from that purchase has been partially or fully consumed. If, within 14 days of purchase, none of that time has been used (zero consumption), you may contact us at ${supportEmail} to request a full refund. We may verify usage via your account and time history.`,
             `You may cancel upcoming Pro renewals at any time to avoid charges for the next billing cycle. Refund requests and billing questions: ${supportEmail}.`,
           ],
         },
@@ -186,16 +186,16 @@ export const legalContent: Record<
         {
           title: "3. 订阅、额外加时包与计费",
           paragraphs: [
-            "Pro 会员为周期性订阅，通过授权支付服务商 Lemon Squeezy 扣费。Pro 月度会员每周期含 7,200 秒（120 分钟）S2S 语音时长；Pro 季度会员每周期含 27,000 秒（450 分钟）S2S 语音时长。Pro 会员的无限 S2T 字幕遵循正常个人会议合理使用原则（Fair Use Policy）。价格、计费周期与税费以结账页展示为准。订阅即表示您授权我们及支付伙伴在您取消前向您的支付方式扣款。",
-            "我们还提供单次购买的额外加时包。加时包计入 S2S 语音时长余额，不绑定订阅且永不过期。实时语音同传（S2S）按会话时长以每秒 1 秒扣减，用量可在控制台查看。",
-            "您可通过控制台中的账单门户管理或取消 Pro 续费。取消后不再产生未来订阅扣款；Pro 权益及剩余语音时长通常保留至当前已付费周期结束，除非结账页另有说明。",
+            "Pro 会员为周期性订阅，通过授权支付服务商 Lemon Squeezy 扣费。Pro 月度会员每周期含 21,600 秒（360 分钟）会议翻译时长；Pro 季度会员每周期含 64,800 秒（1,080 分钟）会议翻译时长。实时字幕（S2T）与语音同传（S2S）共用该余额并按秒扣减。价格、计费周期与税费以结账页展示为准。订阅即表示您授权我们及支付伙伴在您取消前向您的支付方式扣款。",
+            "我们还提供单次购买的额外加时包。加时包计入同一共享余额，不绑定订阅且永不过期。字幕与语音均按会话时长以每秒 1 秒扣减，用量可在控制台查看。",
+            "您可通过控制台中的账单门户管理或取消 Pro 续费。取消后不再产生未来订阅扣款；Pro 权益及剩余翻译时长通常保留至当前已付费周期结束，除非结账页另有说明。",
           ],
         },
         {
           title: "4. 退款政策",
           paragraphs: [
-            "注册即赠送免费体验时长（S2S 语音时长 600 秒，约 10 分钟），供您在付费前测试实时同传。实时 AI 语音同传一经使用即产生即时算力成本。",
-            `对于 Pro 订阅或额外加时包：若该笔购买所得语音时长已被部分或全部消耗，不支持退款。若购买后 14 天内该笔时长完全未被使用（0 消耗），可联系 ${supportEmail} 申请全额退款；我们可能通过账户及时长流水核实使用情况。`,
+            "注册即赠送免费体验时长（会议翻译时长 600 秒，约 10 分钟），供您在付费前测试字幕与语音同传。实时 AI 翻译一经使用即产生即时算力成本。",
+            `对于 Pro 订阅或额外加时包：若该笔购买所得翻译时长已被部分或全部消耗，不支持退款。若购买后 14 天内该笔时长完全未被使用（0 消耗），可联系 ${supportEmail} 申请全额退款；我们可能通过账户及时长流水核实使用情况。`,
             `您可随时取消 Pro 后续续费，以免被收取下一计费周期费用。退款申请与账单问题请联系：${supportEmail}。`,
           ],
         },

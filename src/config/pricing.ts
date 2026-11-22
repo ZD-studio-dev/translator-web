@@ -4,13 +4,13 @@ export type CheckoutPackId = "pack_1h" | "pack_3h" | "pack_10h";
 
 /** Display/checkout list prices (USD) — keep in sync with Lemon Squeezy variants. */
 export const PRICING_USD = {
-  proMonthly: 14.9,
-  proQuarterly: 34.9,
-  /** 34.90 / 3 — shown as equivalent monthly on quarterly card */
-  proQuarterlyEquivalentMonthly: 11.63,
-  pack1h: 4.9,
-  pack3h: 12.9,
-  pack10h: 29.9,
+  proMonthly: 7.9,
+  proQuarterly: 19.9,
+  /** 19.90 / 3 — shown as equivalent monthly on quarterly card */
+  proQuarterlyEquivalentMonthly: 6.63,
+  pack1h: 3.9,
+  pack3h: 7.9,
+  pack10h: 21.9,
 } as const;
 
 export const PACK_USD: Record<CheckoutPackId, number> = {
@@ -30,30 +30,35 @@ export function packPerMinuteUsd(packId: CheckoutPackId): number {
 }
 
 export function formatPerMinuteUsd(amount: number): string {
-  return `$${amount.toFixed(2)}`;
+  return `$${(Math.round(amount * 1000) / 1000).toFixed(3)}`;
 }
 
 export function formatUsd(amount: number): string {
   return `$${amount.toFixed(2)}`;
 }
 
-/** 3× monthly list price — quarterly card strike-through compare-at */
+/** Previous monthly list price, shown struck through on the monthly card. */
+export const PRO_MONTHLY_COMPARE_AT_USD = 14.9;
+
+/** 3× the original monthly price ($14.90) — quarterly card strike-through. */
 export const PRO_QUARTERLY_COMPARE_AT_USD =
-  Math.round(PRICING_USD.proMonthly * 3 * 100) / 100;
+  Math.round(PRO_MONTHLY_COMPARE_AT_USD * 3 * 100) / 100;
 
 export const PRO_QUARTERLY_TOTAL_SAVINGS_USD =
   Math.round((PRO_QUARTERLY_COMPARE_AT_USD - PRICING_USD.proQuarterly) * 100) /
   100;
 
-/** Seconds granted (stored in `credits_balance`). */
+/** Seconds granted into the shared S2T + S2S balance (`credits_balance`). */
 export const TIME_PACK_GRANTS_SECONDS: Record<CheckoutPackId, number> = {
   pack_1h: 3600,
   pack_3h: 10800,
   pack_10h: 36000,
 };
 
-export const PRO_MONTHLY_VOICE_SECONDS = 7200;
-export const PRO_QUARTERLY_VOICE_SECONDS = 27000;
+/** Pro Monthly grant: 360 minutes, shared by subtitles and voice. */
+export const PRO_MONTHLY_VOICE_SECONDS = 21600;
+/** Pro Quarterly grant: 1,080 minutes, shared by subtitles and voice. */
+export const PRO_QUARTERLY_VOICE_SECONDS = 64800;
 
 /** @deprecated Use TIME_PACK_GRANTS_SECONDS — legacy pack ids */
 export const CREDIT_PACK_GRANTS = {

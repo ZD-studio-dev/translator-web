@@ -158,11 +158,6 @@ export function DashboardClient({
                   {isPro ? d.badgePro : d.badgeFree}
                 </span>
               </div>
-              {isPro ? (
-                <p className="mt-3 inline-flex items-center rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-800">
-                  {d.unlimitedS2t}
-                </p>
-              ) : null}
               {isPro && expiresLabel ? (
                 <p className="mt-2 text-sm text-slate-600">
                   {d.subscriptionExpires}: {expiresLabel}
