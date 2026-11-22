@@ -19,5 +19,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${origin}/privacy`,
       lastModified,
     },
+    {
+      url: `${origin}/faq`,
+      lastModified,
+    },
   ];
 }
