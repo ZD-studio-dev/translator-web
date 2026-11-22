@@ -1,10 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const MIN_CREDITS_TO_START = 30;
-export const HEARTBEAT_MAX_ELAPSED_SEC = 45;
+export const HEARTBEAT_MAX_ELAPSED_SEC = 90;
 export const LOW_CREDITS_STOP_THRESHOLD = 10;
 export const GRACE_PERIOD_SEC = 5;
-export const HEARTBEAT_INTERVAL_SEC = 30;
+export const HEARTBEAT_INTERVAL_SEC = 60;
 
 export type SessionMode = "s2t" | "s2s" | "unified";
 

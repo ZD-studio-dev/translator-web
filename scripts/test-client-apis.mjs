@@ -165,6 +165,10 @@ async function main() {
   );
   log("POST /api/client/session/start (grace test)", startGrace);
   assert(startGrace.status === 200, "session/start should succeed");
+  assert(
+    startGrace.json.heartbeat_interval_sec === 60,
+    `Expected heartbeat_interval_sec 60, got ${startGrace.json.heartbeat_interval_sec}`,
+  );
   const graceSessionId = startGrace.json.session_id;
 
   await sleep(2000);
@@ -354,13 +358,14 @@ async function main() {
     "POST",
     "/api/client/session/heartbeat",
     token,
-    { session_id: unifiedSessionId, seconds: 15 },
+    { session_id: unifiedSessionId, seconds: 60 },
   );
   log("POST /api/client/session/heartbeat (unified seconds)", hbUnified);
   assert(hbUnified.status === 200, "Unified heartbeat should succeed");
-  assert(hbUnified.json.charged === 15, "Unified heartbeat must bill the reported 15 seconds");
+  assert(hbUnified.json.heartbeat_interval_sec === 60, "Heartbeat must return a 60s interval");
+  assert(hbUnified.json.charged === 60, "A 60s heartbeat must not be truncated");
   assert(
-    hbUnified.json.credits_balance === 85,
+    hbUnified.json.credits_balance === 40,
     "Unified heartbeat must return the post-deduction balance",
   );
 
@@ -371,7 +376,7 @@ async function main() {
     .single();
   if (unifiedProfileError) throw unifiedProfileError;
   assert(
-    Number(unifiedProfile.credits_balance) === 85,
+    Number(unifiedProfile.credits_balance) === 40,
     "Unified heartbeat deduction must persist in the database",
   );
 
@@ -385,8 +390,8 @@ async function main() {
     Array.isArray(unifiedLedger) &&
       unifiedLedger.some(
         (row) =>
-          row.amount === -15 &&
-          Number(row.balance_after) === 85 &&
+          row.amount === -60 &&
+          Number(row.balance_after) === 40 &&
           String(row.description).includes("Unified"),
       ),
     "Unified heartbeat must write a session_usage ledger row",
@@ -402,7 +407,7 @@ async function main() {
   assert(stopUnified.status === 200, "Unified stop should succeed");
   assert(stopUnified.json.charged === 5, "Unified stop must bill the reported 5 seconds");
   assert(
-    stopUnified.json.credits_balance === 80,
+    stopUnified.json.credits_balance === 35,
     "Unified stop must return the post-deduction balance",
   );
 
@@ -413,7 +418,7 @@ async function main() {
     .single();
   if (unifiedAfterStopError) throw unifiedAfterStopError;
   assert(
-    Number(unifiedAfterStop.credits_balance) === 80,
+    Number(unifiedAfterStop.credits_balance) === 35,
     "Unified stop deduction must persist in the database",
   );
 

@@ -8,6 +8,7 @@ import {
   elapsedSecondsSince,
   fetchActiveSession,
   getSessionModeFromRow,
+  HEARTBEAT_INTERVAL_SEC,
   HEARTBEAT_MAX_ELAPSED_SEC,
   logDbError,
   LOW_CREDITS_STOP_THRESHOLD,
@@ -120,6 +121,7 @@ export async function POST(request: Request) {
       should_stop: shouldStop,
       charged: result.charged,
       charged_seconds: result.charged,
+      heartbeat_interval_sec: HEARTBEAT_INTERVAL_SEC,
       ...(shouldStop ? { message: "Out of credits" } : {}),
       ...buildClientUserStatusFields(profileRow, {
         creditsBalance: result.balance,
