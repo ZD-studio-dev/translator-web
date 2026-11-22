@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { GetStartedButton } from "@/app/get-started-button";
+import { WINDOWS_DOWNLOAD_URL } from "@/config/downloads";
 import { LanguageToggle } from "@/components/language-toggle";
 import { PricingSection, type MembershipPlanTier } from "@/components/PricingSection";
 import { useLanguage } from "@/i18n/language-provider";
@@ -361,7 +362,7 @@ export function HomePageClient({
   isPro = false,
   planTier = null,
   customerPortalUrl = null,
-  winDownloadUrl = null,
+  winDownloadUrl = WINDOWS_DOWNLOAD_URL,
   macDownloadUrl = null,
 }: HomePageClientProps) {
   const { locale, t } = useLanguage();
@@ -432,13 +433,24 @@ export function HomePageClient({
                 ))}
               </ul>
               <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
-                <GetStartedButton
-                  downloadUrl={macDownloadUrl}
-                  className="inline-flex h-12 items-center justify-center gap-2.5 whitespace-nowrap rounded-xl bg-blue-600 px-6 text-sm font-bold text-white shadow-xl shadow-blue-300/45 transition hover:-translate-y-0.5 hover:bg-blue-700"
-                >
-                  <Image src="/ui-icons/apple-white.svg" alt="" width={20} height={20} className="h-5 w-5" />
-                  <span className="whitespace-nowrap">{zh ? "下载 macOS 版" : "Download for macOS"}</span>
-                </GetStartedButton>
+                {macDownloadUrl ? (
+                  <GetStartedButton
+                    downloadUrl={macDownloadUrl}
+                    className="inline-flex h-12 items-center justify-center gap-2.5 whitespace-nowrap rounded-xl bg-blue-600 px-6 text-sm font-bold text-white shadow-xl shadow-blue-300/45 transition hover:-translate-y-0.5 hover:bg-blue-700"
+                  >
+                    <Image src="/ui-icons/apple-white.svg" alt="" width={20} height={20} className="h-5 w-5" />
+                    <span className="whitespace-nowrap">{zh ? "下载 macOS 版" : "Download for macOS"}</span>
+                  </GetStartedButton>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    className="inline-flex h-12 cursor-not-allowed items-center justify-center gap-2.5 whitespace-nowrap rounded-xl bg-slate-200 px-6 text-sm font-bold text-slate-500"
+                  >
+                    <Image src="/ui-icons/apple-white.svg" alt="" width={20} height={20} className="h-5 w-5 brightness-0 opacity-40" />
+                    <span className="whitespace-nowrap">{c.downloadMacComingSoon}</span>
+                  </button>
+                )}
                 <GetStartedButton
                   downloadUrl={winDownloadUrl}
                   className="inline-flex h-12 items-center justify-center gap-2.5 whitespace-nowrap rounded-xl border border-blue-300 bg-white/90 px-6 text-sm font-bold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-500 hover:bg-white"
@@ -447,6 +459,9 @@ export function HomePageClient({
                   <span className="whitespace-nowrap">{zh ? "下载 Windows 版" : "Download for Windows"}</span>
                 </GetStartedButton>
               </div>
+              <p className="mt-3 text-center text-xs text-slate-500 lg:text-left">
+                {c.downloadRequirements}
+              </p>
             </div>
             <ProductPreview zh={zh} />
           </div>

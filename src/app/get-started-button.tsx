@@ -20,12 +20,7 @@ export function GetStartedButton({
 
   if (url) {
     return (
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={className}
-      >
+      <a href={url} download rel="noopener noreferrer" className={className}>
         {children}
       </a>
     );

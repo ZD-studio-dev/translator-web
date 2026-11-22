@@ -11,6 +11,8 @@ export const dictionaries = {
       loading: "Loading…",
       perMonth: "/mo",
       perQuarter: "/quarter",
+      downloadMacComingSoon: "macOS (Coming Soon)",
+      downloadRequirements: "v1.0.0 · Windows 10/11 (64-bit)",
     },
     home: {
       heroTitle: "Real-Time AI Translation, Right on Your Screen.",
@@ -271,6 +273,8 @@ export const dictionaries = {
       loading: "加载中…",
       perMonth: "/月",
       perQuarter: "/季",
+      downloadMacComingSoon: "macOS（即将推出）",
+      downloadRequirements: "v1.0.0 · Windows 10/11 (64-bit)",
     },
     home: {
       heroTitle: "实时 AI 翻译，就在你的屏幕上。",

@@ -233,6 +233,7 @@ export function DashboardClient({
             {winDownloadUrl ? (
               <a
                 href={winDownloadUrl}
+                download
                 className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50"
               >
                 <Download className="h-4 w-4" aria-hidden />
@@ -252,6 +253,7 @@ export function DashboardClient({
             {macDownloadUrl ? (
               <a
                 href={macDownloadUrl}
+                download
                 className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50"
               >
                 <Download className="h-4 w-4" aria-hidden />
@@ -264,11 +266,11 @@ export function DashboardClient({
                 className="inline-flex h-10 cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-400"
               >
                 <Download className="h-4 w-4" aria-hidden />
-                {d.downloadMac}
-                <span>· {d.downloadMacSoon}</span>
+                {t.common.downloadMacComingSoon}
               </button>
             )}
           </div>
+          <p className="mt-3 text-xs text-slate-500">{t.common.downloadRequirements}</p>
         </section>
 
         <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
