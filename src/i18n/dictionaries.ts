@@ -5,7 +5,7 @@ export const LOCALE_STORAGE_KEY = "locale";
 export const dictionaries = {
   en: {
     common: {
-      brand: "ZD Meeting Translator",
+      brand: "Real-Time Translator",
       signIn: "Sign In",
       dashboard: "Dashboard",
       loading: "Loading…",
@@ -37,7 +37,7 @@ export const dictionaries = {
         {
           title: "Context-Aware AI Engine",
           description:
-            "Go beyond literal word-for-word translation. ZD Meeting Translator understands idioms, technical jargon, and context to deliver natural results.",
+            "Go beyond literal word-for-word translation. Real-Time Translator understands idioms, technical jargon, and context to deliver natural results.",
           label: "AI Context Engine",
         },
       ],
@@ -45,7 +45,7 @@ export const dictionaries = {
       faqs: [
         {
           q: "How does the desktop app sync with my Pro account?",
-          a: "Simply sign in to the ZD Meeting Translator desktop client using the same email account. Your Pro privileges unlock automatically in real time.",
+          a: "Simply sign in to the Real-Time Translator desktop client using the same email account. Your Pro privileges unlock automatically in real time.",
         },
         {
           q: "Can I cancel my subscription at any time?",
@@ -56,7 +56,7 @@ export const dictionaries = {
           a: "Yes. It works with the meeting apps you already use, including online classes, and shows bilingual captions in real time.",
         },
       ],
-      footer: "© 2026 ZD Meeting Translator. All rights reserved.",
+      footer: "© 2026 Real-Time Translator. All rights reserved.",
     },
     pricing: {
       title: "Membership + Extra Voice Time",
@@ -248,7 +248,7 @@ export const dictionaries = {
       privacyPolicy: "Privacy Policy",
     },
     desktopAuth: {
-      authorizingTitle: "Authorizing ZD Meeting Translator Desktop…",
+      authorizingTitle: "Authorizing Real-Time Translator Desktop…",
       authorizingBody:
         "Redirecting your login to the desktop app on this computer. If nothing happens, use the button below.",
       openClient: "Open desktop client",
@@ -266,7 +266,7 @@ export const dictionaries = {
   },
   zh: {
     common: {
-      brand: "ZD Meeting Translator",
+      brand: "Real-Time Translator",
       signIn: "登录",
       dashboard: "控制台",
       loading: "加载中…",
@@ -297,7 +297,7 @@ export const dictionaries = {
         {
           title: "上下文感知 AI 引擎",
           description:
-            "超越逐词直译。ZD Meeting Translator 理解习语、术语与语境，输出自然流畅的译文。",
+            "超越逐词直译。Real-Time Translator 理解习语、术语与语境，输出自然流畅的译文。",
           label: "AI 语境引擎",
         },
       ],
@@ -305,7 +305,7 @@ export const dictionaries = {
       faqs: [
         {
           q: "桌面端如何与 Pro 账户同步？",
-          a: "使用同一邮箱登录 ZD Meeting Translator 桌面客户端，Pro 权益将实时自动解锁。",
+          a: "使用同一邮箱登录 Real-Time Translator 桌面客户端，Pro 权益将实时自动解锁。",
         },
         {
           q: "可以随时取消订阅吗？",
@@ -316,7 +316,7 @@ export const dictionaries = {
           a: "可以。它适用于你正在使用的会议软件和网课，并实时显示双语字幕。",
         },
       ],
-      footer: "© 2026 ZD Meeting Translator. 保留所有权利。",
+      footer: "© 2026 Real-Time Translator. 保留所有权利。",
     },
     pricing: {
       title: "会员订阅 + 额外语音时长",
@@ -497,7 +497,7 @@ export const dictionaries = {
       privacyPolicy: "隐私政策",
     },
     desktopAuth: {
-      authorizingTitle: "正在授权登录 ZD Meeting Translator 桌面客户端…",
+      authorizingTitle: "正在授权登录 Real-Time Translator 桌面客户端…",
       authorizingBody:
         "正在将登录凭证传回本机桌面应用。若未自动跳转，请点击下方按钮。",
       openClient: "打开客户端",

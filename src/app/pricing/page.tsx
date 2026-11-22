@@ -10,7 +10,7 @@ import { loadBillingProfile, resolveMembershipPlan } from "@/utils/membership-pl
 import { createClient } from "@/utils/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Pricing — ZD Meeting Translator",
+  title: "Pricing — Real-Time Translator",
   description:
     "Membership plans and pay-as-you-go voice-time packs for real-time AI voice translation.",
 };
@@ -40,7 +40,7 @@ export default async function PricingPage() {
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-500 text-white shadow-lg shadow-blue-200">
               <AudioLines className="h-5 w-5" />
             </span>
-            ZD Meeting Translator
+            Real-Time Translator
           </Link>
           <div className="flex items-center gap-3">
             <LanguageToggle />

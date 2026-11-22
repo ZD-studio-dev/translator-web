@@ -526,8 +526,8 @@ export function InteractiveDemo() {
   const ui =
     locale === "zh"
       ? {
-          title: "ZD Meeting Translator Live Engine Demo",
-          status: "🟢 ZD Meeting Translator 运行中 • 0.3s 延迟 • 声线克隆",
+          title: "Real-Time Translator Live Engine Demo",
+          status: "🟢 Real-Time Translator 运行中 • 0.3s 延迟 • 声线克隆",
           inputLabel: "You Speak — 中文",
           outputLabel: "Teammate Hears — 英文（你的声线）",
           play: "▶ Play Live S2S Demo",
@@ -538,8 +538,8 @@ export function InteractiveDemo() {
           lectureSub: "海外网课 / 学术讲座",
         }
       : {
-          title: "ZD Meeting Translator Live Engine Demo",
-          status: "🟢 ZD Meeting Translator Active • 0.3s Latency • Voice Cloning",
+          title: "Real-Time Translator Live Engine Demo",
+          status: "🟢 Real-Time Translator Active • 0.3s Latency • Voice Cloning",
           inputLabel: "You Speak — Chinese",
           outputLabel: "Teammate Hears — English in Your Voice",
           play: "▶ Play Live S2S Demo",

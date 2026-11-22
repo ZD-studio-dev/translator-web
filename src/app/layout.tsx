@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ZD Meeting Translator — Real-Time AI Desktop Translator",
+  title: "Real-Time Translator — Real-Time AI Desktop Translator",
   description:
     "Instant, context-aware screen, voice, and text translation for desktop. Break language barriers seamlessly without switching windows.",
 };

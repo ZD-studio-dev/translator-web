@@ -53,7 +53,7 @@ function ProductPreview({ zh }: { zh: boolean }) {
           <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
           <div className="ml-4 flex items-center gap-2.5 text-sm font-bold text-slate-900">
             <BrandMark compact />
-            ZD Meeting Translator
+            Real-Time Translator
           </div>
         </div>
 
@@ -226,13 +226,13 @@ function InstallGuide({ zh }: { zh: boolean }) {
             <>安装 <GuideLink href={BLACKHOLE_URL}>BlackHole</GuideLink>（包含 BlackHole 16ch 和 BlackHole 2ch）</>,
             "在系统「声音」中，将会议软件的输出设备设为 BlackHole 16ch",
             "在会议软件中，将麦克风设为 BlackHole 2ch",
-            "打开 ZD Meeting Translator，开始跨语言会议",
+            "打开 Real-Time Translator，开始跨语言会议",
           ]
         : [
             <>Install <GuideLink href={BLACKHOLE_URL}>BlackHole</GuideLink> 16ch and BlackHole 2ch</>,
             "Set the meeting speaker to BlackHole 16ch",
             "Set the meeting microphone to BlackHole 2ch",
-            "Open ZD Meeting Translator and start your meeting",
+            "Open Real-Time Translator and start your meeting",
           ],
     },
     {
@@ -252,13 +252,13 @@ function InstallGuide({ zh }: { zh: boolean }) {
             <>安装 <GuideLink href={VBCABLE_URL}>VB-Cable</GuideLink>（包含 CABLE A 和 CABLE B）</>,
             "在系统「声音」中，将会议软件的输出设备设为 CABLE A",
             "在会议软件中，将麦克风设为 CABLE B",
-            "打开 ZD Meeting Translator，开始跨语言会议",
+            "打开 Real-Time Translator，开始跨语言会议",
           ]
         : [
             <>Install <GuideLink href={VBCABLE_URL}>VB-Cable</GuideLink> (CABLE A and CABLE B)</>,
             "Set the meeting speaker to CABLE A Input",
             "Set the meeting microphone to CABLE B Output",
-            "Open ZD Meeting Translator and start your meeting",
+            "Open Real-Time Translator and start your meeting",
           ],
     },
   ];
@@ -374,7 +374,7 @@ export function HomePageClient({
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-5 px-5 sm:px-6">
           <Link href="https://www.zdtranslate.com/" className="flex items-center gap-3 font-bold tracking-tight text-slate-950">
             <BrandMark compact />
-            <span className="hidden sm:inline">ZD Meeting Translator</span>
+            <span className="hidden sm:inline">Real-Time Translator</span>
           </Link>
           <nav className="hidden items-center gap-8 text-sm font-semibold text-slate-600 lg:flex">
             <a href="#core" className="transition hover:text-blue-600">{zh ? "核心能力" : "Core"}</a>
@@ -505,7 +505,7 @@ export function HomePageClient({
 
       <footer className="border-t border-slate-200 bg-white px-6 py-10 text-center text-xs text-slate-500">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-5 sm:flex-row">
-          <div className="flex items-center gap-3"><BrandMark compact /><span className="font-bold text-slate-800">ZD Meeting Translator</span></div>
+          <div className="flex items-center gap-3"><BrandMark compact /><span className="font-bold text-slate-800">Real-Time Translator</span></div>
           <p>{h.footer}</p>
           <div className="flex items-center gap-4">
             <Link href="/terms" className="hover:text-blue-600">{legal.termsOfService}</Link>

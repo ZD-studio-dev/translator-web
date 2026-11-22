@@ -6,7 +6,7 @@ import { desktopDownloadUrls } from "@/config/downloads";
 import { loadBillingProfile, resolveMembershipPlan } from "@/utils/membership-plan";
 import { createClient } from "@/utils/supabase/server";
 
-const seoTitle = "ZD Meeting Translator — Real-Time AI Desktop Translator";
+const seoTitle = "Real-Time Translator — Real-Time AI Desktop Translator";
 const seoDescription =
   "Instant, context-aware screen, voice, and text translation for desktop. Break language barriers seamlessly without switching windows.";
 
