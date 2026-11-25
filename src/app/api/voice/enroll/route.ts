@@ -16,8 +16,6 @@ import {
   type VoiceProfileRow,
 } from "@/utils/api/voice-enroll";
 
-export const runtime = "nodejs";
-
 const VOICE_PROFILE_SELECT =
   `${CLIENT_PROFILE_SELECT}, s2s_voice_id, voice_clone_count, voice_clone_updated_at`;
 
