@@ -37,18 +37,25 @@ const faqContent: Record<"zh" | "en", FaqCategory[]> = {
     {
       id: "start",
       label: "快速开始",
-      description: "第一次使用与基本流程",
+      description: "新用户按顺序完成即可",
       icon: Rocket,
       items: [
         {
-          question: "第一次使用 Real-Time Translator，需要先做什么？",
+          question: "第一次使用，按什么顺序操作？",
           steps: [
-            "登录与官网相同的账户，确认客户端已经识别到当前会员和语音时长。",
-            "在设置页选择真实麦克风、会议音频输入和翻译语音虚拟麦克风输出。",
-            "选择你说的语言与目标语言，先启动字幕翻译确认音频采集正常。",
-            "需要让对方听到译音时，再启动输入语音翻译（S2S）。",
+            "打开客户端并登录官网账户。",
+            "按下方 macOS 或 Windows 指南完成一次音频设备设置。",
+            "选择“我的语言”和“对方语言”，先启动“字幕翻译”确认能看到双语字幕。",
+            "需要让会议对方听到译音时，再启动“输入语音翻译”。",
           ],
-          tip: "建议全程佩戴耳机，可显著减少回声、串音和重复翻译。",
+          tip: "第一次设置完成后会自动保存。以后通常只需登录、选择语言并启动翻译。建议全程佩戴耳机。",
+        },
+        {
+          question: "网页视频、线下上课和会议软件，声音来源怎么选？",
+          paragraphs: [
+            "会议软件或网页视频播放的是电脑内部声音：Mac 选择 BlackHole 16ch；Windows 选择当前播放声音的耳机或扬声器。",
+            "线下上课、演讲或面对面对话属于现场声音：直接选择 MacBook 麦克风或外接实体麦克风，不需要虚拟声卡。",
+          ],
         },
         {
           question: "对方也需要安装客户端或虚拟声卡吗？",
@@ -71,23 +78,29 @@ const faqContent: Record<"zh" | "en", FaqCategory[]> = {
       icon: Apple,
       items: [
         {
-          question: "Mac 客户端和会议软件具体如何设置？",
+          question: "Mac 第一次使用，如何完成设置？",
           steps: [
-            "安装 BlackHole 16ch 与 BlackHole 2ch，然后重新打开会议软件和 Real-Time Translator。",
-            "打开 macOS「音频 MIDI 设置」，创建多输出设备，并勾选你的耳机或扬声器与 BlackHole 16ch。",
-            "在会议软件中，将扬声器设为刚创建的多输出设备（或 BlackHole 16ch），将麦克风设为 BlackHole 2ch。",
-            "在 Real-Time Translator 中，将「会议音频输入」设为 BlackHole 16ch，将「我的语言麦克风」设为真实麦克风。",
-            "将「会议语言虚拟麦克风输出」设为 BlackHole 2ch，选择语言后启动翻译。",
+            "在客户端设置页打开“macOS 会议音频配置”，依次点击“安装 BlackHole 2ch”和“安装 BlackHole 16ch”，完成后重启 Mac。",
+            "打开“音频 MIDI 设置”，点击左下角“+”并创建多输出设备；只勾选耳机和 BlackHole 16ch，主设备选耳机，并为 BlackHole 16ch 开启漂移校正。",
+            "在客户端中，字幕来源选 BlackHole 16ch；“我的麦克风”选实体麦克风；译音输出选 BlackHole 2ch。",
+            "在会议软件中，扬声器选多输出设备；只用字幕时麦克风选实体麦克风，使用输入语音翻译时麦克风选 BlackHole 2ch。",
           ],
-          tip: "推荐会议软件扬声器使用“耳机 + BlackHole 16ch”的多输出设备，这样你能听到会议，同时客户端也能采集对方声音。",
+          tip: "多输出设备必须包含“耳机 + BlackHole 16ch”，不要勾选 BlackHole 2ch。建议使用有线或 USB 耳机。",
         },
         {
-          question: "为什么会议软件或客户端找不到 BlackHole 2ch / 16ch？",
+          question: "Mac 上翻译网页视频或线下上课，怎么选？",
+          paragraphs: [
+            "网页视频或本机播放器：把 macOS 系统输出设为多输出设备，并在客户端把字幕来源选为 BlackHole 16ch。",
+            "线下上课或面对面对话：在客户端把字幕来源直接选为 MacBook 麦克风或外接实体麦克风，不需要 BlackHole。",
+          ],
+        },
+        {
+          question: "客户端找不到 BlackHole 2ch / 16ch 怎么办？",
           steps: [
             "在「音频 MIDI 设置」中确认 BlackHole 2ch 和 BlackHole 16ch 都存在。",
-            "如果只看到一个设备，请分别重新安装 2ch 与 16ch 驱动。",
+            "如果只看到一个设备，请回到客户端的“macOS 会议音频配置”重新安装缺少的驱动。",
             "完全退出并重新打开会议软件；部分软件只在启动时读取音频设备列表。",
-            "仍未出现时重启 Mac，并确认系统已允许音频驱动加载。",
+            "仍未出现时重启 Mac，再打开客户端点击“重新检测”。",
           ],
         },
         {
@@ -106,7 +119,7 @@ const faqContent: Record<"zh" | "en", FaqCategory[]> = {
       icon: Monitor,
       items: [
         {
-          question: "Windows 客户端和会议软件具体如何设置？",
+          question: "Windows 第一次使用，如何完成设置？",
           steps: [
             "以管理员身份安装 VB-CABLE A 与 CABLE B 驱动，完成后重启 Windows。",
             "在会议软件中，将扬声器设为 CABLE A Input，将麦克风设为 CABLE B Output。",
@@ -199,18 +212,25 @@ const faqContent: Record<"zh" | "en", FaqCategory[]> = {
     {
       id: "start",
       label: "Getting started",
-      description: "First-time setup and workflow",
+      description: "Follow these steps in order",
       icon: Rocket,
       items: [
         {
-          question: "What should I do before my first translated meeting?",
+          question: "What should I do the first time?",
           steps: [
-            "Sign in with the same account you use on the website and confirm your membership and voice-time balance.",
-            "Choose your physical microphone, meeting-audio input, and translated-voice virtual output in Settings.",
-            "Select the source and target languages, then start captions first to verify audio capture.",
-            "Start voice translation (S2S) when you want the other participant to hear the translated voice.",
+            "Open the desktop app and sign in with your website account.",
+            "Complete the one-time audio setup in the macOS or Windows guide below.",
+            "Choose your language and the other side's language, then start Captions and confirm bilingual text appears.",
+            "Start Input Voice Translation only when you want meeting participants to hear translated speech.",
           ],
-          tip: "Use headphones throughout the meeting to reduce echo, audio loops, and repeated translation.",
+          tip: "Your device choices are saved after the first setup. Use headphones to prevent echo.",
+        },
+        {
+          question: "Which audio source should I use for meetings, web videos, or classrooms?",
+          paragraphs: [
+            "Meeting apps and web videos play computer audio: on Mac choose BlackHole 16ch; on Windows choose the headphones or speakers currently playing the audio.",
+            "Classrooms, lectures, and face-to-face conversations are physical sound: choose the MacBook microphone or an external physical microphone. A virtual audio device is not required.",
+          ],
         },
         {
           question: "Does the other participant need to install anything?",
@@ -233,23 +253,29 @@ const faqContent: Record<"zh" | "en", FaqCategory[]> = {
       icon: Apple,
       items: [
         {
-          question: "How do I configure the Mac app and my meeting software?",
+          question: "How do I complete the first-time setup on Mac?",
           steps: [
-            "Install BlackHole 16ch and BlackHole 2ch, then reopen your meeting app and Real-Time Translator.",
-            "In Audio MIDI Setup, create a Multi-Output Device containing your headphones or speakers and BlackHole 16ch.",
-            "Set the meeting speaker to that Multi-Output Device (or BlackHole 16ch) and the meeting microphone to BlackHole 2ch.",
-            "In Real-Time Translator, set Meeting Audio Input to BlackHole 16ch and My Microphone to your physical microphone.",
-            "Set the translated meeting-microphone output to BlackHole 2ch, choose your languages, and start translation.",
+            "Open macOS Meeting Audio Setup in the app. Click Install BlackHole 2ch and Install BlackHole 16ch, finish both installers, then restart the Mac.",
+            "In Audio MIDI Setup, create a Multi-Output Device containing only your headphones and BlackHole 16ch. Make the headphones primary and enable drift correction for BlackHole 16ch.",
+            "In the app, choose BlackHole 16ch for captions, your physical microphone for My Microphone, and BlackHole 2ch for translated output.",
+            "In the meeting app, choose Multi-Output Device as the speaker. Use your physical microphone for captions only, or BlackHole 2ch for Input Voice Translation.",
           ],
-          tip: "A Multi-Output Device with headphones plus BlackHole 16ch lets you hear the meeting while the app captures it.",
+          tip: "The Multi-Output Device must contain headphones plus BlackHole 16ch. Do not include BlackHole 2ch.",
+        },
+        {
+          question: "What should I choose for web videos or an in-person class on Mac?",
+          paragraphs: [
+            "For a web video or local player, set macOS system output to Multi-Output Device and choose BlackHole 16ch as the caption source in the app.",
+            "For a classroom or face-to-face conversation, choose the MacBook microphone or an external physical microphone as the caption source. BlackHole is not required.",
+          ],
         },
         {
           question: "Why can’t the app find BlackHole 2ch or 16ch?",
           steps: [
             "Open Audio MIDI Setup and confirm both devices are listed.",
-            "If only one appears, reinstall the missing 2ch or 16ch driver separately.",
+            "If one is missing, return to macOS Meeting Audio Setup in the app and reinstall that driver.",
             "Quit and reopen the meeting app because many apps only scan devices at launch.",
-            "Restart the Mac if needed and confirm macOS allowed the audio driver to load.",
+            "Restart the Mac, reopen the app, and click Check again.",
           ],
         },
         {
@@ -268,7 +294,7 @@ const faqContent: Record<"zh" | "en", FaqCategory[]> = {
       icon: Monitor,
       items: [
         {
-          question: "How do I configure the Windows app and my meeting software?",
+          question: "How do I complete the first-time setup on Windows?",
           steps: [
             "Install VB-CABLE A and CABLE B as administrator, then restart Windows.",
             "Set the meeting speaker to CABLE A Input and the meeting microphone to CABLE B Output.",
@@ -363,6 +389,17 @@ export function FaqPageClient({ userEmail }: FaqPageClientProps) {
   const { locale } = useLanguage();
   const zh = locale === "zh";
   const categories = faqContent[locale];
+  const quickSteps = zh
+    ? [
+        { title: "安装一次", body: "按系统指南安装音频设备，完成后重启电脑。" },
+        { title: "选择声音", body: "电脑内部声音选虚拟设备，现场人声选实体麦克风。" },
+        { title: "开始翻译", body: "先启动字幕；需要对方听到译音时，再启动输入语音翻译。" },
+      ]
+    : [
+        { title: "Install once", body: "Follow your system guide, install the audio devices, and restart." },
+        { title: "Choose audio", body: "Use a virtual device for computer audio and a physical mic for nearby speech." },
+        { title: "Start translating", body: "Start captions first, then Input Voice Translation when others need translated speech." },
+      ];
 
   return (
     <div className="flex min-h-screen flex-col bg-white text-slate-950">
@@ -412,13 +449,26 @@ export function FaqPageClient({ userEmail }: FaqPageClientProps) {
             <header className="border-b border-slate-200 pb-8">
               <p className="text-sm font-bold tracking-[0.18em] text-blue-600">FAQ</p>
               <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-                {zh ? "常见问题与配置指南" : "Frequently asked questions & setup guides"}
+                {zh ? "第一次使用与常见问题" : "First-time setup & common questions"}
               </h2>
               <p className="mt-3 max-w-3xl text-base leading-7 text-slate-600">
                 {zh
-                  ? "这里整理了客户端使用、虚拟声卡、会议软件设置、账户计费和故障排查方法。"
-                  : "Find client setup, virtual audio, meeting configuration, billing, and troubleshooting guidance."}
+                  ? "先完成下面 3 件事，再按你的系统查看详细步骤。所有设置只需完成一次。"
+                  : "Complete these three tasks, then follow the guide for your system. Setup is only required once."}
               </p>
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                {quickSteps.map((step, index) => (
+                  <div key={step.title} className="rounded-2xl border border-blue-100 bg-blue-50/60 p-4">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-black text-white">
+                        {index + 1}
+                      </span>
+                      <h3 className="text-base font-black text-slate-950">{step.title}</h3>
+                    </div>
+                    <p className="mt-3 text-sm leading-6 text-slate-600">{step.body}</p>
+                  </div>
+                ))}
+              </div>
             </header>
 
             {categories.map((category) => {
