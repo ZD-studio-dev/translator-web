@@ -13,6 +13,7 @@ import {
   type SessionMode,
 } from "@/utils/api/client-session";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { loadS2sVoiceId } from "@/utils/api/voice-enroll";
 
 type StartBody = {
   provider?: "openai" | "qwen" | "doubao";
@@ -127,6 +128,8 @@ export async function POST(request: Request) {
       throw credErr;
     }
 
+    const s2sVoiceId = await loadS2sVoiceId(admin, auth.userId);
+
     return NextResponse.json({
       session_id: sessionId,
       ws_url: credentials.ws_url,
@@ -134,6 +137,7 @@ export async function POST(request: Request) {
       heartbeat_interval_sec: HEARTBEAT_INTERVAL_SEC,
       provider,
       mode,
+      s2s_voice_id: s2sVoiceId,
       ...userStatus,
     });
   } catch (err) {

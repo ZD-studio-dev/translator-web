@@ -30,6 +30,7 @@ export type ProfileCreditsRow = {
   subscription_expires_at?: string | null;
   subscription_period?: string | null;
   subscription_status?: string | null;
+  s2s_voice_id?: string | null;
 };
 
 /** Shared `profiles` columns for client billing APIs. */
@@ -593,7 +594,7 @@ type DashScopeTokenPayload = {
 };
 
 /** `DASHSCOPE_API_KEYS` first, then a single `DASHSCOPE_API_KEY` if it is not already listed. */
-function readDashscopeApiKeys(): string[] {
+export function readDashscopeApiKeys(): string[] {
   const seen = new Set<string>();
   const keys: string[] = [];
   const push = (value: string) => {

@@ -19,6 +19,7 @@ import {
   type ProfileCreditsRow,
 } from "@/utils/api/client-session";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { loadS2sVoiceId } from "@/utils/api/voice-enroll";
 
 type HeartbeatBody = {
   session_id?: string;
@@ -117,11 +118,14 @@ export async function POST(request: Request) {
       },
     });
 
+    const s2sVoiceId = await loadS2sVoiceId(admin, auth.userId);
+
     return NextResponse.json({
       should_stop: shouldStop,
       charged: result.charged,
       charged_seconds: result.charged,
       heartbeat_interval_sec: HEARTBEAT_INTERVAL_SEC,
+      s2s_voice_id: s2sVoiceId,
       ...(shouldStop ? { message: "Out of credits" } : {}),
       ...buildClientUserStatusFields(profileRow, {
         creditsBalance: result.balance,

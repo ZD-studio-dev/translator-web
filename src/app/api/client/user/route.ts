@@ -8,6 +8,7 @@ import {
   type ProfileCreditsRow,
 } from "@/utils/api/client-session";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { loadS2sVoiceId } from "@/utils/api/voice-enroll";
 
 export async function GET(request: Request) {
   const auth = await getClientUserId(request);
@@ -29,12 +30,14 @@ export async function GET(request: Request) {
 
     const row = profile as ProfileCreditsRow;
     const status = buildClientUserStatusFields(row);
+    const s2sVoiceId = await loadS2sVoiceId(admin, auth.userId);
 
     return NextResponse.json({
       id: auth.userId,
       user_id: auth.userId,
       email: row.email,
       ...status,
+      s2s_voice_id: s2sVoiceId,
       subscription_period: normalizeSubscriptionPeriod(row.subscription_period),
       subscription_expires_at: row.subscription_expires_at ?? null,
     });
