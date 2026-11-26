@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { GetStartedButton } from "@/app/get-started-button";
-import { WINDOWS_DOWNLOAD_URL } from "@/config/downloads";
+import { MACOS_DOWNLOAD_URL, WINDOWS_DOWNLOAD_URL } from "@/config/downloads";
 import { LanguageToggle } from "@/components/language-toggle";
 import { PricingSection, type MembershipPlanTier } from "@/components/PricingSection";
 import { useLanguage } from "@/i18n/language-provider";
@@ -363,7 +363,7 @@ export function HomePageClient({
   planTier = null,
   customerPortalUrl = null,
   winDownloadUrl = WINDOWS_DOWNLOAD_URL,
-  macDownloadUrl = null,
+  macDownloadUrl = MACOS_DOWNLOAD_URL,
 }: HomePageClientProps) {
   const { locale, t } = useLanguage();
   const zh = locale === "zh";

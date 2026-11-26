@@ -1,11 +1,15 @@
-/** Public Windows installer. macOS stays unset until a package exists. */
+/** Public Windows installer. */
 export const WINDOWS_DOWNLOAD_URL =
   "https://dl.zdtranslate.com/ZD-Translate-Windows.exe";
 
-/** Public desktop installer URLs. macOS is null until a build is published. */
+/** Public macOS arm64 package. */
+export const MACOS_DOWNLOAD_URL =
+  "https://dl.zdtranslate.com/RealTimeTranslator-1.0.0-macOS-arm64.zip";
+
+/** Public desktop installer URLs. */
 export function desktopDownloadUrls(): {
   winDownloadUrl: string;
-  macDownloadUrl: string | null;
+  macDownloadUrl: string;
 } {
   const win =
     process.env.NEXT_PUBLIC_WINDOWS_DOWNLOAD_URL?.trim() ||
@@ -14,6 +18,6 @@ export function desktopDownloadUrls(): {
   const mac =
     process.env.NEXT_PUBLIC_MACOS_DOWNLOAD_URL?.trim() ||
     process.env.NEXT_PUBLIC_MAC_DOWNLOAD_URL?.trim() ||
-    null;
+    MACOS_DOWNLOAD_URL;
   return { winDownloadUrl: win, macDownloadUrl: mac };
 }
