@@ -4,7 +4,7 @@ export const WINDOWS_DOWNLOAD_URL =
 
 /** Public macOS arm64 package. */
 export const MACOS_DOWNLOAD_URL =
-  "https://dl.zdtranslate.com/RealTimeTranslator-1.0.0-macOS-arm64.zip";
+  "https://dl.zdtranslate.com/RealTimeTranslator-1.1.0-macOS-arm64.zip";
 
 /** Public desktop installer URLs. */
 export function desktopDownloadUrls(): {
